@@ -1,0 +1,103 @@
+/* CSS personalizado para forzar hover en botones activos de la sidebar */
+
+/* Darth (nivel 5) - Rojo #EC4D58 */
+body.body-darth .group:hover .sidebar-text {
+  color: #EC4D58 !important;
+}
+
+body.body-darth .group:hover span:first-child {
+  color: #EC4D58 !important;
+}
+
+body.body-darth .group:hover svg {
+  color: #EC4D58 !important;
+}
+
+body.body-darth .group:hover i {
+  color: #EC4D58 !important;
+}
+
+/* Warrior (nivel 3) - Verde #3ED598 */
+body.body-warrior .group:hover .sidebar-text {
+  color: #3ED598 !important;
+}
+
+body.body-warrior .group:hover span:first-child {
+  color: #3ED598 !important;
+}
+
+body.body-warrior .group:hover svg {
+  color: #3ED598 !important;
+}
+
+body.body-warrior .group:hover i {
+  color: #3ED598 !important;
+}
+
+/* Lord (nivel 4) - Azul #4671D5 */
+body.body-lord .group:hover .sidebar-text {
+  color: #4671D5 !important;
+}
+
+body.body-lord .group:hover span:first-child {
+  color: #4671D5 !important;
+}
+
+body.body-lord .group:hover svg {
+  color: #4671D5 !important;
+}
+
+body.body-lord .group:hover i {
+  color: #4671D5 !important;
+}
+
+/* Maestro (nivel 6) - Gris #8A8A8A */
+body.body-maestro .group:hover .sidebar-text {
+  color: #8A8A8A !important;
+}
+
+body.body-maestro .group:hover span:first-child {
+  color: #8A8A8A !important;
+}
+
+body.body-maestro .group:hover svg {
+  color: #8A8A8A !important;
+}
+
+body.body-maestro .group:hover i {
+  color: #8A8A8A !important;
+}
+
+/* Acólito (nivel 2) - Amarillo #FFD447 */
+body.body-acolito .group:hover .sidebar-text {
+  color: #FFD447 !important;
+}
+
+body.body-acolito .group:hover span:first-child {
+  color: #FFD447 !important;
+}
+
+body.body-acolito .group:hover svg {
+  color: #FFD447 !important;
+}
+
+body.body-acolito .group:hover i {
+  color: #FFD447 !important;
+}
+
+/* Iniciado (nivel 1) - Blanco #FAFAFA */
+body.body-iniciado .group:hover .sidebar-text {
+  color: #FAFAFA !important;
+}
+
+body.body-iniciado .group:hover span:first-child {
+  color: #FAFAFA !important;
+}
+
+body.body-iniciado .group:hover svg {
+  color: #FAFAFA !important;
+}
+
+body.body-iniciado .group:hover i {
+  color: #FAFAFA !important;
+}

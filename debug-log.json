@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-09-10T02:18:58.655Z",
+  "body": {
+    "test": "data"
+  },
+  "headers": {
+    "connection": "Keep-Alive",
+    "content-length": "16",
+    "content-type": "application/json",
+    "host": "localhost:3000",
+    "user-agent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; es-AR) WindowsPowerShell/5.1.19041.6216",
+    "x-forwarded-for": "::1",
+    "x-forwarded-host": "localhost:3000",
+    "x-forwarded-port": "3000",
+    "x-forwarded-proto": "http"
+  }
+}

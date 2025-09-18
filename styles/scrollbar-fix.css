@@ -1,0 +1,176 @@
+/* Fix para scrollbars del contenido principal - Máxima especificidad */
+
+/* Regla general para asegurar que main-content-* tenga scrollbars visibles */
+[class*="main-content-"] {
+  scrollbar-width: thin !important;
+}
+
+[class*="main-content-"]::-webkit-scrollbar {
+  display: block !important;
+  width: 8px !important;
+}
+
+/* Iniciado - Blanco */
+main.main-content-iniciado {
+  scrollbar-width: thin !important;
+  scrollbar-color: #fafafa rgba(250, 250, 250, 0.1) !important;
+}
+
+main.main-content-iniciado::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+main.main-content-iniciado::-webkit-scrollbar-track {
+  background: rgba(250, 250, 250, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-iniciado::-webkit-scrollbar-thumb {
+  background: #fafafa !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-iniciado::-webkit-scrollbar-thumb:hover {
+  background: rgba(250, 250, 250, 0.8) !important;
+}
+
+/* Acólito - Amarillo dorado - Máxima especificidad */
+main.main-content-acolito,
+.main-content-acolito,
+main[class*="main-content-acolito"],
+[class*="main-content-acolito"] {
+  scrollbar-width: thin !important;
+  scrollbar-color: #FFD447 rgba(255, 212, 71, 0.1) !important;
+}
+
+main.main-content-acolito::-webkit-scrollbar,
+.main-content-acolito::-webkit-scrollbar,
+main[class*="main-content-acolito"]::-webkit-scrollbar,
+[class*="main-content-acolito"]::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+main.main-content-acolito::-webkit-scrollbar-track,
+.main-content-acolito::-webkit-scrollbar-track,
+main[class*="main-content-acolito"]::-webkit-scrollbar-track,
+[class*="main-content-acolito"]::-webkit-scrollbar-track {
+  background: rgba(255, 212, 71, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-acolito::-webkit-scrollbar-thumb,
+.main-content-acolito::-webkit-scrollbar-thumb,
+main[class*="main-content-acolito"]::-webkit-scrollbar-thumb,
+[class*="main-content-acolito"]::-webkit-scrollbar-thumb {
+  background: #FFD447 !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-acolito::-webkit-scrollbar-thumb:hover,
+.main-content-acolito::-webkit-scrollbar-thumb:hover,
+main[class*="main-content-acolito"]::-webkit-scrollbar-thumb:hover,
+[class*="main-content-acolito"]::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 212, 71, 0.8) !important;
+}
+
+/* Warrior - Verde */
+main.main-content-warrior {
+  scrollbar-width: thin !important;
+  scrollbar-color: #22c55e rgba(34, 197, 94, 0.1) !important;
+}
+
+main.main-content-warrior::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+main.main-content-warrior::-webkit-scrollbar-track {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-warrior::-webkit-scrollbar-thumb {
+  background: #22c55e !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-warrior::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 197, 94, 0.8) !important;
+}
+
+/* Lord - Azul */
+main.main-content-lord {
+  scrollbar-width: thin !important;
+  scrollbar-color: #3b82f6 rgba(59, 130, 246, 0.1) !important;
+}
+
+main.main-content-lord::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+main.main-content-lord::-webkit-scrollbar-track {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-lord::-webkit-scrollbar-thumb {
+  background: #3b82f6 !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-lord::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.8) !important;
+}
+
+/* Darth - Rojo */
+main.main-content-darth {
+  scrollbar-width: thin !important;
+  scrollbar-color: #ef4444 rgba(239, 68, 68, 0.1) !important;
+}
+
+main.main-content-darth::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+main.main-content-darth::-webkit-scrollbar-track {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-darth::-webkit-scrollbar-thumb {
+  background: #ef4444 !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-darth::-webkit-scrollbar-thumb:hover {
+  background: rgba(239, 68, 68, 0.8) !important;
+}
+
+/* Maestro - Púrpura */
+main.main-content-maestro {
+  scrollbar-width: thin !important;
+  scrollbar-color: #a855f7 rgba(168, 85, 247, 0.1) !important;
+}
+
+main.main-content-maestro::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+main.main-content-maestro::-webkit-scrollbar-track {
+  background: rgba(168, 85, 247, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-maestro::-webkit-scrollbar-thumb {
+  background: #a855f7 !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-maestro::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.8) !important;
+}

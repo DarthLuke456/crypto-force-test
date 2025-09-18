@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Completo - Maestro Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .pending { background: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .response {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+        }
+        input[type="email"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .instructions {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .grid-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .button-group button {
+            flex: 1;
+            min-width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Completo - Maestro Dashboard</h1>
+    
+    <div class="instructions">
+        <h3>📋 Instrucciones de Prueba:</h3>
+        <ol>
+            <li><strong>Paso 1:</strong> Abre la consola del navegador para ver logs detallados</li>
+            <li><strong>Paso 2:</strong> Prueba cada endpoint individualmente</li>
+            <li><strong>Paso 3:</strong> Verifica que no haya errores de CORS o 404</li>
+            <li><strong>Paso 4:</strong> Revisa los logs del servidor para errores</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h3>1. Sistema de Reset de Contraseña <span id="reset-status" class="status pending">Pendiente</span></h3>
+        <p>Endpoint: <code>/api/auth/reset-password</code></p>
+        <input type="email" id="reset-email" placeholder="Ingresa tu email" value="coeurdeluke.js@gmail.com">
+        <button onclick="testRequestReset()">Solicitar Reset</button>
+        <div id="reset-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Debug de Usuario <span id="debug-user-status" class="status pending">Pendiente</span></h3>
+        <p>Endpoint: <code>/api/maestro/debug-user</code></p>
+        <div class="button-group">
+            <button onclick="testDebugUser()">Debug User</button>
+            <button onclick="testDebugAuth()">Debug Auth</button>
+        </div>
+        <div id="debug-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Gestión de Perfiles <span id="profile-status" class="status pending">Pendiente</span></h3>
+        <p>Endpoints: <code>/api/maestro/create-profile</code> y <code>/api/maestro/update-user</code></p>
+        <div class="button-group">
+            <button onclick="testCreateProfile()">Crear Perfil</button>
+            <button onclick="testUpdateUser()">Actualizar Usuario</button>
+        </div>
+        <div id="profile-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Limpieza de Duplicados <span id="cleanup-status" class="status pending">Pendiente</span></h3>
+        <p>Endpoint: <code>/api/maestro/cleanup-duplicates</code></p>
+        <button onclick="testCleanupDuplicates()">Limpiar Duplicados</button>
+        <div id="cleanup-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Test de Autenticación <span id="auth-status" class="status pending">Pendiente</span></h3>
+        <p>Verificar estado de autenticación</p>
+        <div class="button-group">
+            <button onclick="testAuthStatus()">Verificar Estado</button>
+            <button onclick="testTokenRefresh()">Refrescar Token</button>
+        </div>
+        <div id="auth-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>6. Test de Responsividad <span id="responsive-status" class="status pending">Pendiente</span></h3>
+        <p>Verificar que no haya scroll horizontal en móvil</p>
+        <button onclick="testResponsiveness()">Probar Responsividad</button>
+        <div id="responsive-response" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Función para actualizar estado
+        function updateStatus(elementId, status, className) {
+            const element = document.getElementById(elementId);
+            element.textContent = status;
+            element.className = `status ${className}`;
+        }
+
+        // Función para mostrar respuesta
+        function showResponse(elementId, response) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(response, null, 2);
+            element.style.display = 'block';
+        }
+
+        // 1. Test Reset Password
+        async function testRequestReset() {
+            const email = document.getElementById('reset-email').value;
+            if (!email) {
+                alert('Por favor ingresa un email');
+                return;
+            }
+
+            updateStatus('reset-status', 'Probando...', 'pending');
+            
+            try {
+                const response = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('reset-status', 'Éxito', 'success');
+                } else {
+                    updateStatus('reset-status', 'Error', 'error');
+                }
+                
+                showResponse('reset-response', {
+                    status: response.status,
+                    ok: response.ok,
+                    data
+                });
+            } catch (error) {
+                updateStatus('reset-status', 'Error', 'error');
+                showResponse('reset-response', {
+                    status: 'ERROR',
+                    ok: false,
+                    data: { error: error.message }
+                });
+            }
+        }
+
+        // 2. Test Debug User
+        async function testDebugUser() {
+            updateStatus('debug-user-status', 'Probando...', 'pending');
+            
+            try {
+                const response = await fetch('/api/maestro/debug-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('debug-user-status', 'Éxito', 'success');
+                } else {
+                    updateStatus('debug-user-status', 'Error', 'error');
+                }
+                
+                showResponse('debug-response', {
+                    endpoint: 'debug-user',
+                    status: response.status,
+                    ok: response.ok,
+                    data
+                });
+            } catch (error) {
+                updateStatus('debug-user-status', 'Error', 'error');
+                showResponse('debug-response', {
+                    endpoint: 'debug-user',
+                    status: 'ERROR',
+                    ok: false,
+                    data: { error: error.message }
+                });
+            }
+        }
+
+        // Test Debug Auth
+        async function testDebugAuth() {
+            updateStatus('debug-user-status', 'Probando Auth...', 'pending');
+            
+            try {
+                const response = await fetch('/api/maestro/debug-auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('debug-user-status', 'Auth Éxito', 'success');
+                } else {
+                    updateStatus('debug-user-status', 'Auth Error', 'error');
+                }
+                
+                showResponse('debug-response', {
+                    endpoint: 'debug-auth',
+                    status: response.status,
+                    ok: response.ok,
+                    data
+                });
+            } catch (error) {
+                updateStatus('debug-user-status', 'Auth Error', 'error');
+                showResponse('debug-response', {
+                    endpoint: 'debug-auth',
+                    status: 'ERROR',
+                    ok: false,
+                    data: { error: error.message }
+                });
+            }
+        }
+
+        // 3. Test Create Profile
+        async function testCreateProfile() {
+            updateStatus('profile-status', 'Probando...', 'pending');
+            
+            try {
+                const response = await fetch('/api/maestro/create-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('profile-status', 'Éxito', 'success');
+                } else {
+                    updateStatus('profile-status', 'Error', 'error');
+                }
+                
+                showResponse('profile-response', {
+                    endpoint: 'create-profile',
+                    status: response.status,
+                    ok: response.ok,
+                    data
+                });
+            } catch (error) {
+                updateStatus('profile-status', 'Error', 'error');
+                showResponse('profile-response', {
+                    endpoint: 'create-profile',
+                    status: 'ERROR',
+                    ok: false,
+                    data: { error: error.message }
+                });
+            }
+        }
+
+        // Test Update User
+        async function testUpdateUser() {
+            updateStatus('profile-status', 'Probando Update...', 'pending');
+            
+            try {
+                const response = await fetch('/api/maestro/update-user', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: 'test-id',
+                        updates: { nickname: 'test-nickname' }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('profile-status', 'Update Éxito', 'success');
+                } else {
+                    updateStatus('profile-status', 'Update Error', 'error');
+                }
+                
+                showResponse('profile-response', {
+                    endpoint: 'update-user',
+                    status: response.status,
+                    ok: response.ok,
+                    data
+                });
+            } catch (error) {
+                updateStatus('profile-status', 'Update Error', 'error');
+                showResponse('profile-response', {
+                    endpoint: 'update-user',
+                    status: 'ERROR',
+                    ok: false,
+                    data: { error: error.message }
+                });
+            }
+        }
+
+        // 4. Test Cleanup Duplicates
+        async function testCleanupDuplicates() {
+            updateStatus('cleanup-status', 'Probando...', 'pending');
+            
+            try {
+                const response = await fetch('/api/maestro/cleanup-duplicates', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('cleanup-status', 'Éxito', 'success');
+                } else {
+                    updateStatus('cleanup-status', 'Error', 'error');
+                }
+                
+                showResponse('cleanup-response', {
+                    status: response.status,
+                    ok: response.ok,
+                    data
+                });
+            } catch (error) {
+                updateStatus('cleanup-status', 'Error', 'error');
+                showResponse('cleanup-response', {
+                    status: 'ERROR',
+                    ok: false,
+                    data: { error: error.message }
+                });
+            }
+        }
+
+        // 5. Test Auth Status
+        async function testAuthStatus() {
+            updateStatus('auth-status', 'Verificando...', 'pending');
+            
+            try {
+                // Verificar si hay un token en localStorage o sessionStorage
+                const token = localStorage.getItem('supabase.auth.token') || sessionStorage.getItem('supabase.auth.token');
+                
+                const authInfo = {
+                    hasToken: !!token,
+                    tokenLength: token ? token.length : 0,
+                    localStorage: Object.keys(localStorage).filter(key => key.includes('supabase')),
+                    sessionStorage: Object.keys(sessionStorage).filter(key => key.includes('supabase')),
+                    cookies: document.cookie.split(';').filter(cookie => cookie.includes('supabase'))
+                };
+                
+                updateStatus('auth-status', 'Verificado', 'success');
+                showResponse('auth-response', {
+                    message: 'Estado de autenticación verificado',
+                    data: authInfo
+                });
+            } catch (error) {
+                updateStatus('auth-status', 'Error', 'error');
+                showResponse('auth-response', {
+                    status: 'ERROR',
+                    data: { error: error.message }
+                });
+            }
+        }
+
+        // Test Token Refresh
+        async function testTokenRefresh() {
+            updateStatus('auth-status', 'Refrescando...', 'pending');
+            
+            try {
+                // Simular refresh del token
+                const refreshResult = {
+                    timestamp: new Date().toISOString(),
+                    message: 'Simulación de refresh de token',
+                    note: 'Para un refresh real, necesitas estar autenticado en la aplicación'
+                };
+                
+                updateStatus('auth-status', 'Simulado', 'success');
+                showResponse('auth-response', {
+                    message: 'Refresh de token simulado',
+                    data: refreshResult
+                });
+            } catch (error) {
+                updateStatus('auth-status', 'Error', 'error');
+                showResponse('auth-response', {
+                    status: 'ERROR',
+                    data: { error: error.message }
+                });
+            }
+        }
+
+        // 6. Test Responsiveness
+        function testResponsiveness() {
+            updateStatus('responsive-status', 'Probando...', 'pending');
+            
+            try {
+                const viewport = {
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                    devicePixelRatio: window.devicePixelRatio,
+                    userAgent: navigator.userAgent
+                };
+                
+                const bodyStyle = window.getComputedStyle(document.body);
+                const overflowX = bodyStyle.overflowX;
+                const maxWidth = bodyStyle.maxWidth;
+                
+                const responsiveInfo = {
+                    viewport,
+                    bodyStyles: {
+                        overflowX,
+                        maxWidth
+                    },
+                    hasHorizontalScroll: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+                    recommendations: []
+                };
+                
+                if (overflowX !== 'hidden') {
+                    responsiveInfo.recommendations.push('Considerar agregar overflow-x: hidden al body');
+                }
+                
+                if (maxWidth !== 'none') {
+                    responsiveInfo.recommendations.push('Max-width está configurado correctamente');
+                }
+                
+                if (responsiveInfo.hasHorizontalScroll) {
+                    responsiveInfo.recommendations.push('⚠️ Se detectó scroll horizontal');
+                } else {
+                    responsiveInfo.recommendations.push('✅ No hay scroll horizontal');
+                }
+                
+                updateStatus('responsive-status', 'Completado', 'success');
+                showResponse('responsive-response', {
+                    message: 'Test de responsividad completado',
+                    data: responsiveInfo
+                });
+            } catch (error) {
+                updateStatus('responsive-status', 'Error', 'error');
+                showResponse('responsive-response', {
+                    status: 'ERROR',
+                    data: { error: error.message }
+                });
+            }
+        }
+
+        // Auto-test al cargar la página
+        window.addEventListener('load', () => {
+            console.log('🚀 Test Completo - Maestro Dashboard cargado');
+            console.log('📱 Verifica la consola para logs detallados');
+            console.log('🔍 Usa los botones para probar cada funcionalidad');
+        });
+    </script>
+</body>
+</html>
+

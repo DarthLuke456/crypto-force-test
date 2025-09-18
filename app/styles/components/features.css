@@ -1,0 +1,31 @@
+.feature-list,
+.bonus-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.feature-item,
+.bonus-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.85rem;
+  line-height: 1.1;
+  color: #fafafa;
+  padding-right: 6px;
+}
+
+.feature-item i,
+.bonus-item i {
+  color: #ffd700;
+  font-size: 0.9rem;
+  margin-top: 1px;
+}
+
+.bonus-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffd700;
+  margin: 12px 0 8px;
+}

@@ -1,0 +1,34 @@
+/* ZWTC Section Animations */
+.zwtc-header,
+.zwtc-description,
+.zwtc-text,
+.zwtc-benefits,
+.zwtc-dates,
+.key-points,
+.video-guide,
+.opportunity-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.zwtc-header.visible,
+.zwtc-description.visible,
+.zwtc-text.visible,
+.zwtc-benefits.visible,
+.zwtc-dates.visible,
+.key-points.visible,
+.video-guide.visible,
+.opportunity-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Add stagger effect */
+.zwtc-description.visible { transition-delay: 0.2s; }
+.zwtc-text.visible { transition-delay: 0.3s; }
+.zwtc-benefits.visible { transition-delay: 0.4s; }
+.zwtc-dates.visible { transition-delay: 0.5s; }
+.key-points.visible { transition-delay: 0.6s; }
+.video-guide.visible { transition-delay: 0.7s; }
+.opportunity-section.visible { transition-delay: 0.8s; }

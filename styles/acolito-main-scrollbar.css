@@ -1,0 +1,77 @@
+/* Scrollbar específica para Acólito - Main Content - MÁXIMA ESPECIFICIDAD */
+html body div main.main-content-acolito {
+  scrollbar-width: thin !important;
+  scrollbar-color: #FFD447 rgba(255, 212, 71, 0.1) !important;
+}
+
+html body div main.main-content-acolito::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body div main.main-content-acolito::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+html body div main.main-content-acolito::-webkit-scrollbar-thumb {
+  background: #FFD447 !important;
+  border-radius: 4px !important;
+  border: 1px solid #121212 !important;
+}
+
+html body div main.main-content-acolito::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 212, 71, 0.8) !important;
+}
+
+/* Selectores adicionales para máxima compatibilidad */
+.main-content-acolito {
+  scrollbar-width: thin !important;
+  scrollbar-color: #FFD447 rgba(255, 212, 71, 0.1) !important;
+}
+
+.main-content-acolito::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+.main-content-acolito::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+.main-content-acolito::-webkit-scrollbar-thumb {
+  background: #FFD447 !important;
+  border-radius: 4px !important;
+  border: 1px solid #121212 !important;
+}
+
+.main-content-acolito::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 212, 71, 0.8) !important;
+}
+
+/* Forzar estilos con máxima especificidad */
+main.main-content-acolito {
+  scrollbar-width: thin !important;
+  scrollbar-color: #FFD447 rgba(255, 212, 71, 0.1) !important;
+}
+
+main.main-content-acolito::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+main.main-content-acolito::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+main.main-content-acolito::-webkit-scrollbar-thumb {
+  background: #FFD447 !important;
+  border-radius: 4px !important;
+  border: 1px solid #121212 !important;
+}
+
+main.main-content-acolito::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 212, 71, 0.8) !important;
+}

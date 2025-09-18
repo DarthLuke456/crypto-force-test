@@ -1,0 +1,51 @@
+/* Scrollbar personalizada para Darth - Rojo */
+html body div main.main-content-darth {
+  scrollbar-width: thin !important;
+  scrollbar-color: #EC4D58 #121212 !important;
+}
+
+html body div main.main-content-darth::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body div main.main-content-darth::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+html body div main.main-content-darth::-webkit-scrollbar-thumb {
+  background: #EC4D58 !important;
+  border-radius: 4px !important;
+  border: 1px solid #121212 !important;
+}
+
+html body div main.main-content-darth::-webkit-scrollbar-thumb:hover {
+  background: #D43D47 !important;
+}
+
+/* Aplicar también al body si es el elemento que hace scroll */
+html body.body-darth {
+  scrollbar-width: thin !important;
+  scrollbar-color: #EC4D58 #121212 !important;
+}
+
+html body.body-darth::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body.body-darth::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+html body.body-darth::-webkit-scrollbar-thumb {
+  background: #EC4D58 !important;
+  border-radius: 4px !important;
+  border: 1px solid #121212 !important;
+}
+
+html body.body-darth::-webkit-scrollbar-thumb:hover {
+  background: #D43D47 !important;
+}

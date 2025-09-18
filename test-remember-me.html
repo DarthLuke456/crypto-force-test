@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Funcionalidad "Recordarme"</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .pending { background: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .response {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+        }
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .instructions {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .credentials-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .checkbox-container {
+            margin: 15px 0;
+        }
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .localStorage-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test - Funcionalidad "Recordarme"</h1>
+    
+    <div class="instructions">
+        <h3>📋 Instrucciones de Prueba:</h3>
+        <ol>
+            <li><strong>Paso 1:</strong> Ingresa credenciales de prueba</li>
+            <li><strong>Paso 2:</strong> Marca "Recordarme" y haz click en "Simular Login"</li>
+            <li><strong>Paso 3:</strong> Recarga la página para ver si se recuerdan</li>
+            <li><strong>Paso 4:</strong> Prueba desmarcar "Recordarme" y verificar que se limpien</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h3>1. Simulación de Login con "Recordarme" <span id="login-status" class="status pending">Pendiente</span></h3>
+        <p>Simula el comportamiento de la página de login</p>
+        
+        <div class="credentials-form">
+            <div>
+                <label for="test-email">Email:</label>
+                <input type="email" id="test-email" placeholder="test@example.com" value="usuario@test.com">
+            </div>
+            <div>
+                <label for="test-password">Contraseña:</label>
+                <input type="password" id="test-password" placeholder="Contraseña" value="password123">
+            </div>
+            <div class="checkbox-container">
+                <input type="checkbox" id="remember-me" />
+                <label for="remember-me">Recordarme</label>
+            </div>
+            <button onclick="simulateLogin()">Simular Login</button>
+            <button onclick="clearCredentials()">Limpiar Credenciales</button>
+        </div>
+        
+        <div id="login-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Estado del localStorage <span id="storage-status" class="status pending">Pendiente</span></h3>
+        <p>Verifica el contenido del localStorage</p>
+        <button onclick="checkLocalStorage()">Verificar localStorage</button>
+        <div id="storage-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Test de Persistencia <span id="persistence-status" class="status pending">Pendiente</span></h3>
+        <p>Verifica que las credenciales persistan después de recargar</p>
+        <button onclick="testPersistence()">Probar Persistencia</button>
+        <div id="persistence-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Test de Seguridad <span id="security-status" class="status pending">Pendiente</span></h3>
+        <p>Verifica que las credenciales se limpien correctamente</p>
+        <button onclick="testSecurity()">Probar Seguridad</button>
+        <div id="security-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="localStorage-info">
+        <h4>📱 Información del localStorage:</h4>
+        <div id="localStorage-content"></div>
+    </div>
+
+    <script>
+        // Función para actualizar estado
+        function updateStatus(elementId, status, className) {
+            const element = document.getElementById(elementId);
+            element.textContent = status;
+            element.className = `status ${className}`;
+        }
+
+        // Función para mostrar respuesta
+        function showResponse(elementId, response) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(response, null, 2);
+            element.style.display = 'block';
+        }
+
+        // Función para actualizar información del localStorage
+        function updateLocalStorageInfo() {
+            const container = document.getElementById('localStorage-content');
+            const rememberedCredentials = localStorage.getItem('rememberedCredentials');
+            
+            if (rememberedCredentials) {
+                try {
+                    const credentials = JSON.parse(rememberedCredentials);
+                    container.innerHTML = `
+                        <div style="color: green; font-weight: bold;">✅ Credenciales guardadas:</div>
+                        <div><strong>Email:</strong> ${credentials.email}</div>
+                        <div><strong>Contraseña:</strong> ${credentials.password}</div>
+                        <div><strong>Timestamp:</strong> ${credentials.timestamp}</div>
+                        <div><strong>Recordarme:</strong> ${credentials.rememberMe ? 'Sí' : 'No'}</div>
+                    `;
+                } catch (error) {
+                    container.innerHTML = `<div style="color: red;">❌ Error al parsear credenciales: ${error.message}</div>`;
+                }
+            } else {
+                container.innerHTML = '<div style="color: gray;">❌ No hay credenciales guardadas</div>';
+            }
+        }
+
+        // 1. Simular Login
+        function simulateLogin() {
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+
+            updateStatus('login-status', 'Procesando...', 'pending');
+
+            try {
+                if (rememberMe) {
+                    // Guardar credenciales
+                    const credentials = {
+                        email,
+                        password,
+                        rememberMe: true,
+                        timestamp: new Date().toISOString()
+                    };
+                    localStorage.setItem('rememberedCredentials', JSON.stringify(credentials));
+                    
+                    updateStatus('login-status', 'Éxito - Credenciales guardadas', 'success');
+                    showResponse('login-response', {
+                        message: 'Login simulado exitoso',
+                        credentialsSaved: true,
+                        data: credentials
+                    });
+                } else {
+                    // Limpiar credenciales
+                    localStorage.removeItem('rememberedCredentials');
+                    
+                    updateStatus('login-status', 'Éxito - Credenciales NO guardadas', 'success');
+                    showResponse('login-response', {
+                        message: 'Login simulado exitoso',
+                        credentialsSaved: false,
+                        note: 'Las credenciales no se guardaron porque "Recordarme" no está marcado'
+                    });
+                }
+
+                // Actualizar información del localStorage
+                updateLocalStorageInfo();
+                
+            } catch (error) {
+                updateStatus('login-status', 'Error', 'error');
+                showResponse('login-response', {
+                    error: error.message,
+                    credentialsSaved: false
+                });
+            }
+        }
+
+        // 2. Verificar localStorage
+        function checkLocalStorage() {
+            updateStatus('storage-status', 'Verificando...', 'pending');
+            
+            try {
+                const rememberedCredentials = localStorage.getItem('rememberedCredentials');
+                const allLocalStorage = {};
+                
+                // Obtener todas las claves del localStorage
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key) {
+                        allLocalStorage[key] = localStorage.getItem(key);
+                    }
+                }
+                
+                if (rememberedCredentials) {
+                    const credentials = JSON.parse(rememberedCredentials);
+                    updateStatus('storage-status', 'Credenciales encontradas', 'success');
+                    showResponse('storage-response', {
+                        message: 'localStorage verificado',
+                        hasRememberedCredentials: true,
+                        credentials,
+                        allLocalStorage
+                    });
+                } else {
+                    updateStatus('storage-status', 'Sin credenciales', 'success');
+                    showResponse('storage-response', {
+                        message: 'localStorage verificado',
+                        hasRememberedCredentials: false,
+                        allLocalStorage
+                    });
+                }
+                
+            } catch (error) {
+                updateStatus('storage-status', 'Error', 'error');
+                showResponse('storage-response', {
+                    error: error.message
+                });
+            }
+        }
+
+        // 3. Probar Persistencia
+        function testPersistence() {
+            updateStatus('persistence-status', 'Probando...', 'pending');
+            
+            try {
+                const rememberedCredentials = localStorage.getItem('rememberedCredentials');
+                
+                if (rememberedCredentials) {
+                    const credentials = JSON.parse(rememberedCredentials);
+                    
+                    // Verificar que las credenciales tengan la estructura correcta
+                    const isValid = credentials.email && credentials.password && credentials.timestamp;
+                    
+                    if (isValid) {
+                        updateStatus('persistence-status', 'Persistencia OK', 'success');
+                        showResponse('persistence-response', {
+                            message: 'Las credenciales persisten correctamente',
+                            isValid,
+                            credentials,
+                            note: 'Recarga la página para ver si se mantienen los valores en los campos'
+                        });
+                    } else {
+                        updateStatus('persistence-status', 'Estructura inválida', 'error');
+                        showResponse('persistence-response', {
+                            message: 'Las credenciales persisten pero tienen estructura inválida',
+                            isValid,
+                            credentials
+                        });
+                    }
+                } else {
+                    updateStatus('persistence-status', 'Sin credenciales', 'success');
+                    showResponse('persistence-response', {
+                        message: 'No hay credenciales para probar persistencia',
+                        note: 'Primero marca "Recordarme" y haz login'
+                    });
+                }
+                
+            } catch (error) {
+                updateStatus('persistence-status', 'Error', 'error');
+                showResponse('persistence-response', {
+                    error: error.message
+                });
+            }
+        }
+
+        // 4. Probar Seguridad
+        function testSecurity() {
+            updateStatus('security-status', 'Probando...', 'pending');
+            
+            try {
+                // Desmarcar "Recordarme"
+                document.getElementById('remember-me').checked = false;
+                
+                // Limpiar credenciales
+                localStorage.removeItem('rememberedCredentials');
+                
+                // Limpiar campos
+                document.getElementById('test-email').value = '';
+                document.getElementById('test-password').value = '';
+                
+                updateStatus('security-status', 'Seguridad OK', 'success');
+                showResponse('security-response', {
+                    message: 'Test de seguridad completado',
+                    actions: [
+                        'Casilla "Recordarme" desmarcada',
+                        'Credenciales eliminadas del localStorage',
+                        'Campos de formulario limpiados'
+                    ],
+                    note: 'Las credenciales se han eliminado correctamente por seguridad'
+                });
+                
+                // Actualizar información del localStorage
+                updateLocalStorageInfo();
+                
+            } catch (error) {
+                updateStatus('security-status', 'Error', 'error');
+                showResponse('security-response', {
+                    error: error.message
+                });
+            }
+        }
+
+        // 5. Limpiar credenciales
+        function clearCredentials() {
+            localStorage.removeItem('rememberedCredentials');
+            document.getElementById('test-email').value = '';
+            document.getElementById('test-password').value = '';
+            document.getElementById('remember-me').checked = false;
+            
+            updateLocalStorageInfo();
+            
+            alert('Credenciales limpiadas. Recarga la página para ver el estado inicial.');
+        }
+
+        // Cargar credenciales guardadas al cargar la página
+        window.addEventListener('load', () => {
+            console.log('🚀 Test de "Recordarme" cargado');
+            
+            // Verificar si hay credenciales guardadas
+            const rememberedCredentials = localStorage.getItem('rememberedCredentials');
+            if (rememberedCredentials) {
+                try {
+                    const credentials = JSON.parse(rememberedCredentials);
+                    
+                    // Cargar en los campos
+                    document.getElementById('test-email').value = credentials.email || '';
+                    document.getElementById('test-password').value = credentials.password || '';
+                    document.getElementById('remember-me').checked = credentials.rememberMe || false;
+                    
+                    console.log('✅ Credenciales cargadas automáticamente');
+                } catch (error) {
+                    console.error('❌ Error al cargar credenciales:', error);
+                    localStorage.removeItem('rememberedCredentials');
+                }
+            }
+            
+            // Actualizar información del localStorage
+            updateLocalStorageInfo();
+        });
+
+        // Actualizar información del localStorage cada vez que cambie
+        window.addEventListener('storage', updateLocalStorageInfo);
+    </script>
+</body>
+</html>
+

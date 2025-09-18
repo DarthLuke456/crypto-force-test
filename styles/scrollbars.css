@@ -1,0 +1,231 @@
+/* Scrollbars personalizados para cada rango */
+
+/* Scrollbar para Iniciado */
+.scrollbar-iniciado::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+.scrollbar-iniciado::-webkit-scrollbar-track {
+  background: rgba(250, 250, 250, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-iniciado::-webkit-scrollbar-thumb {
+  background: #fafafa !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-iniciado::-webkit-scrollbar-thumb:hover {
+  background: rgba(250, 250, 250, 0.8) !important;
+}
+
+/* Forzar especificidad máxima para Iniciado */
+main.scrollbar-iniciado::-webkit-scrollbar-thumb {
+  background: #fafafa !important;
+}
+
+main.scrollbar-iniciado::-webkit-scrollbar-thumb:hover {
+  background: rgba(250, 250, 250, 0.8) !important;
+}
+
+/* Scrollbar para Acólito */
+.scrollbar-acolito::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+.scrollbar-acolito::-webkit-scrollbar-track {
+  background: rgba(255, 212, 71, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-acolito::-webkit-scrollbar-thumb {
+  background: #FFD447 !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-acolito::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 212, 71, 0.8) !important;
+}
+
+/* Forzar especificidad máxima para Acólito */
+main.scrollbar-acolito::-webkit-scrollbar-thumb {
+  background: #FFD447 !important;
+}
+
+main.scrollbar-acolito::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 212, 71, 0.8) !important;
+}
+
+/* Scrollbar para Warrior */
+.scrollbar-warrior::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+.scrollbar-warrior::-webkit-scrollbar-track {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-warrior::-webkit-scrollbar-thumb {
+  background: #22c55e !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-warrior::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 197, 94, 0.8) !important;
+}
+
+/* Forzar especificidad máxima para Warrior */
+main.scrollbar-warrior::-webkit-scrollbar-thumb {
+  background: #22c55e !important;
+}
+
+main.scrollbar-warrior::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 197, 94, 0.8) !important;
+}
+
+/* Scrollbar para Lord */
+.scrollbar-lord::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+.scrollbar-lord::-webkit-scrollbar-track {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-lord::-webkit-scrollbar-thumb {
+  background: #3b82f6 !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-lord::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.8) !important;
+}
+
+/* Forzar especificidad máxima para Lord */
+main.scrollbar-lord::-webkit-scrollbar-thumb {
+  background: #3b82f6 !important;
+}
+
+main.scrollbar-lord::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.8) !important;
+}
+
+/* Scrollbar para Darth */
+.scrollbar-darth::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+.scrollbar-darth::-webkit-scrollbar-track {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-darth::-webkit-scrollbar-thumb {
+  background: #ef4444 !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-darth::-webkit-scrollbar-thumb:hover {
+  background: rgba(239, 68, 68, 0.8) !important;
+}
+
+/* Forzar especificidad máxima para Darth */
+main.scrollbar-darth::-webkit-scrollbar-thumb {
+  background: #ef4444 !important;
+}
+
+main.scrollbar-darth::-webkit-scrollbar-thumb:hover {
+  background: rgba(239, 68, 68, 0.8) !important;
+}
+
+/* Scrollbar para Maestro */
+.scrollbar-maestro::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+.scrollbar-maestro::-webkit-scrollbar-track {
+  background: rgba(168, 85, 247, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-maestro::-webkit-scrollbar-thumb {
+  background: #a855f7 !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-maestro::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.8) !important;
+}
+
+/* Forzar especificidad máxima para Maestro */
+main.scrollbar-maestro::-webkit-scrollbar-thumb {
+  background: #a855f7 !important;
+}
+
+main.scrollbar-maestro::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.8) !important;
+}
+
+/* Scrollbar por defecto */
+.scrollbar-default::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+.scrollbar-default::-webkit-scrollbar-track {
+  background: rgba(107, 114, 128, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-default::-webkit-scrollbar-thumb {
+  background: #6b7280 !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-default::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.8) !important;
+}
+
+/* Soporte para Firefox */
+.scrollbar-iniciado {
+  scrollbar-width: thin !important;
+  scrollbar-color: #fafafa rgba(250, 250, 250, 0.1) !important;
+}
+
+.scrollbar-acolito {
+  scrollbar-width: thin !important;
+  scrollbar-color: #FFD447 rgba(255, 212, 71, 0.1) !important;
+}
+
+.scrollbar-warrior {
+  scrollbar-width: thin !important;
+  scrollbar-color: #22c55e rgba(34, 197, 94, 0.1) !important;
+}
+
+.scrollbar-lord {
+  scrollbar-width: thin !important;
+  scrollbar-color: #3b82f6 rgba(59, 130, 246, 0.1) !important;
+}
+
+.scrollbar-darth {
+  scrollbar-width: thin !important;
+  scrollbar-color: #ef4444 rgba(239, 68, 68, 0.1) !important;
+}
+
+.scrollbar-maestro {
+  scrollbar-width: thin !important;
+  scrollbar-color: #a855f7 rgba(168, 85, 247, 0.1) !important;
+}
+
+.scrollbar-default {
+  scrollbar-width: thin !important;
+  scrollbar-color: #6b7280 rgba(107, 114, 128, 0.1) !important;
+}

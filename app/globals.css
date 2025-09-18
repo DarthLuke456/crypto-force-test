@@ -1,0 +1,1154 @@
+/* Importación de fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* Scrollbar personalizada Sith - FORZADA */
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: #fafafa #121212 !important;
+}
+
+::-webkit-scrollbar {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 6px !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #fafafa !important;
+  border-radius: 6px !important;
+  border: 2px solid #121212 !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e5e5e5 !important;
+}
+
+::-webkit-scrollbar-corner {
+  background: #121212 !important;
+}
+
+/* Aplicar a todos los elementos */
+html, body, div, main, section, article, aside, nav, header, footer {
+  scrollbar-width: thin !important;
+  scrollbar-color: #fafafa #121212 !important;
+}
+
+/* Tailwind layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Prevenir scroll horizontal en móvil */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Asegurar que todos los contenedores respeten el ancho de la pantalla */
+* {
+  box-sizing: border-box;
+}
+
+/* Contenedor principal para móvil */
+.mobile-container {
+  width: 100vw;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Ajustes específicos para móvil */
+@media (max-width: 768px) {
+  .mobile-container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  /* Prevenir que elementos se salgan del viewport */
+  .mobile-container > * {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* Mejorar la experiencia táctil */
+  button, a, input, select, textarea {
+    min-height: 44px; /* Tamaño mínimo recomendado para touch */
+  }
+
+  /* Espaciado optimizado para móvil */
+  .mobile-spacing {
+    padding: 1rem;
+    margin: 0.5rem 0;
+  }
+
+  /* Texto más legible en móvil */
+  body {
+    font-size: 16px; /* Prevenir zoom automático en iOS */
+    line-height: 1.6;
+  }
+
+  /* Mejorar la navegación táctil */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Optimizar modales para móvil */
+  .modal-mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .modal-content-mobile {
+    background: #1a1a1a;
+    border-radius: 1rem 1rem 0 0;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+
+  /* Mejorar tablas en móvil */
+  .table-mobile {
+    display: block;
+    width: 100%;
+  }
+
+  .table-mobile thead {
+    display: none;
+  }
+
+  .table-mobile tbody {
+    display: block;
+  }
+
+  .table-mobile tr {
+    display: block;
+    margin-bottom: 1rem;
+    background: #1a1a1a;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 1px solid #333;
+  }
+
+  .table-mobile td {
+    display: block;
+    text-align: right;
+    padding: 0.5rem 0;
+    border: none;
+  }
+
+  .table-mobile td:before {
+    content: attr(data-label) ": ";
+    float: left;
+    font-weight: bold;
+    color: #a0a0a0;
+  }
+
+  /* Mejorar formularios en móvil */
+  .form-mobile input,
+  .form-mobile select,
+  .form-mobile textarea {
+    font-size: 16px; /* Prevenir zoom en iOS */
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  /* Optimizar imágenes para móvil */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Mejorar la experiencia de scroll */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Ajustes para tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .tablet-container {
+    padding: 1.5rem;
+  }
+
+  .tablet-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Ajustes para desktop */
+@media (min-width: 1025px) {
+  .desktop-container {
+    padding: 2rem;
+  }
+
+  .desktop-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 18 18 18;
+    --foreground: 250 250 250;
+    --bg-primary: #121212;
+    --text-primary: #fafafa;
+    --sidebar-width: 240px;
+    --sidebar-width-collapsed: 60px;
+    --logo-dark: url('/logo.png');
+  }
+
+  body {
+    @apply text-[rgb(var(--foreground))] bg-[rgb(var(--background))];
+    background: linear-gradient(135deg, #212121 0%, #121212 60%, #121212 100%);
+    /* Mejorar el scroll en móviles */
+    -webkit-overflow-scrolling: touch;
+    /* Evitar zoom en inputs en iOS */
+    touch-action: manipulation;
+  }
+
+  html,
+  body,
+  #__next {
+    height: 100%;
+  }
+
+  /* Prevenir zoom en inputs en iOS Safari */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Mejorar el rendimiento en móviles */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Estilos específicos para móviles */
+  @media (max-width: 640px) {
+    body {
+      font-size: 14px;
+    }
+  }
+}
+
+@layer components {
+  .premium-card {
+    @apply w-[380px] bg-[#1e2028] rounded-xl p-6;
+  }
+
+  .warning-banner {
+    @apply bg-[#ffd700] text-[#121212] rounded-lg px-4 py-2 flex items-center justify-center gap-2 mb-6 w-fit;
+  }
+
+  .premium-banner {
+    @apply bg-[#ec4d58] rounded-lg p-4 flex items-center justify-center gap-2 mb-6 w-full;
+  }
+
+  .premium-banner-text {
+    @apply text-white font-semibold text-base;
+  }
+
+  .discount-badge {
+    @apply bg-[#ffd700] text-[#121212] px-2 py-1 rounded font-bold text-sm;
+  }
+
+  .feature-list {
+    @apply list-none p-0 my-6 space-y-4;
+  }
+
+  .feature-item {
+    @apply flex items-center gap-3 text-white text-[0.95rem];
+  }
+
+  .feature-item::before {
+    content: '✓';
+    @apply text-[#2ecc71] text-sm;
+  }
+
+  .bonus-section {
+    @apply mt-6;
+  }
+
+  .bonus-title {
+    @apply text-[#ffd700] font-semibold mb-4 flex items-center gap-2;
+  }
+
+  .bonus-list {
+    @apply list-none p-0 space-y-3;
+  }
+
+  .bonus-item {
+    @apply flex items-center gap-3 text-white text-[0.95rem];
+  }
+
+  .bonus-item::before {
+    content: '💻';
+    @apply text-sm;
+  }
+
+  .price-section {
+    @apply mt-6 text-right;
+  }
+
+  .original-price {
+    @apply text-gray-400 text-base line-through;
+  }
+
+  .current-price {
+    @apply text-[#2ecc71] text-4xl font-bold my-1;
+  }
+
+  .promo-code {
+    @apply text-[#ffd700] text-sm font-medium;
+  }
+
+  .buttons-container {
+    @apply flex gap-3 mt-6;
+  }
+
+  .cta-button {
+    @apply bg-[#ec4d58] text-white py-3 px-6 rounded-lg font-semibold text-center flex-1 transition-colors hover:bg-[#d93f4a];
+  }
+
+  .secondary-button {
+    @apply bg-[#1e2028] text-white py-3 px-6 rounded-lg font-semibold text-center flex-1 transition-colors border border-white/10 hover:bg-white/5;
+  }
+
+  .card {
+    @apply w-full rounded-lg shadow-md p-6 border transition-all duration-300;
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    border-color: #e5e7eb;
+  }
+
+  .dark .card {
+    border-color: #374151;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .dark .card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .module-card {
+    @apply p-4 rounded-xl border shadow-lg hover:shadow-xl transition-all duration-300;
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    border-color: #e5e7eb;
+  }
+
+  .dark .module-card {
+    border-color: #374151;
+  }
+
+  .role-button {
+    @apply inline-flex items-center justify-center w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95 relative overflow-hidden;
+    position: relative;
+    color: #000000;
+    cursor: not-allowed !important;
+    z-index: 10;
+  }
+  
+  .role-button:not(.hovered) {
+    color: #000000;
+  }
+  
+  .role-button.hovered {
+    color: #d1d5db !important;
+    background: linear-gradient(to right, #374151, #1f2937) !important;
+    box-shadow: inset 0 0 0 2px rgba(156, 163, 175, 0.3);
+    transform: scale(1.02) !important;
+  }
+  
+  .role-button:hover {
+    transform: scale(1.02) !important;
+  }
+  
+  .click-effect {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .click-effect:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  .click-effect:active {
+    transform: scale(0.95) !important;
+  }
+  
+  .click-effect:active::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: ripple 0.6s ease-out;
+    pointer-events: none;
+  }
+  
+  .click-effect:focus {
+    outline: none;
+  }
+  
+  .accessible-button {
+    @apply inline-flex items-center justify-center w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 hover:brightness-110 transform hover:scale-105 hover:shadow-lg active:scale-95 cursor-pointer;
+    position: relative;
+    color: #000000;
+    cursor: pointer !important;
+    z-index: 10;
+  }
+  
+  @keyframes ripple {
+    0% {
+      width: 0;
+      height: 0;
+      opacity: 1;
+    }
+    100% {
+      width: 300px;
+      height: 300px;
+      opacity: 0;
+    }
+  }
+  
+  .role-button.hovered::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    animation: shimmer 1.5s infinite;
+    pointer-events: none;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  .role-button .eye-icon {
+    @apply mr-2 transition-all duration-300;
+    display: block;
+    opacity: 1;
+  }
+  
+  .role-button .tools-icon {
+    @apply mr-2 transition-all duration-300;
+    display: none;
+    opacity: 0;
+  }
+  
+  .role-button:not(.hovered) .eye-icon {
+    display: block !important;
+    opacity: 1 !important;
+  }
+  
+  .role-button:not(.hovered) .tools-icon {
+    display: none !important;
+    opacity: 0 !important;
+  }
+  
+  .role-button.hovered .eye-icon {
+    display: none !important;
+    opacity: 0 !important;
+  }
+  
+  .role-button.hovered .tools-icon {
+    display: block !important;
+    opacity: 1 !important;
+    animation: spin 1s ease-in-out;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .role-button:not(.hovered) .default-text {
+    display: block !important;
+    opacity: 1 !important;
+  }
+  
+  .role-button:not(.hovered) .hover-text {
+    display: none !important;
+    opacity: 0 !important;
+  }
+  
+  .role-button.hovered .default-text {
+    display: none !important;
+    opacity: 0 !important;
+  }
+  
+  .role-button.hovered .hover-text {
+    display: block !important;
+    opacity: 1 !important;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+} /* ← cierre correcto de @layer components */
+
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Estilos globales para line-clamp */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Scrollbar general - Solo aplicar a elementos sin clase de scrollbar personalizada */
+*:not([class*="scrollbar-"]):not([class*="main-content-"]) {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107, 114, 128, 0.3) transparent;
+  -ms-overflow-style: none;
+}
+
+*:not([class*="scrollbar-"]):not([class*="main-content-"])::-webkit-scrollbar {
+  display: none;
+}
+
+.dark *:not([class*="scrollbar-"]):not([class*="main-content-"]) {
+  scrollbar-color: rgba(107, 114, 128, 0.3) transparent;
+}
+
+.dark *:not([class*="scrollbar-"]):not([class*="main-content-"])::-webkit-scrollbar-thumb {
+  background-color: rgba(107, 114, 128, 0.3);
+}
+
+/* Asegurar que los scrollbars personalizados tengan prioridad absoluta */
+[class*="scrollbar-"]::-webkit-scrollbar {
+  display: block !important;
+}
+
+[class*="scrollbar-"]::-webkit-scrollbar-thumb {
+  background: inherit !important;
+}
+
+/* Específicamente para main-content-* y main-scrollbar-* */
+[class*="main-content-"], [class*="main-scrollbar-"] {
+  scrollbar-width: thin !important;
+}
+
+/* 🟡 FIX ESPECÍFICO PARA ACÓLITO - MÁXIMA ESPECIFICIDAD */
+html body div main.main-content-acolito,
+html body div main[class*="main-content-acolito"],
+main.main-content-acolito,
+.main-content-acolito {
+  scrollbar-width: thin !important;
+  scrollbar-color: #fafafa rgba(255, 212, 71, 0.1) !important;
+}
+
+html body div main.main-content-acolito::-webkit-scrollbar,
+html body div main[class*="main-content-acolito"]::-webkit-scrollbar,
+main.main-content-acolito::-webkit-scrollbar,
+.main-content-acolito::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body div main.main-content-acolito::-webkit-scrollbar-track,
+html body div main[class*="main-content-acolito"]::-webkit-scrollbar-track,
+main.main-content-acolito::-webkit-scrollbar-track,
+.main-content-acolito::-webkit-scrollbar-track {
+  background: rgba(255, 212, 71, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+html body div main.main-content-acolito::-webkit-scrollbar-thumb,
+html body div main[class*="main-content-acolito"]::-webkit-scrollbar-thumb,
+main.main-content-acolito::-webkit-scrollbar-thumb,
+.main-content-acolito::-webkit-scrollbar-thumb {
+  background: #fafafa !important;
+  border-radius: 4px !important;
+}
+
+html body div main.main-content-acolito::-webkit-scrollbar-thumb:hover,
+html body div main[class*="main-content-acolito"]::-webkit-scrollbar-thumb:hover,
+main.main-content-acolito::-webkit-scrollbar-thumb:hover,
+.main-content-acolito::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 212, 71, 0.8) !important;
+}
+
+[class*="main-content-"]::-webkit-scrollbar, [class*="main-scrollbar-"]::-webkit-scrollbar {
+  display: block !important;
+  width: 8px !important;
+}
+
+[class*="main-content-"]::-webkit-scrollbar-track, [class*="main-scrollbar-"]::-webkit-scrollbar-track {
+  border-radius: 4px !important;
+}
+
+[class*="main-content-"]::-webkit-scrollbar-thumb, [class*="main-scrollbar-"]::-webkit-scrollbar-thumb {
+  border-radius: 4px !important;
+}
+
+/* Body & sidebar scroll handling */
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar {
+  overflow: hidden;
+}
+
+.sidebar nav {
+  height: calc(100% - 180px);
+  overflow-y: hidden;
+  padding-right: 2px;
+}
+
+.sidebar nav:hover {
+  overflow-y: auto;
+}
+
+/* Logo dinámico */
+.logo {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 160px;
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+.light .logo {
+  background-image: var(--logo-light);
+}
+
+.dark .logo {
+  background-image: var(--logo-dark);
+}
+
+/* Iniciado card */
+.iniciado-card {
+  background-color: rgb(var(--background));
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  color: rgb(var(--foreground));
+  border: 1px solid #e5e7eb;
+}
+
+.dark .iniciado-card {
+  border-color: #374151;
+}
+
+/* Progress bar */
+.progress-bar {
+  @apply w-full rounded-full h-4 transition-all duration-300;
+  background-color: #e5e7eb;
+}
+
+.dark .progress-bar {
+  background-color: #374151;
+}
+
+.progress-fill {
+  @apply bg-[#ec4d58] h-4 rounded-full transition-all duration-500;
+}
+
+/* Agregar al final del archivo */
+
+/* Safe area para dispositivos móviles */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Mejorar scrolling en móvil */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+  
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+  }
+}
+
+/* Asegurar que el contenido no se desborde horizontalmente */
+.max-w-mobile {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Mejoras para móvil */
+@media (max-width: 768px) {
+  .card {
+    @apply rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  /* Prevenir scroll horizontal */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Mejorar tooltips en móvil */
+  .group:hover .group-hover\:opacity-100 {
+    @apply opacity-0;
+  }
+  
+  /* Asegurar que el contenido no se desborde */
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Clase para safe area en móvil */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+/* Mejorar la responsividad del video */
+.aspect-video {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .aspect-video {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Mejorar la responsividad del video */
+.aspect-video {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .aspect-video {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 640px) {
+  .aspect-video {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Estilos para el bloqueo de navegación */
+.navigation-blocked {
+  cursor: not-allowed !important;
+  user-select: none;
+}
+
+.navigation-blocked * {
+  cursor: not-allowed !important;
+}
+
+/* Tooltip personalizado para elementos bloqueados */
+.blocked-tooltip {
+  position: relative;
+}
+
+.blocked-tooltip::after {
+  content: "🔒 Finaliza la evaluación antes de continuar";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #ec4d58;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.blocked-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+  bottom: calc(100% + 5px);
+}
+
+/* Scrollbar personalizado */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Carousel styles */
+  .carousel-container {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+
+  .carousel-card {
+    flex: 0 0 calc(33.333% - 1rem);
+    min-width: 320px;
+    max-width: 400px;
+  }
+
+  @media (max-width: 1024px) {
+    .carousel-card {
+      flex: 0 0 calc(50% - 0.75rem);
+      min-width: 280px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .carousel-card {
+      flex: 0 0 100%;
+      min-width: 100%;
+    }
+  }
+
+  /* Scrollbar personalizada para el carousel */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(107, 114, 128, 0.6) rgba(26, 26, 26, 0.3);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(26, 26, 26, 0.3);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(107, 114, 128, 0.6);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 0.8);
+  }
+
+/* Efectos de blur mejorados */
+.blur-navigation {
+  filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.blur-navigation:hover {
+  filter: blur(2px);
+}
+
+/* Animaciones para el timer */
+.timer-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Estilos para las cards de módulos */
+.module-card {
+  transition: all 0.3s ease;
+}
+
+.module-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(236, 77, 88, 0.15);
+}
+
+/* Efectos para puntos de control */
+.control-point-card {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%);
+  border: 2px solid rgba(251, 191, 36, 0.3);
+}
+
+.control-point-card:hover {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%);
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+/* Estilos para el modal de puntos de control */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.75);
+}
+
+/* Efectos de transición suaves */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estilos para el perfil de usuario */
+.profile-image {
+  transition: all 0.3s ease;
+}
+
+.profile-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(236, 77, 88, 0.3);
+}
+
+/* Estilos para botones de navegación */
+.nav-button {
+  transition: all 0.2s ease;
+}
+
+.nav-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(236, 77, 88, 0.2);
+}
+
+.nav-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Estilos para el progreso */
+.progress-bar {
+  background: linear-gradient(90deg, #ec4d58 0%, #d63d47 100%);
+  transition: width 0.5s ease;
+}
+
+/* Estilos para el timer de cooldown */
+.cooldown-timer {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Estilos para el estado de bloqueo */
+.locked-state {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+/* Estilos para el estado completado */
+.completed-state {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.1) 100%);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+  .module-card {
+    min-height: 200px;
+  }
+  
+  .profile-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .blocked-tooltip::after {
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+}
+
+/* Estilos para carruseles optimizados */
+@layer components {
+  .carousel-container {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(107, 114, 128, 0.6) #1a1a1a;
+  }
+  
+  .carousel-container::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .carousel-container::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 4px;
+  }
+  
+  .carousel-container::-webkit-scrollbar-thumb {
+    background: rgba(107, 114, 128, 0.6);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+  }
+  
+  .carousel-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 0.8);
+  }
+  
+  /* Ocultar scrollbar en móviles */
+  @media (max-width: 767px) {
+    .carousel-container::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+/* Text flow for image wrapping - Magazine style */
+.text-flow {
+  /* Remove overflow hidden to allow natural text flow */
+  line-height: 1.6;
+}
+
+.text-flow p {
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+  text-align: justify; /* Better text distribution */
+}
+
+.text-flow h1,
+.text-flow h2,
+.text-flow h3,
+.text-flow h4,
+.text-flow h5,
+.text-flow h6 {
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
+}
+
+/* Ensure text flows naturally around floated images */
+.text-flow > div {
+  /* Remove any width restrictions that might create columns */
+  width: 100%;
+  max-width: none;
+}
+
+/* Magazine layout - text flows around images naturally */
+.magazine-layout {
+  /* Allow text to flow naturally around floated elements */
+  overflow: visible;
+}
+
+.magazine-layout > div {
+  /* Remove any container restrictions */
+  width: 100% !important;
+  max-width: none !important;
+  display: block !important;
+}
+
+/* Ensure text content flows properly */
+.magazine-layout p,
+.magazine-layout div {
+  /* Remove any flex or grid constraints */
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Mejoras de accesibilidad */
+@layer base {
+  * {
+    scroll-behavior: smooth;
+  }
+  
+  /* Prevenir selección de texto durante el drag */
+  .dragging {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+}

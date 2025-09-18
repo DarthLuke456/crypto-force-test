@@ -1,0 +1,51 @@
+/* Scrollbar personalizada para Dashboard Selection - Negro */
+html body div main.main-content-dashboard-selection {
+  scrollbar-width: thin !important;
+  scrollbar-color: #121212 #2a2a2a !important;
+}
+
+html body div main.main-content-dashboard-selection::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body div main.main-content-dashboard-selection::-webkit-scrollbar-track {
+  background: #2a2a2a !important;
+  border-radius: 4px !important;
+}
+
+html body div main.main-content-dashboard-selection::-webkit-scrollbar-thumb {
+  background: #121212 !important;
+  border-radius: 4px !important;
+  border: 1px solid #2a2a2a !important;
+}
+
+html body div main.main-content-dashboard-selection::-webkit-scrollbar-thumb:hover {
+  background: #000000 !important;
+}
+
+/* Aplicar también al body si es el elemento que hace scroll */
+html body.body-dashboard-selection {
+  scrollbar-width: thin !important;
+  scrollbar-color: #121212 #2a2a2a !important;
+}
+
+html body.body-dashboard-selection::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body.body-dashboard-selection::-webkit-scrollbar-track {
+  background: #2a2a2a !important;
+  border-radius: 4px !important;
+}
+
+html body.body-dashboard-selection::-webkit-scrollbar-thumb {
+  background: #121212 !important;
+  border-radius: 4px !important;
+  border: 1px solid #2a2a2a !important;
+}
+
+html body.body-dashboard-selection::-webkit-scrollbar-thumb:hover {
+  background: #000000 !important;
+}

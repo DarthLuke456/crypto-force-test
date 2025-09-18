@@ -1,0 +1,129 @@
+.button-group,
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.cta-button,
+.temario-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cta-button {
+  background-color: #ec4d58;
+  color: #fafafa;
+}
+
+.temario-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fafafa;
+}
+
+.cta-button:hover,
+.temario-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.join-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #00ffb3;
+  color: #0a0a0a;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-top: 16px;
+}
+
+.join-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 255, 179, 0.3);
+  background: #00ffc8;
+}
+.zwtc-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #ff8c00;
+  color: #000000;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.zwtc-button:hover {
+  transform: translateY(-2px);
+  background: #ffa500;
+  box-shadow: 0 6px 16px rgba(255, 140, 0, 0.4);
+}
+
+.zwtc-button:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.zwtc-button:hover:before {
+  left: 100%;
+}
+
+.join-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #00ffb3;
+  color: #0a0a0a;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-top: 16px;
+}
+
+.join-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 255, 179, 0.3);
+  background: #00ffc8;
+}
+.btn-primary {
+  /* Primary button styles */
+}
+
+.btn-secondary {
+  /* Secondary button styles */
+}

@@ -1,0 +1,51 @@
+/* Scrollbar personalizada para Lord - Azul */
+html body div main.main-content-lord {
+  scrollbar-width: thin !important;
+  scrollbar-color: #4671D5 #121212 !important;
+}
+
+html body div main.main-content-lord::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body div main.main-content-lord::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+html body div main.main-content-lord::-webkit-scrollbar-thumb {
+  background: #4671D5 !important;
+  border-radius: 4px !important;
+  border: 1px solid #121212 !important;
+}
+
+html body div main.main-content-lord::-webkit-scrollbar-thumb:hover {
+  background: #3A5BC4 !important;
+}
+
+/* Aplicar también al body si es el elemento que hace scroll */
+html body.body-lord {
+  scrollbar-width: thin !important;
+  scrollbar-color: #4671D5 #121212 !important;
+}
+
+html body.body-lord::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body.body-lord::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+html body.body-lord::-webkit-scrollbar-thumb {
+  background: #4671D5 !important;
+  border-radius: 4px !important;
+  border: 1px solid #121212 !important;
+}
+
+html body.body-lord::-webkit-scrollbar-thumb:hover {
+  background: #3A5BC4 !important;
+}

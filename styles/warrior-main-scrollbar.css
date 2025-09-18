@@ -1,0 +1,51 @@
+/* Scrollbar personalizada para Warrior - Verde */
+html body div main.main-content-warrior {
+  scrollbar-width: thin !important;
+  scrollbar-color: #3ED598 #121212 !important;
+}
+
+html body div main.main-content-warrior::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body div main.main-content-warrior::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+html body div main.main-content-warrior::-webkit-scrollbar-thumb {
+  background: #3ED598 !important;
+  border-radius: 4px !important;
+  border: 1px solid #121212 !important;
+}
+
+html body div main.main-content-warrior::-webkit-scrollbar-thumb:hover {
+  background: #2BC085 !important;
+}
+
+/* Aplicar también al body si es el elemento que hace scroll */
+html body.body-warrior {
+  scrollbar-width: thin !important;
+  scrollbar-color: #3ED598 #121212 !important;
+}
+
+html body.body-warrior::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body.body-warrior::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+html body.body-warrior::-webkit-scrollbar-thumb {
+  background: #3ED598 !important;
+  border-radius: 4px !important;
+  border: 1px solid #121212 !important;
+}
+
+html body.body-warrior::-webkit-scrollbar-thumb:hover {
+  background: #2BC085 !important;
+}

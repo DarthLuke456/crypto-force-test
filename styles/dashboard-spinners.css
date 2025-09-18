@@ -1,0 +1,80 @@
+/* Spinners de carga personalizados para cada dashboard */
+
+/* Spinner base */
+.dashboard-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Spinner para Iniciado - Blanco */
+.spinner-iniciado {
+  border-top-color: #FAFAFA !important;
+  border-right-color: rgba(250, 250, 250, 0.3) !important;
+}
+
+/* Spinner para Acólito - Amarillo */
+.spinner-acolito {
+  border-top-color: #FFD447 !important;
+  border-right-color: rgba(255, 212, 71, 0.3) !important;
+}
+
+/* Spinner para Warrior - Verde */
+.spinner-warrior {
+  border-top-color: #3ED598 !important;
+  border-right-color: rgba(62, 213, 152, 0.3) !important;
+}
+
+/* Spinner para Lord - Azul */
+.spinner-lord {
+  border-top-color: #4671D5 !important;
+  border-right-color: rgba(70, 113, 213, 0.3) !important;
+}
+
+/* Spinner para Darth - Rojo */
+.spinner-darth {
+  border-top-color: #EC4D58 !important;
+  border-right-color: rgba(236, 77, 88, 0.3) !important;
+}
+
+/* Spinner para Maestro - Gris */
+.spinner-maestro {
+  border-top-color: #8A8A8A !important;
+  border-right-color: rgba(138, 138, 138, 0.3) !important;
+}
+
+/* Spinner para Dashboard Selection - Negro */
+.spinner-dashboard-selection {
+  border-top-color: #121212 !important;
+  border-right-color: rgba(18, 18, 18, 0.3) !important;
+}
+
+/* Spinners grandes */
+.dashboard-spinner-lg {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+/* Spinners pequeños */
+.dashboard-spinner-sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+/* Spinners extra pequeños */
+.dashboard-spinner-xs {
+  width: 12px;
+  height: 12px;
+  border-width: 1px;
+}

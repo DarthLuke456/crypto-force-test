@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Diagnóstico de Usuarios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .pending { background: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .response {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+        }
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .instructions {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .diagnosis-result {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .diagnosis-result h4 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .diagnosis-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .diagnosis-item strong {
+            color: #495057;
+        }
+        .recommendations {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .recommendations h4 {
+            margin-top: 0;
+            color: #0c5460;
+        }
+        .recommendations ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .recommendations li {
+            margin: 5px 0;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test - Diagnóstico de Usuarios</h1>
+    
+    <div class="instructions">
+        <h3>📋 Instrucciones de Prueba:</h3>
+        <ol>
+            <li><strong>Paso 1:</strong> Abre la consola del navegador para ver logs detallados</li>
+            <li><strong>Paso 2:</strong> Prueba el diagnóstico general del sistema</li>
+            <li><strong>Paso 3:</strong> Prueba el diagnóstico de usuarios específicos</li>
+            <li><strong>Paso 4:</strong> Revisa los logs del servidor para errores</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h3>1. Diagnóstico General del Sistema <span id="general-status" class="status pending">Pendiente</span></h3>
+        <p>Diagnostica el estado general del sistema y la base de datos</p>
+        <button onclick="testGeneralDiagnosis()">Diagnóstico General</button>
+        <div id="general-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Diagnóstico de Usuario Específico <span id="specific-status" class="status pending">Pendiente</span></h3>
+        <p>Diagnostica un usuario específico por ID o email</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <label for="user-id">ID del Usuario:</label>
+                <input type="text" id="user-id" placeholder="Ej: 12345" value="">
+            </div>
+            <div>
+                <label for="user-email">Email del Usuario:</label>
+                <input type="email" id="user-email" placeholder="Ej: usuario@test.com" value="">
+            </div>
+        </div>
+        
+        <div style="margin-top: 15px;">
+            <button onclick="testSpecificDiagnosis()">Diagnosticar Usuario</button>
+            <button onclick="clearUserInputs()">Limpiar Campos</button>
+        </div>
+        
+        <div id="specific-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Test de Casos de Error <span id="error-status" class="status pending">Pendiente</span></h3>
+        <p>Prueba casos que deberían generar errores</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <button onclick="testInvalidUserId()">ID Inválido</button>
+            <button onclick="testInvalidEmail()">Email Inválido</button>
+        </div>
+        <div id="error-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Estado del Sistema <span id="system-status" class="status pending">Pendiente</span></h3>
+        <p>Verifica el estado actual del sistema</p>
+        <button onclick="checkSystemStatus()">Verificar Estado</button>
+        <div id="system-response" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Función para actualizar estado
+        function updateStatus(elementId, status, className) {
+            const element = document.getElementById(elementId);
+            element.textContent = status;
+            element.className = `status ${className}`;
+        }
+
+        // Función para mostrar respuesta
+        function showResponse(elementId, response) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(response, null, 2);
+            element.style.display = 'block';
+        }
+
+        // Función para mostrar diagnóstico formateado
+        function showDiagnosis(elementId, diagnosis) {
+            const element = document.getElementById(elementId);
+            
+            const diagnosisHtml = `
+                <div class="diagnosis-result">
+                    <h4>🔍 DIAGNÓSTICO COMPLETADO</h4>
+                    
+                    <div class="diagnosis-item">
+                        <strong>👤 USUARIO AUTENTICADO:</strong><br>
+                        - ID: ${diagnosis.authenticatedUser.id}<br>
+                        - Email: ${diagnosis.authenticatedUser.email}<br>
+                        - Perfiles: ${diagnosis.authenticatedUser.profileCount}<br>
+                        - Es Maestro: ${diagnosis.authenticatedUser.isMaestro ? 'SÍ' : 'NO'}
+                    </div>
+                    
+                    <div class="diagnosis-item">
+                        <strong>🎯 USUARIO OBJETIVO:</strong><br>
+                        - ID Solicitado: ${diagnosis.targetUser.requestedId || 'N/A'}<br>
+                        - Email Solicitado: ${diagnosis.targetUser.requestedEmail || 'N/A'}<br>
+                        - Encontrado: ${diagnosis.targetUser.found ? 'SÍ' : 'NO'}<br>
+                        - Error: ${diagnosis.targetUser.error || 'Ninguno'}
+                    </div>
+                    
+                    <div class="diagnosis-item">
+                        <strong>📊 ESTADO DE LA BASE DE DATOS:</strong><br>
+                        - Total Usuarios: ${diagnosis.databaseStatus.totalUsers}<br>
+                        - Tiene Duplicados: ${diagnosis.databaseStatus.hasDuplicates ? 'SÍ' : 'NO'}
+                    </div>
+                    
+                    <div class="recommendations">
+                        <h4>💡 RECOMENDACIONES:</h4>
+                        <ul>
+                            ${diagnosis.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            element.innerHTML = diagnosisHtml;
+            element.style.display = 'block';
+        }
+
+        // 1. Test Diagnóstico General
+        async function testGeneralDiagnosis() {
+            updateStatus('general-status', 'Probando...', 'pending');
+            
+            try {
+                const response = await fetch('/api/maestro/diagnose-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        targetUserId: '',
+                        targetUserEmail: ''
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('general-status', 'Éxito', 'success');
+                    showDiagnosis('general-response', data.diagnosis);
+                } else {
+                    updateStatus('general-status', 'Error', 'error');
+                    showResponse('general-response', {
+                        status: response.status,
+                        error: data.error,
+                        details: data
+                    });
+                }
+            } catch (error) {
+                updateStatus('general-status', 'Error', 'error');
+                showResponse('general-response', {
+                    status: 'ERROR',
+                    error: error.message
+                });
+            }
+        }
+
+        // 2. Test Diagnóstico Específico
+        async function testSpecificDiagnosis() {
+            const userId = document.getElementById('user-id').value.trim();
+            const userEmail = document.getElementById('user-email').value.trim();
+            
+            if (!userId && !userEmail) {
+                alert('Por favor ingresa un ID de usuario o email');
+                return;
+            }
+            
+            updateStatus('specific-status', 'Probando...', 'pending');
+            
+            try {
+                const response = await fetch('/api/maestro/diagnose-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        targetUserId: userId || '',
+                        targetUserEmail: userEmail || ''
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('specific-status', 'Éxito', 'success');
+                    showDiagnosis('specific-response', data.diagnosis);
+                } else {
+                    updateStatus('specific-status', 'Error', 'error');
+                    showResponse('specific-response', {
+                        status: response.status,
+                        error: data.error,
+                        details: data
+                    });
+                }
+            } catch (error) {
+                updateStatus('specific-status', 'Error', 'error');
+                showResponse('specific-response', {
+                    status: 'ERROR',
+                    error: error.message
+                });
+            }
+        }
+
+        // 3. Test Casos de Error
+        async function testInvalidUserId() {
+            updateStatus('error-status', 'Probando ID inválido...', 'pending');
+            
+            try {
+                const response = await fetch('/api/maestro/diagnose-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        targetUserId: 'invalid-id-12345',
+                        targetUserEmail: ''
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('error-status', 'Completado', 'success');
+                    showDiagnosis('error-response', data.diagnosis);
+                } else {
+                    updateStatus('error-status', 'Error esperado', 'success');
+                    showResponse('error-response', {
+                        status: response.status,
+                        error: data.error,
+                        note: 'Este error es esperado para IDs inválidos'
+                    });
+                }
+            } catch (error) {
+                updateStatus('error-status', 'Error', 'error');
+                showResponse('error-response', {
+                    status: 'ERROR',
+                    error: error.message
+                });
+            }
+        }
+
+        async function testInvalidEmail() {
+            updateStatus('error-status', 'Probando email inválido...', 'pending');
+            
+            try {
+                const response = await fetch('/api/maestro/diagnose-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        targetUserId: '',
+                        targetUserEmail: 'usuario-inexistente@test.com'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('error-status', 'Completado', 'success');
+                    showDiagnosis('error-response', data.diagnosis);
+                } else {
+                    updateStatus('error-status', 'Error esperado', 'success');
+                    showResponse('error-response', {
+                        status: response.status,
+                        error: data.error,
+                        note: 'Este error es esperado para emails inexistentes'
+                    });
+                }
+            } catch (error) {
+                updateStatus('error-status', 'Error', 'error');
+                showResponse('error-response', {
+                    status: 'ERROR',
+                    error: error.message
+                });
+            }
+        }
+
+        // 4. Verificar Estado del Sistema
+        async function checkSystemStatus() {
+            updateStatus('system-status', 'Verificando...', 'pending');
+            
+            try {
+                // Verificar si la API está disponible
+                const response = await fetch('/api/maestro/diagnose-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        targetUserId: '',
+                        targetUserEmail: ''
+                    })
+                });
+
+                if (response.ok) {
+                    updateStatus('system-status', 'Sistema OK', 'success');
+                    showResponse('system-response', {
+                        message: 'Sistema funcionando correctamente',
+                        status: 'OK',
+                        timestamp: new Date().toISOString()
+                    });
+                } else {
+                    updateStatus('system-status', 'Problemas detectados', 'error');
+                    const data = await response.json();
+                    showResponse('system-response', {
+                        message: 'Se detectaron problemas en el sistema',
+                        status: response.status,
+                        error: data.error
+                    });
+                }
+            } catch (error) {
+                updateStatus('system-status', 'Error de conexión', 'error');
+                showResponse('system-response', {
+                    message: 'No se pudo conectar con el sistema',
+                    status: 'ERROR',
+                    error: error.message
+                });
+            }
+        }
+
+        // Función para limpiar campos de usuario
+        function clearUserInputs() {
+            document.getElementById('user-id').value = '';
+            document.getElementById('user-email').value = '';
+            document.getElementById('specific-response').style.display = 'none';
+        }
+
+        // Auto-test al cargar la página
+        window.addEventListener('load', () => {
+            console.log('🚀 Test de Diagnóstico de Usuarios cargado');
+            console.log('📱 Verifica la consola para logs detallados');
+            console.log('🔍 Usa los botones para probar cada funcionalidad');
+            
+            // Verificar estado del sistema automáticamente
+            setTimeout(checkSystemStatus, 1000);
+        });
+    </script>
+</body>
+</html>
+

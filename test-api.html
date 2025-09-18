@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Endpoints</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .endpoint {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .endpoint h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .pending { background: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .response {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test API Endpoints - Maestro Dashboard</h1>
+    
+    <div class="endpoint">
+        <h3>Debug User <span id="debug-status" class="status pending">Pendiente</span></h3>
+        <p>Endpoint: <code>/api/maestro/debug-user</code></p>
+        <button onclick="testDebugUser()">Probar Debug User</button>
+        <div id="debug-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="endpoint">
+        <h3>Create Profile <span id="create-status" class="status pending">Pendiente</span></h3>
+        <p>Endpoint: <code>/api/maestro/create-profile</code></p>
+        <button onclick="testCreateProfile()">Probar Create Profile</button>
+        <div id="create-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="endpoint">
+        <h3>Cleanup Duplicates <span id="cleanup-status" class="status pending">Pendiente</span></h3>
+        <p>Endpoint: <code>/api/maestro/cleanup-duplicates</code></p>
+        <button onclick="testCleanupDuplicates()">Probar Cleanup</button>
+        <div id="cleanup-response" class="response" style="display: none;"></div>
+    </div>
+
+    <div class="endpoint">
+        <h3>Update User <span id="update-status" class="status pending">Pendiente</span></h3>
+        <p>Endpoint: <code>/api/maestro/update-user</code></p>
+        <button onclick="testUpdateUser()">Probar Update User</button>
+        <div id="update-response" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Simular token de autenticación (en producción esto vendría del usuario logueado)
+        const mockToken = 'mock-token-for-testing';
+
+        function updateStatus(elementId, status, className) {
+            const element = document.getElementById(elementId);
+            element.textContent = status;
+            element.className = `status ${className}`;
+        }
+
+        function showResponse(elementId, response) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(response, null, 2);
+            element.style.display = 'block';
+        }
+
+        async function testEndpoint(url, method = 'GET', body = null) {
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'Authorization': `Bearer ${mockToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                };
+
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(url, options);
+                const data = await response.json();
+
+                return {
+                    status: response.status,
+                    ok: response.ok,
+                    data
+                };
+            } catch (error) {
+                return {
+                    status: 'ERROR',
+                    ok: false,
+                    data: { error: error.message }
+                };
+            }
+        }
+
+        async function testDebugUser() {
+            updateStatus('debug-status', 'Probando...', 'pending');
+            
+            const result = await testEndpoint('/api/maestro/debug-user');
+            
+            if (result.ok) {
+                updateStatus('debug-status', 'Éxito', 'success');
+            } else {
+                updateStatus('debug-status', 'Error', 'error');
+            }
+            
+            showResponse('debug-response', result);
+        }
+
+        async function testCreateProfile() {
+            updateStatus('create-status', 'Probando...', 'pending');
+            
+            const result = await testEndpoint('/api/maestro/create-profile', 'POST');
+            
+            if (result.ok) {
+                updateStatus('create-status', 'Éxito', 'success');
+            } else {
+                updateStatus('create-status', 'Error', 'error');
+            }
+            
+            showResponse('create-response', result);
+        }
+
+        async function testCleanupDuplicates() {
+            updateStatus('cleanup-status', 'Probando...', 'pending');
+            
+            const result = await testEndpoint('/api/maestro/cleanup-duplicates', 'POST');
+            
+            if (result.ok) {
+                updateStatus('cleanup-status', 'Éxito', 'success');
+            } else {
+                updateStatus('cleanup-status', 'Error', 'error');
+            }
+            
+            showResponse('cleanup-response', result);
+        }
+
+        async function testUpdateUser() {
+            updateStatus('update-status', 'Probando...', 'pending');
+            
+            const testData = {
+                userId: 'test-user-id',
+                updates: {
+                    nombre: 'Usuario',
+                    apellido: 'Test'
+                }
+            };
+            
+            const result = await testEndpoint('/api/maestro/update-user', 'PUT', testData);
+            
+            if (result.ok) {
+                updateStatus('update-status', 'Éxito', 'success');
+            } else {
+                updateStatus('update-status', 'Error', 'error');
+            }
+            
+            showResponse('update-response', result);
+        }
+    </script>
+</body>
+</html>

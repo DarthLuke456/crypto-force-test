@@ -1,0 +1,51 @@
+/* Scrollbar personalizada para Maestro - Gris */
+html body div main.main-content-maestro {
+  scrollbar-width: thin !important;
+  scrollbar-color: #8A8A8A #121212 !important;
+}
+
+html body div main.main-content-maestro::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body div main.main-content-maestro::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+html body div main.main-content-maestro::-webkit-scrollbar-thumb {
+  background: #8A8A8A !important;
+  border-radius: 4px !important;
+  border: 1px solid #121212 !important;
+}
+
+html body div main.main-content-maestro::-webkit-scrollbar-thumb:hover {
+  background: #757575 !important;
+}
+
+/* Aplicar también al body si es el elemento que hace scroll */
+html body.body-maestro {
+  scrollbar-width: thin !important;
+  scrollbar-color: #8A8A8A #121212 !important;
+}
+
+html body.body-maestro::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+html body.body-maestro::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+html body.body-maestro::-webkit-scrollbar-thumb {
+  background: #8A8A8A !important;
+  border-radius: 4px !important;
+  border: 1px solid #121212 !important;
+}
+
+html body.body-maestro::-webkit-scrollbar-thumb:hover {
+  background: #757575 !important;
+}

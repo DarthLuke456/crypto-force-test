@@ -1,0 +1,91 @@
+/* ULTRA FORZAR SCROLLBAR AMARILLA PARA ACÓLITO - MÁXIMA AGRESIVIDAD */
+
+/* Aplicar a TODOS los elementos posibles */
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: #FFD447 #121212 !important;
+}
+
+*::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+*::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #FFD447 !important;
+  border-radius: 4px !important;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 212, 71, 0.8) !important;
+}
+
+/* Específicamente para body con clase acolito */
+body.body-acolito,
+body.body-acolito * {
+  scrollbar-width: thin !important;
+  scrollbar-color: #FFD447 #121212 !important;
+}
+
+body.body-acolito::-webkit-scrollbar,
+body.body-acolito *::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+body.body-acolito::-webkit-scrollbar-track,
+body.body-acolito *::-webkit-scrollbar-track {
+  background: #121212 !important;
+  border-radius: 4px !important;
+}
+
+body.body-acolito::-webkit-scrollbar-thumb,
+body.body-acolito *::-webkit-scrollbar-thumb {
+  background: #FFD447 !important;
+  border-radius: 4px !important;
+}
+
+body.body-acolito::-webkit-scrollbar-thumb:hover,
+body.body-acolito *::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 212, 71, 0.8) !important;
+}
+
+/* Específicamente para main */
+main,
+main.main-content-acolito,
+main[class*="main-content-acolito"] {
+  scrollbar-width: thin !important;
+  scrollbar-color: #FFD447 #121212 !important;
+}
+
+main::-webkit-scrollbar,
+main.main-content-acolito::-webkit-scrollbar,
+main[class*="main-content-acolito"]::-webkit-scrollbar {
+  width: 8px !important;
+  display: block !important;
+}
+
+main::-webkit-scrollbar-track,
+main.main-content-acolito::-webkit-scrollbar-track,
+main[class*="main-content-acolito"]::-webkit-scrollbar-track {
+  background: rgba(255, 212, 71, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+main::-webkit-scrollbar-thumb,
+main.main-content-acolito::-webkit-scrollbar-thumb,
+main[class*="main-content-acolito"]::-webkit-scrollbar-thumb {
+  background: #FFD447 !important;
+  border-radius: 4px !important;
+}
+
+main::-webkit-scrollbar-thumb:hover,
+main.main-content-acolito::-webkit-scrollbar-thumb:hover,
+main[class*="main-content-acolito"]::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 212, 71, 0.8) !important;
+}

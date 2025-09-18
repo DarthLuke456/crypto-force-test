@@ -1,0 +1,6 @@
+# Exclude scripts directory from Vercel deployment
+scripts/
+.env.local
+.env.example
+README.md
+.git/
