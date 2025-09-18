@@ -1,6 +1,4 @@
-# Exclude scripts directory from Vercel deployment
-scripts/
-.env.local
-.env.example
-README.md
-.git/
+# Force Vercel to rebuild
+node_modules
+.next
+.vercel

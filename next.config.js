@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Configuración estable sin romper Next.js
+  // Cache buster for Vercel deployment
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
   async headers() {
     return [
       {
