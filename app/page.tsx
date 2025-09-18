@@ -59,7 +59,7 @@ export default function HomePage() {
             {/* Title section - Updated with TEST styling - Vercel Cache Buster 2024-12-19-1734567890 */}
             <div className="mb-16">
               <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-6 leading-tight tracking-tight">
-                <span className="text-white">CRYPTOFORCE</span> <span className="text-red-500 font-bold text-6xl">- TEST</span>
+                <span className="text-white">CRYPTOFORCE</span> <span className="text-red-500 font-bold text-6xl">- TEST - CAMBIO VISIBLE</span>
               </h1>
               <div className="w-24 h-1 bg-gradient-to-r from-[#ec4d58] to-[#d93c47] mx-auto mb-8"></div>
               <p className="text-xl sm:text-2xl text-[#8a8a8a] font-light max-w-2xl mx-auto">
