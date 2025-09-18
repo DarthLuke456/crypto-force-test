@@ -8,7 +8,7 @@ import { useSidebar } from "./SidebarContext";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight, Menu, LogOut, Compass, MessageSquare } from 'lucide-react';
 import { useSafeAuth } from '@/context/AuthContext';
-import { useAvatar } from '@/hooks/useAvatar';
+import { useAvatarSync } from '@/hooks/useAvatarSync';
 import { useMyFeedback } from '@/hooks/useMyFeedback';
 // Removed FeedbackModalEnhanced import - now using dedicated page
 
@@ -20,7 +20,7 @@ export default function Sidebar() {
   const loading = authContext?.loading;
   const [isClient, setIsClient] = useState(false);
   // Removed feedback modal state - now using dedicated page
-  const { avatar: userAvatar } = useAvatar();
+  const { avatar: userAvatar } = useAvatarSync();
   const { hasNewResponses } = useMyFeedback();
   
   // Verificar si estamos en el cliente

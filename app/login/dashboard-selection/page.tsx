@@ -215,12 +215,17 @@ export default function DashboardSelectionPage() {
       await changeAvatar(compressedBase64);
       console.log('✅ handleAvatarChange - Avatar actualizado correctamente');
       
-      // Esperar un momento para que se complete la actualización en la base de datos
+      // Forzar actualización inmediata sin esperar
+      forceUpdate();
+      console.log('🔄 Avatar sincronizado inmediatamente');
+      
+      // Recargar desde base de datos después de un breve delay para confirmar
       setTimeout(async () => {
         await reloadAvatar();
         forceUpdate();
-        console.log('🔄 Avatar sincronizado en todos los componentes');
-      }, 500);
+        console.log('🔄 Avatar recargado desde base de datos y sincronizado');
+      }, 1000);
+      
       alert('Avatar actualizado correctamente');
     } catch (error) {
       console.error('❌ handleAvatarChange - Error completo:', error);

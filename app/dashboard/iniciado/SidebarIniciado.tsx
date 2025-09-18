@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSafeAuth } from '@/context/AuthContext';
-import { useAvatar } from '@/hooks/useAvatar';
+import { useAvatarSync } from '@/hooks/useAvatarSync';
 import { 
   HomeIcon, 
   ChartBarIcon, 
@@ -25,7 +25,7 @@ export default function SidebarIniciado({ isCollapsed = false }: SidebarIniciado
   const router = useRouter();
   const pathname = usePathname();
   const { userData, loading } = useSafeAuth();
-  const { avatar: userAvatar } = useAvatar();
+  const { avatar: userAvatar } = useAvatarSync();
   const [showCompass, setShowCompass] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);

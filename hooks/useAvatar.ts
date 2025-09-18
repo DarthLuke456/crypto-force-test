@@ -70,9 +70,19 @@ export function useAvatar() {
       }
 
       const avatarUrl = profile && profile.length > 0 ? profile[0]?.avatar || null : null;
-      globalAvatarCache = avatarUrl;
-      setAvatar(avatarUrl);
-      saveAvatarToStorage(avatarUrl);
+      
+      // Solo actualizar si no hay un avatar más reciente en el cache local
+      const storedAvatar = loadAvatarFromStorage();
+      if (storedAvatar && storedAvatar !== avatarUrl) {
+        console.log('🔄 useAvatar - Usando avatar del cache local (más reciente)');
+        globalAvatarCache = storedAvatar;
+        setAvatar(storedAvatar);
+      } else {
+        console.log('🔄 useAvatar - Cargando avatar desde base de datos');
+        globalAvatarCache = avatarUrl;
+        setAvatar(avatarUrl);
+        saveAvatarToStorage(avatarUrl);
+      }
     } catch (error) {
       console.error('Error loading avatar:', error);
     } finally {
@@ -84,11 +94,17 @@ export function useAvatar() {
     if (!newAvatar) return;
 
     try {
+      console.log('🔄 useAvatar - Iniciando cambio de avatar...');
+      
+      // Actualizar inmediatamente el estado local para feedback visual
+      updateAvatar(newAvatar);
+      
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
         throw new Error('No hay sesión activa');
       }
 
+      console.log('🔄 useAvatar - Enviando avatar a API...');
       const response = await fetch('/api/profile/avatar', {
         method: 'POST',
         headers: {
@@ -100,14 +116,36 @@ export function useAvatar() {
 
       if (response.ok) {
         const result = await response.json();
-        // El avatar ya se actualizó localmente, solo confirmar
+        console.log('✅ useAvatar - Avatar actualizado en base de datos');
+        
+        // Confirmar que el avatar se mantiene
         updateAvatar(newAvatar);
+        
+        // Forzar actualización global
+        globalAvatarCache = newAvatar;
+        saveAvatarToStorage(newAvatar);
+        
+        // Notificar a todos los listeners
+        avatarListeners.forEach(listener => listener(newAvatar));
+        
+        // Disparar evento global
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('avatarChanged', { 
+            detail: { avatar: newAvatar } 
+          }));
+        }
+        
+        console.log('✅ useAvatar - Avatar sincronizado globalmente');
       } else {
         const errorData = await response.json();
+        console.error('❌ useAvatar - Error de API:', errorData);
         throw new Error(errorData.error || 'Error actualizando avatar');
       }
     } catch (error) {
-      console.error('Error changing avatar:', error);
+      console.error('❌ useAvatar - Error changing avatar:', error);
+      // Revertir el cambio local si falla
+      const storedAvatar = loadAvatarFromStorage();
+      updateAvatar(storedAvatar);
       throw error;
     }
   }, [updateAvatar]);
@@ -207,8 +245,10 @@ export function useAvatar() {
   }, [loadAvatar, refreshAvatar, updateAvatar]);
 
   const forceUpdate = useCallback(() => {
+    console.log('🔄 useAvatar - Forzando actualización de avatar...');
     const storedAvatar = loadAvatarFromStorage();
     globalAvatarCache = storedAvatar;
+    setAvatar(storedAvatar);
     avatarListeners.forEach(listener => listener(storedAvatar));
     
     if (typeof window !== 'undefined') {
@@ -216,9 +256,12 @@ export function useAvatar() {
         detail: { avatar: storedAvatar } 
       }));
     }
+    console.log('✅ useAvatar - Avatar forzado actualizado:', storedAvatar ? 'Presente' : 'Ausente');
   }, []);
 
   const reloadAvatar = useCallback(async () => {
+    console.log('🔄 useAvatar - Recargando avatar desde base de datos...');
+    globalAvatarCache = null; // Limpiar cache para forzar recarga
     await loadAvatar();
   }, [loadAvatar]);
 

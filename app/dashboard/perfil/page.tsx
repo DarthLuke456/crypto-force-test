@@ -39,7 +39,7 @@ const getLevelColor = (level: number) => {
 
 export default function PerfilPage() {
   const { user, userData } = useSafeAuth();
-  const { avatar: userAvatar, changeAvatar } = useAvatar();
+  const { avatar: userAvatar, changeAvatar, forceUpdate } = useAvatar();
   const { stats: referralStats, loading: referralLoading } = useReferralDataSimple();
   
   // Estado para dashboard level (debe estar al inicio)
@@ -296,13 +296,21 @@ export default function PerfilPage() {
           setLoading(true);
           setError(null);
           
+          console.log('🔄 Perfil - Actualizando avatar...');
           await changeAvatar(ev.target.result);
           
+          // Actualizar estado local inmediatamente
           setProfileData(prev => ({ ...prev, avatar: ev.target?.result as string }));
+          
+          // Forzar actualización global
+          forceUpdate();
+          
           setShowSuccess(true);
           setTimeout(() => setShowSuccess(false), 2000);
+          
+          console.log('✅ Perfil - Avatar actualizado y sincronizado');
         } catch (error) {
-          console.error('Error actualizando avatar:', error);
+          console.error('❌ Perfil - Error actualizando avatar:', error);
           setError('Error de conexión');
         } finally {
           setLoading(false);
