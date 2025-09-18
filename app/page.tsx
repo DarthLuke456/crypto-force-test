@@ -56,10 +56,10 @@ export default function HomePage() {
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 py-12">
           <div className={`max-w-5xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             
-            {/* Title section */}
+            {/* Title section - Updated with TEST styling */}
             <div className="mb-16">
               <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-6 leading-tight tracking-tight">
-                <span className="text-[#fafafa]">CRYPTOFORCE</span> <span className="text-[#ec4d58]">- TEST</span>
+                <span className="text-[#fafafa]">CRYPTOFORCE</span> <span className="text-[#ec4d58] font-bold">- TEST</span>
               </h1>
               <div className="w-24 h-1 bg-gradient-to-r from-[#ec4d58] to-[#d93c47] mx-auto mb-8"></div>
               <p className="text-xl sm:text-2xl text-[#8a8a8a] font-light max-w-2xl mx-auto">
