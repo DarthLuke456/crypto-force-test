@@ -59,7 +59,7 @@ export default function HomePage() {
             {/* Title section */}
             <div className="mb-16">
               <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold mb-6 text-[#fafafa] leading-tight tracking-tight">
-                CRYPTOFORCE
+                CRYPTOFORCE <span className="text-[#ec4d58]">- TEST</span>
               </h1>
               <div className="w-24 h-1 bg-gradient-to-r from-[#ec4d58] to-[#d93c47] mx-auto mb-8"></div>
               <p className="text-xl sm:text-2xl text-[#8a8a8a] font-light max-w-2xl mx-auto">
