@@ -29,7 +29,6 @@ import {
 import { useSafeAuth } from '@/context/AuthContext';
 import { useDarthSidebar } from '@/app/dashboard/darth/DarthSidebarContext';
 import { useAvatar } from '@/hooks/useAvatar';
-import { supabase } from '@/lib/supabaseClient';
 
 interface MenuItem {
   href: string;
