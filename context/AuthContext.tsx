@@ -82,9 +82,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     
-    // Timeout de 10 segundos para evitar que se cuelgue
+    // Timeout de 5 segundos para evitar que se cuelgue
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout')), 10000);
+      setTimeout(() => reject(new Error('Timeout')), 5000);
     });
     
     try {
@@ -135,7 +135,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('⏰ [USERDATA] Timeout obteniendo datos del usuario');
       }
       console.log('🔄 [USERDATA] Creando usuario básico como fallback...');
-      await createBasicUser(userEmail);
+      try {
+        await createBasicUser(userEmail);
+      } catch (createError) {
+        console.error('❌ [USERDATA] Error creando usuario básico:', createError);
+        // Si todo falla, al menos marcar como listo
+        console.log('🔄 [USERDATA] Estableciendo isReady=true como último recurso');
+        setLoading(false);
+        setIsReady(true);
+      }
     }
   };
 
@@ -167,13 +175,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       referral_code: basicUser.referral_code
     });
     
+    // Timeout de 5 segundos para evitar que se cuelgue
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 5000);
+    });
+    
     try {
       console.log('📡 [CREATEUSER] Insertando usuario en base de datos...');
-      const { data: insertedUser, error: insertError } = await supabase
+      
+      const insertPromise = supabase
         .from('users')
         .insert([basicUser])
         .select()
         .single();
+      
+      const { data: insertedUser, error: insertError } = await Promise.race([
+        insertPromise,
+        timeoutPromise
+      ]) as any;
 
       if (insertError) {
         console.warn('⚠️ [CREATEUSER] Error al insertar usuario:', insertError.message);
@@ -181,21 +200,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (insertError.code === '23505') {
           console.log('🔄 [CREATEUSER] Usuario ya existe, obteniendo datos existentes...');
           // Usuario ya existe, obtener datos existentes
-          const { data: existingUser, error: fetchError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', userEmail)
-            .single();
+          try {
+            const { data: existingUser, error: fetchError } = await supabase
+              .from('users')
+              .select('*')
+              .eq('email', userEmail)
+              .single();
 
-          if (existingUser && !fetchError) {
-            console.log('✅ [CREATEUSER] Usuario existente encontrado:', {
-              id: existingUser.id,
-              email: existingUser.email,
-              user_level: existingUser.user_level
-            });
-            setUserData(existingUser);
-            userDataFetched.current = true;
-            return;
+            if (existingUser && !fetchError) {
+              console.log('✅ [CREATEUSER] Usuario existente encontrado:', {
+                id: existingUser.id,
+                email: existingUser.email,
+                user_level: existingUser.user_level
+              });
+              setUserData(existingUser);
+              userDataFetched.current = true;
+              return;
+            }
+          } catch (fetchError) {
+            console.error('❌ [CREATEUSER] Error obteniendo usuario existente:', fetchError);
           }
         }
         throw insertError;
@@ -210,6 +233,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error('❌ [CREATEUSER] Error creando usuario básico:', error);
+      if (error instanceof Error && error.message === 'Timeout') {
+        console.error('⏰ [CREATEUSER] Timeout creando usuario básico');
+      }
+      // Si todo falla, al menos marcar como listo
+      console.log('🔄 [CREATEUSER] Estableciendo isReady=true como último recurso');
+      setLoading(false);
+      setIsReady(true);
     }
     
     console.log('🔄 [CREATEUSER] Marcando datos como obtenidos');
@@ -382,13 +412,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('🔄 [SESSION] Estableciendo usuario en contexto...');
           setUser(session.user);
           
-          console.log('📊 [SESSION] Obteniendo datos del usuario...');
-          try {
-            await fetchUserData(session.user.email!);
-          } catch (error) {
-            console.error('❌ [SESSION] Error obteniendo datos del usuario:', error);
-            // Continuar aunque falle fetchUserData
-          }
+        console.log('📊 [SESSION] Obteniendo datos del usuario...');
+        try {
+          await fetchUserData(session.user.email!);
+        } catch (error) {
+          console.error('❌ [SESSION] Error obteniendo datos del usuario:', error);
+          // Continuar aunque falle fetchUserData
+          console.log('🔄 [SESSION] Estableciendo isReady=true a pesar del error');
+          setLoading(false);
+          setIsReady(true);
+        }
         } else {
           console.log('⚠️ [SESSION] No hay sesión activa, verificando almacenamiento local...');
           // Verificar si hay una sesión almacenada localmente
@@ -427,7 +460,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('⏰ [SESSION] Timeout de seguridad - estableciendo isReady=true');
       setLoading(false);
       setIsReady(true);
-    }, 15000); // 15 segundos de timeout
+    }, 8000); // 8 segundos de timeout
 
     console.log('🔄 [SESSION] Marcando componente como montado');
     mounted.current = true;
