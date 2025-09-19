@@ -25,20 +25,9 @@ function MaestroLayoutContent({
 
   useEffect(() => {
     const checkAccess = async () => {
-      // Prevenir bucles de redirección
-      const redirectCount = parseInt(sessionStorage.getItem('maestroRedirectCount') || '0');
-      if (redirectCount > 2) {
-        console.error('🚫 Bucle de redirección detectado en maestro layout, deteniendo...');
-        sessionStorage.removeItem('maestroRedirectCount');
-        setIsAuthorized(false);
-        setIsLoading(false);
-        return;
-      }
-
       if (isReady) {
         if (!userData) {
           console.log('🚫 MAESTRO LAYOUT: No hay usuario, redirigiendo a login');
-          sessionStorage.setItem('maestroRedirectCount', (redirectCount + 1).toString());
           router.replace('/login/signin');
           return;
         }
@@ -66,8 +55,6 @@ function MaestroLayoutContent({
         console.log('✅ MAESTRO LAYOUT: Acceso autorizado por email');
         setIsAuthorized(true);
         setIsLoading(false);
-        // Limpiar contador de redirección al autorizar
-        sessionStorage.removeItem('maestroRedirectCount');
       }
     };
 
