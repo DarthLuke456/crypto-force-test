@@ -39,6 +39,7 @@ import { useSafeAuth } from '@/context/AuthContext';
 import EnhancedModuloCarousel from './components/EnhancedModuloCarousel';
 import DynamicCarousel from './components/DynamicCarousel';
 import { useDynamicModules } from '@/hooks/useDynamicModules';
+import TribunalContentInjector from '@/components/tribunal/TribunalContentInjector';
 
 interface Module {
   id: string;
@@ -698,7 +699,7 @@ export default function IniciadoDashboard() {
     refreshModules 
   } = useDynamicModules();
 
-  // Módulos dinámicos (sin referencias al Tribunal Imperial)
+  // Módulos dinámicos
 
   // Objetivos a lograr
   const objectives: Objective[] = [
@@ -1065,71 +1066,19 @@ export default function IniciadoDashboard() {
           </div>
         )}
 
-        {/* Fallback Carousel - Carrusel de Respaldo */}
-        {tribunalLoading && (
+        {/* Tribunal Imperial - Sistema de Inyección de Contenido */}
         <div className="mb-8 md:mb-12 px-2 md:px-0">
-          <EnhancedModuloCarousel 
-            modules={allModules.map(module => ({
-              id: module.id,
-              title: module.title,
-              path: module.path,
-              icon: module.icon,
-              description: module.description,
-              isCompleted: isModuleCompleted(module.id),
-              isLocked: module.isLocked || false,
-              level: module.level,
-              type: module.type,
-              moduleNumber: module.moduleNumber
-            }))}
-            title={activeTab === 'theoretical' ? 'Módulos Teóricos' : 'Módulos Prácticos'}
+          <TribunalContentInjector
+            targetLevel={1} // Iniciado
+            targetDashboard="iniciado"
+            category={activeTab as 'theoretical' | 'practical'}
+            onContentClick={(content) => {
+              console.log('Contenido seleccionado:', content);
+              // Aquí se puede implementar navegación específica
+            }}
           />
         </div>
-        )}
 
-        {/* Tribunal Imperial Stats - Estadísticas del Tribunal Imperial */}
-        {!tribunalLoading && (
-          <div className="mb-8 md:mb-12 px-2 md:px-0">
-            <div className="w-full max-w-4xl mx-auto">
-              <div className="bg-gradient-to-r from-[#fafafa]/10 to-[#fafafa]/5 border border-[#fafafa]/30 rounded-xl p-6 mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-[#fafafa] rounded-full flex items-center justify-center">
-                      <Crown className="w-5 h-5 text-[#121212]" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-[#fafafa]">Tribunal Imperial</h3>
-                      <p className="text-[#8a8a8a] text-sm">
-                        Sistema de módulos dinámicos con el estilo y estructura del Tribunal Imperial
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={refreshTribunalModules}
-                    className="p-2 hover:bg-[#fafafa]/20 rounded-lg transition-colors"
-                    title="Actualizar contenido del Tribunal Imperial"
-                  >
-                    <RefreshCw className="w-5 h-5 text-[#fafafa]" />
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-[#fafafa] rounded-full"></div>
-                    <span className="text-[#fafafa]">{tribunalStats().theoreticalCount} módulos teóricos</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-[#fafafa]">{tribunalStats().practicalCount} módulos prácticos</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-[#fafafa]">{tribunalStats().checkpointCount} puntos de control</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                    <span className="text-[#fafafa]">{tribunalStats().totalDuration} min duración total</span>
-                  </div>
-                </div>
-              </div>
 
               {/* Carrusel Teórico Dinámico */}
               {activeTab === 'theoretical' && dynamicTheoretical.length > 0 && (

@@ -147,23 +147,16 @@ export function useTribunalContentInjection(targetLevel: number, targetDashboard
       setLoading(true);
       setError(null);
 
-      const { data, error: fetchError } = await supabase
-        .from('content_injections')
-        .select(`
-          *,
-          tribunal_content (*)
-        `)
-        .eq('target_level', targetLevel)
-        .eq('target_dashboard', targetDashboard)
-        .eq('is_active', true)
-        .order('display_order', { ascending: true });
+      const response = await fetch(
+        `/api/tribunal/inject?targetLevel=${targetLevel}&targetDashboard=${targetDashboard}`
+      );
 
-      if (fetchError) {
-        throw fetchError;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const content = data?.map(injection => injection.tribunal_content).filter(Boolean) || [];
-      setInjections(content);
+      const data = await response.json();
+      setInjections(data.content || []);
     } catch (err) {
       console.error('Error fetching content injections:', err);
       setError(err instanceof Error ? err.message : 'Error desconocido');
