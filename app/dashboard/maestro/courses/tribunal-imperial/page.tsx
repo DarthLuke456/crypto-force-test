@@ -530,6 +530,17 @@ export default function TribunalImperialPage() {
     );
   }
 
+  // Debug logs para diagnosticar el problema
+  console.log('🔍 [TRIBUNAL] Debug info:', {
+    userData: userData,
+    userLevel: userData.user_level,
+    userEmail: userData.email,
+    canAccess: canUserAccessTribunal(userData.user_level),
+    isLevel0: userData.user_level === 0,
+    isLevel5OrHigher: userData.user_level >= 5,
+    timestamp: new Date().toISOString()
+  });
+
   if (!canUserAccessTribunal(userData.user_level)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
@@ -537,6 +548,7 @@ export default function TribunalImperialPage() {
           <h1 className="text-2xl font-bold text-white mb-4">Acceso Denegado</h1>
           <p className="text-[#a0a0a0] mb-6">Tu nivel de usuario no tiene acceso al Tribunal Imperial</p>
           <p className="text-[#6a6a6a] text-sm">Tu nivel actual: {userData.user_level}</p>
+          <p className="text-[#6a6a6a] text-sm">Tu email: {userData.email}</p>
           <p className="text-[#6a6a6a] text-sm">Niveles permitidos: 0 (Maestro Fundador), 5 (Darth), 6 (Maestro)</p>
         </div>
       </div>

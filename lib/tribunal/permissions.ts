@@ -180,12 +180,13 @@ export function canUserViewAllProposals(userLevel: number): boolean {
 // Función para verificar si un usuario puede acceder al tribunal imperial
 export function canUserAccessTribunal(userLevel: number): boolean {
   // Solo Maestros Fundadores (0), Darths (5) y Maestros (6) pueden acceder
-  const hasAccess = userLevel === 0 || userLevel >= 5;
+  const hasAccess = userLevel === 0 || userLevel === 5 || userLevel === 6;
   
   console.log('🔍 canUserAccessTribunal - Debug:', {
     userLevel,
     isLevel0: userLevel === 0,
-    isLevel5OrHigher: userLevel >= 5,
+    isLevel5: userLevel === 5,
+    isLevel6: userLevel === 6,
     hasAccess,
     timestamp: new Date().toISOString()
   });
