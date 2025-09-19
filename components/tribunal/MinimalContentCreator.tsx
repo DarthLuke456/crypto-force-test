@@ -504,7 +504,7 @@ export default function MinimalContentCreator({
                             {getVideoEmbed(block.content) ? (
                               <div className="relative w-full h-48 bg-black rounded overflow-hidden">
                                 <iframe
-                                  src={getVideoEmbed(block.content)}
+                                  src={getVideoEmbed(block.content) || ''}
                                   className="w-full h-full"
                                   frameBorder="0"
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
