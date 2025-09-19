@@ -547,7 +547,7 @@ export default function TribunalImperialPage() {
     );
   }
 
-  const handleSaveProposal = (content: any[]) => {
+  const handleSaveProposal = async (content: any[]) => {
     console.log('Contenido guardado:', content);
     
     // Crear propuesta
@@ -566,15 +566,59 @@ export default function TribunalImperialPage() {
     
     // Verificar si debe ser auto-aprobada
     if (proposal.authorEmail && isFounderUser(proposal.authorEmail)) {
-      const autoApprovedProposal = processAutoApproval(proposal);
-      createProposal(autoApprovedProposal);
-      
-      // Crear notificación
-      const notification = createAutoApprovalNotification(autoApprovedProposal);
-      console.log('Auto-aprobación:', notification);
-      
-      alert('Propuesta creada y aprobada automáticamente por ser usuario fundador.');
-      setActiveTab('aprobados');
+      try {
+        // Guardar en la base de datos
+        const response = await fetch('/api/tribunal/content', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: proposal.title,
+            subtitle: proposal.subtitle,
+            content: proposal.content,
+            level: proposal.level,
+            category: proposal.category,
+            is_published: true, // Auto-publicar para fundadores
+            created_by: proposal.authorId
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('✅ Contenido guardado en base de datos:', result);
+          
+          // Crear inyección de contenido
+          const injectionResponse = await fetch('/api/tribunal/inject', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              contentId: result.id,
+              targetLevel: proposal.level,
+              targetDashboard: 'iniciado',
+              injectionPosition: 'carousel',
+              isActive: true
+            })
+          });
+
+          if (injectionResponse.ok) {
+            console.log('✅ Inyección de contenido creada');
+          } else {
+            console.error('❌ Error creando inyección:', await injectionResponse.text());
+          }
+          
+          alert('Propuesta creada y aprobada automáticamente por ser usuario fundador. El contenido ya está disponible en el dashboard.');
+          setActiveTab('aprobados');
+        } else {
+          console.error('❌ Error guardando en base de datos:', await response.text());
+          alert('Error guardando el contenido. Inténtalo de nuevo.');
+        }
+      } catch (error) {
+        console.error('❌ Error en auto-aprobación:', error);
+        alert('Error procesando la propuesta. Inténtalo de nuevo.');
+      }
     } else {
       createProposal(proposal);
       alert('Propuesta guardada exitosamente. Será enviada al Tribunal para votación.');

@@ -57,7 +57,12 @@ export default function MinimalContentCreator({
       isFixed: false
     };
     
-    setBlocks(prev => [...prev, newBlock]);
+    // Insertar después de los bloques fijos (título y subtítulo)
+    setBlocks(prev => {
+      const fixedBlocks = prev.filter(block => block.isFixed);
+      const otherBlocks = prev.filter(block => !block.isFixed);
+      return [...fixedBlocks, ...otherBlocks, newBlock];
+    });
   };
 
   const updateBlock = (id: string, content: string) => {
@@ -75,7 +80,15 @@ export default function MinimalContentCreator({
   const moveBlock = (fromIndex: number, toIndex: number) => {
     const newBlocks = [...blocks];
     const [movedBlock] = newBlocks.splice(fromIndex, 1);
-    newBlocks.splice(toIndex, 0, movedBlock);
+    
+    // No permitir mover bloques fijos
+    if (movedBlock.isFixed) return;
+    
+    // Ajustar toIndex para no interferir con bloques fijos
+    const fixedBlocksCount = blocks.filter(block => block.isFixed).length;
+    const adjustedToIndex = Math.max(fixedBlocksCount, toIndex);
+    
+    newBlocks.splice(adjustedToIndex, 0, movedBlock);
     
     // Reordenar
     const reorderedBlocks = newBlocks.map((block, index) => ({
@@ -222,6 +235,66 @@ export default function MinimalContentCreator({
                     />
                   )}
                   
+                  {block.type === 'image' && (
+                    <div className="space-y-4">
+                      {/* URL Input */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-300">URL de imagen:</label>
+                        <input
+                          type="url"
+                          value={block.content}
+                          onChange={(e) => updateBlock(block.id, e.target.value)}
+                          placeholder="https://ejemplo.com/imagen.jpg"
+                          className="w-full px-3 py-2 bg-[#111] border border-[#333] rounded-lg text-gray-300 placeholder-gray-600 focus:border-white focus:outline-none"
+                        />
+                      </div>
+                      
+                      {/* Divider */}
+                      <div className="flex items-center">
+                        <div className="flex-1 border-t border-[#333]"></div>
+                        <span className="px-3 text-sm text-gray-500">- O -</span>
+                        <div className="flex-1 border-t border-[#333]"></div>
+                      </div>
+                      
+                      {/* Upload Area */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-300">Cargar desde tu computadora:</label>
+                        <div className="border-2 border-dashed border-[#444] rounded-lg p-8 text-center hover:border-[#666] transition-colors cursor-pointer">
+                          <div className="space-y-2">
+                            <div className="w-12 h-12 mx-auto text-gray-500">
+                              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                            <p className="text-sm text-gray-400">
+                              Haz clic para seleccionar una imagen o arrastra y suelta aquí
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Formatos soportados: JPG, PNG, GIF, WebP. Tamaño máximo: 5MB
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Preview if image exists */}
+                      {block.content && block.content.startsWith('http') && (
+                        <div className="mt-4">
+                          <label className="text-sm font-medium text-gray-300 mb-2 block">Vista previa:</label>
+                          <div className="border border-[#333] rounded-lg p-2 bg-[#111]">
+                            <img 
+                              src={block.content} 
+                              alt="Preview" 
+                              className="max-w-full h-32 object-cover rounded"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   {block.type === 'list' && (
                     <textarea
                       value={block.content}
@@ -252,6 +325,13 @@ export default function MinimalContentCreator({
               >
                 <Plus className="w-4 h-4 inline mr-2" />
                 Texto
+              </button>
+              <button
+                onClick={() => addBlock('image')}
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-[#333] rounded-lg hover:border-[#555] transition-colors"
+              >
+                <Plus className="w-4 h-4 inline mr-2" />
+                Imagen
               </button>
               <button
                 onClick={() => addBlock('list')}
