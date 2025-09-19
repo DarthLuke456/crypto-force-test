@@ -25,9 +25,17 @@ function MaestroLayoutContent({
 
   useEffect(() => {
     const checkAccess = async () => {
+      console.log('🔍 MAESTRO LAYOUT: checkAccess ejecutándose...', {
+        isReady,
+        hasUserData: !!userData,
+        userEmail: userData?.email,
+        userLevel: userData?.user_level,
+        timestamp: new Date().toISOString()
+      });
+
       if (isReady) {
         if (!userData) {
-          console.log('🚫 No hay usuario, redirigiendo a login');
+          console.log('🚫 MAESTRO LAYOUT: No hay usuario, redirigiendo a login');
           router.replace('/login/signin');
           return;
         }
@@ -45,13 +53,14 @@ function MaestroLayoutContent({
         // Verificar autorización real para producción
         if (!clientAuthorized) {
           console.log('🚫 MAESTRO LAYOUT: Acceso denegado - Email no autorizado para maestro');
-          router.replace('/login/dashboard-selection');
+          // En lugar de redirigir, mostrar mensaje de error
+          setIsAuthorized(false);
+          setIsLoading(false);
           return;
         }
 
         console.log('✅ MAESTRO LAYOUT: Acceso autorizado por email');
         setIsAuthorized(true);
-
         setIsLoading(false);
       }
     };
@@ -72,7 +81,20 @@ function MaestroLayoutContent({
       <div className="min-h-screen bg-[#121212] flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-400 text-xl mb-4">Acceso Denegado</div>
-          <p className="text-gray-400">No tienes permisos para acceder al dashboard de maestro.</p>
+          <p className="text-gray-400 mb-2">No tienes permisos para acceder al dashboard de maestro.</p>
+          {userData && (
+            <div className="text-gray-500 text-sm mb-4">
+              <p>Email: {userData.email}</p>
+              <p>Nivel: {userData.user_level}</p>
+              <p>Emails autorizados: {MAESTRO_AUTHORIZED_EMAILS.join(', ')}</p>
+            </div>
+          )}
+          <button 
+            onClick={() => window.location.href = '/login/dashboard-selection'}
+            className="px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+          >
+            Volver a Selección de Dashboard
+          </button>
         </div>
       </div>
     );
