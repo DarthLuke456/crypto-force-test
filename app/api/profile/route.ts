@@ -9,14 +9,14 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 // Función para generar código de referido único
 function generateReferralCode(nickname?: string): string {
   if (nickname) {
-    // Formato: CRYPTOFORCE_NICKNAME (sin espacios, solo mayúsculas)
+    // Formato: CRYPTOFORCE-NICKNAME (sin espacios, solo mayúsculas, con guión medio)
     const cleanNickname = nickname.replace(/[^A-Z0-9]/g, '').toUpperCase();
-    return `CRYPTOFORCE_${cleanNickname}`;
+    return `CRYPTOFORCE-${cleanNickname}`;
   } else {
     // Si no hay nickname, usar formato genérico
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-    return `CRYPTOFORCE_${timestamp}${random}`;
+    return `CRYPTOFORCE-${timestamp}${random}`;
   }
 }
 

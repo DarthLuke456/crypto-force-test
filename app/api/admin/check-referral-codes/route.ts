@@ -11,11 +11,11 @@ export async function GET() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
     
-    // Obtener todos los usuarios con códigos CRYPTOFORCE_
+    // Obtener todos los usuarios con códigos CRYPTOFORCE-
     const { data: users, error: usersError } = await supabase
       .from('users')
       .select('email, nickname, referral_code, user_level, created_at')
-      .like('referral_code', 'CRYPTOFORCE_%')
+      .like('referral_code', 'CRYPTOFORCE-%')
       .order('referral_code')
       .order('created_at', { ascending: false });
 

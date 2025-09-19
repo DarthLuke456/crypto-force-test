@@ -136,7 +136,7 @@ export default function FixReferralCodesPage() {
                 
                 {checkResult.users && checkResult.users.length > 0 && (
                   <div>
-                    <p className="font-medium mb-2">Usuarios con códigos CRYPTOFORCE_:</p>
+                    <p className="font-medium mb-2">Usuarios con códigos CRYPTOFORCE-:</p>
                     <div className="space-y-1 max-h-40 overflow-y-auto">
                       {checkResult.users.map((user: any, index: number) => (
                         <div key={index} className="flex justify-between items-center p-2 bg-[#1a1a1a] rounded text-xs">
@@ -193,7 +193,7 @@ export default function FixReferralCodesPage() {
               
               {result.finalUsers && result.finalUsers.length > 0 && (
                 <div>
-                  <h3 className="font-medium mb-2">Usuarios con códigos CRYPTOFORCE_:</h3>
+                  <h3 className="font-medium mb-2">Usuarios con códigos CRYPTOFORCE-:</h3>
                   <div className="space-y-2 text-sm">
                     {result.finalUsers.map((user: any, index: number) => (
                       <div key={index} className="flex justify-between items-center p-2 bg-[#1a1a1a] rounded">

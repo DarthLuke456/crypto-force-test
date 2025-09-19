@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       .from('users')
       .update({
         user_level: 0,
-        referral_code: 'CRYPTOFORCE_LUKE',
+        referral_code: 'CRYPTOFORCE-LUKE',
         nickname: 'Luke',
         updated_at: new Date().toISOString()
       })
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       .from('users')
       .update({
         user_level: 0,
-        referral_code: 'CRYPTOFORCE_INFOCRYPTOFORCE',
+        referral_code: 'CRYPTOFORCE-INFOCRYPTOFORCE',
         nickname: 'INFOCRYPTOFORCE',
         updated_at: new Date().toISOString()
       })

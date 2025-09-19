@@ -84,7 +84,7 @@ function EmailConfirmContent() {
                 nombre: data.user.user_metadata?.nombre || '',
                 apellido: data.user.user_metadata?.apellido || '',
                 user_level: 1,
-                referral_code: `CRYPTOFORCE_${Date.now().toString(36).toUpperCase()}`,
+                referral_code: `CRYPTOFORCE-${Date.now().toString(36).toUpperCase()}`,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
               });

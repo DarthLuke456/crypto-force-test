@@ -51,7 +51,7 @@ export default function SignUpPage() {
         }));
       } else {
         // Para pruebas, usar un código de referido de prueba
-        const testCode = 'CRYPTOFORCE_DARTHLUKE';
+        const testCode = 'CRYPTOFORCE-DARTHLUKE';
         console.log('🔍 Usando código de referido de prueba:', testCode);
         setFormData(prev => ({
           ...prev,
@@ -173,9 +173,9 @@ export default function SignUpPage() {
         const { data: allCodes, error: allCodesError } = await supabase
           .from('users')
           .select('email, nickname, referral_code')
-          .like('referral_code', 'CRYPTOFORCE_%');
+          .like('referral_code', 'CRYPTOFORCE-%');
         
-        console.log('🔍 [DEBUG] Todos los códigos CRYPTOFORCE_ en la base de datos:', allCodes);
+        console.log('🔍 [DEBUG] Todos los códigos CRYPTOFORCE- en la base de datos:', allCodes);
         if (allCodesError) {
           console.error('❌ [DEBUG] Error obteniendo todos los códigos:', allCodesError);
         }

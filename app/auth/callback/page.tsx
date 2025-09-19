@@ -54,7 +54,7 @@ export default function AuthCallback() {
               uid: session.user.id,
               nickname: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuario',
               user_level: 1, // Nivel por defecto
-              referral_code: `CRYPTOFORCE_${session.user.user_metadata?.full_name?.replace(/\s+/g, '_').toUpperCase() || 'USER'}`,
+              referral_code: `CRYPTOFORCE-${session.user.user_metadata?.full_name?.replace(/\s+/g, '').toUpperCase() || 'USER'}`,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
             });

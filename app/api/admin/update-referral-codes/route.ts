@@ -8,17 +8,17 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Función para limpiar nickname
 function cleanNickname(nickname: string): string {
-  return nickname.replace(/[^A-Z0-9]/g, '').toUpperCase();
+return nickname.replace(/[^A-Z0-9]/g, '').toUpperCase();
 }
 
 // Función para generar código de referido
 function generateReferralCode(nickname?: string): string {
   if (nickname) {
-    return `CRYPTOFORCE_${cleanNickname(nickname)}`;
+    return `CRYPTOFORCE-${cleanNickname(nickname)}`;
   } else {
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-    return `CRYPTOFORCE_${timestamp}${random}`;
+    return `CRYPTOFORCE-${timestamp}${random}`;
   }
 }
 
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       nombre: 'Darth',
       apellido: 'Luke',
       user_level: 5,
-      referral_code: 'CRYPTOFORCE_DARTHLUKE',
+      referral_code: 'CRYPTOFORCE-DARTHLUKE',
       total_referrals: 0,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     const { data: updatedUsers, error: verifyError } = await supabase
       .from('users')
       .select('id, email, nickname, referral_code, user_level')
-      .like('referral_code', 'CRYPTOFORCE_%')
+      .like('referral_code', 'CRYPTOFORCE-%')
       .order('created_at', { ascending: false })
       .limit(10);
     

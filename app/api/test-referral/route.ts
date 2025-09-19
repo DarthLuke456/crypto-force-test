@@ -15,7 +15,7 @@ export async function GET() {
     const { data: users, error } = await supabase
       .from('users')
       .select('email, nickname, referral_code')
-      .like('referral_code', 'CRYPTOFORCE_%')
+      .like('referral_code', 'CRYPTOFORCE-%')
       .order('referral_code');
 
     if (error) {
@@ -27,8 +27,8 @@ export async function GET() {
       }, { status: 500 });
     }
 
-    // Probar validación del código CRYPTOFORCE_DARTHLUKE
-    const testCode = 'CRYPTOFORCE_DARTHLUKE';
+    // Probar validación del código CRYPTOFORCE-DARTHLUKE
+    const testCode = 'CRYPTOFORCE-DARTHLUKE';
     const { data: referrer, error: searchError } = await supabase
       .from('users')
       .select('id, nickname, email, user_level')

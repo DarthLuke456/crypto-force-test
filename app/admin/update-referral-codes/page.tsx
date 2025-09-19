@@ -33,14 +33,14 @@ export default function UpdateReferralCodesPage() {
         <h1 className="text-3xl font-bold mb-8">Actualizar Códigos de Referido</h1>
         
         <div className="bg-[#1a1a1a] rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Nuevo Formato: CRYPTOFORCE_NICKNAME</h2>
+          <h2 className="text-xl font-semibold mb-4">Nuevo Formato: CRYPTOFORCE-NICKNAME</h2>
           <p className="text-gray-300 mb-4">
             Este script actualizará todos los códigos de referido al nuevo formato:
           </p>
           <ul className="list-disc list-inside text-gray-300 mb-4">
-            <li>Darth Luke → CRYPTOFORCE_DARTHLUKE</li>
-            <li>John Doe → CRYPTOFORCE_JOHNDOE</li>
-            <li>Usuario123 → CRYPTOFORCE_USUARIO123</li>
+            <li>Darth Luke → CRYPTOFORCE-DARTHLUKE</li>
+            <li>John Doe → CRYPTOFORCE-JOHNDOE</li>
+            <li>Usuario123 → CRYPTOFORCE-USUARIO123</li>
           </ul>
           
           <button

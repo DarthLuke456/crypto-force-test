@@ -116,7 +116,7 @@ export default function AnalyticsPage() {
                 
                 if (response.ok) {
                   const result = await response.json();
-                  alert(`✅ Códigos de referido corregidos exitosamente!\n\nCambios aplicados: ${result.corrections.length}\n\nFormato correcto: CRYPTOFORCE_NICKNAME\n\nEjemplos:\n• Vivirviajando6 → CRYPTOFORCE_VIVIRVIAJANDO6\n• Luke → CRYPTOFORCE_LUKE`);
+                  alert(`✅ Códigos de referido corregidos exitosamente!\n\nCambios aplicados: ${result.corrections.length}\n\nFormato correcto: CRYPTOFORCE-NICKNAME\n\nEjemplos:\n• Vivirviajando6 → CRYPTOFORCE-VIVIRVIAJANDO6\n• Luke → CRYPTOFORCE-LUKE`);
                   // Recargar datos
                   fetchRealStats();
                 } else {

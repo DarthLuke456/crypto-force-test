@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     const { data: duplicates, error: duplicatesError } = await supabase
       .from('users')
       .select('id, email, referral_code, created_at')
-      .like('referral_code', 'CRYPTOFORCE_%')
+      .like('referral_code', 'CRYPTOFORCE-%')
       .order('referral_code')
       .order('created_at', { ascending: false });
 
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     console.log('🔧 Actualizando usuario Darth Luke...');
     const { error: darthLukeError } = await supabase
       .from('users')
-      .update({ referral_code: 'CRYPTOFORCE_DARTHLUKE' })
+      .update({ referral_code: 'CRYPTOFORCE-DARTHLUKE' })
       .eq('email', 'coeurdeluke.js@gmail.com')
       .eq('nickname', 'Darth Luke');
     
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
     } else {
       for (const user of usersToUpdate || []) {
         const cleanNickname = user.nickname.replace(/[^A-Z0-9]/g, '').toUpperCase();
-        const newReferralCode = `CRYPTOFORCE_${cleanNickname}`;
+        const newReferralCode = `CRYPTOFORCE-${cleanNickname}`;
         
         const { error: updateError } = await supabase
           .from('users')
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
     // Darth Nihilus
     const { error: darthNihilusError } = await supabase
       .from('users')
-      .update({ referral_code: 'CRYPTOFORCE_DARTHNIHILUS' })
+      .update({ referral_code: 'CRYPTOFORCE-DARTHNIHILUS' })
       .eq('email', 'infocryptoforce@gmail.com')
       .eq('nickname', 'Darth Nihilus');
     
@@ -149,7 +149,7 @@ export async function POST(request: Request) {
     // Pepe Pardo
     const { error: pepePardoError } = await supabase
       .from('users')
-      .update({ referral_code: 'CRYPTOFORCE_PEPEPARDO' })
+      .update({ referral_code: 'CRYPTOFORCE-PEPEPARDO' })
       .eq('email', 'keepcalmandgoahead.58@gmail.com')
       .eq('nickname', 'PepePardo');
     
@@ -162,7 +162,7 @@ export async function POST(request: Request) {
     // DCB
     const { error: dcbError } = await supabase
       .from('users')
-      .update({ referral_code: 'CRYPTOFORCE_DCB' })
+      .update({ referral_code: 'CRYPTOFORCE-DCB' })
       .eq('email', 'doctorcobolblue@gmail.com')
       .eq('nickname', 'DCB');
     
@@ -182,7 +182,7 @@ export async function POST(request: Request) {
         nombre: 'Darth',
         apellido: 'Luke',
         user_level: 5,
-        referral_code: 'CRYPTOFORCE_DARTHLUKE',
+        referral_code: 'CRYPTOFORCE-DARTHLUKE',
         total_referrals: 0,
         uid: crypto.randomUUID(),
         created_at: new Date().toISOString(),
@@ -202,7 +202,7 @@ export async function POST(request: Request) {
     const { data: finalUsers, error: finalError } = await supabase
       .from('users')
       .select('email, nickname, referral_code, user_level')
-      .like('referral_code', 'CRYPTOFORCE_%')
+      .like('referral_code', 'CRYPTOFORCE-%')
       .order('created_at', { ascending: false });
     
     if (finalError) {
