@@ -651,35 +651,56 @@ export default function DashboardSelectionPage() {
     );
   }
 
-  // Verificar si el usuario está autorizado
-  if (userData && userData.email) {
-    const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
-    const isAuthorized = authorizedEmails.includes(userData.email.toLowerCase().trim());
-    
-    if (!isAuthorized) {
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
-          <div className="text-center max-w-md mx-auto p-6">
-            <div className="text-red-500 text-6xl mb-4">🚫</div>
-            <h2 className="text-2xl font-bold text-white mb-4">Acceso Denegado</h2>
-            <p className="text-gray-400 mb-6">
-              No tienes acceso a esta página. Debes estar autenticado correctamente.
-            </p>
-            <p className="text-gray-500 text-sm mb-4">
-              Email detectado: {userData.email}
-            </p>
-            <button
-              onClick={() => {
-                window.location.href = '/login/signin';
-              }}
-              className="w-full px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
-            >
-              Ir al Login
-            </button>
-          </div>
+  // NO MOSTRAR LA PÁGINA SIN DATOS REALES DEL USUARIO
+  if (!userData || !userData.email || userData.email === 'email@ejemplo.com' || userData.nickname === 'Usuario') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#ec4d58] mx-auto mb-4"></div>
+          <h2 className="text-xl font-bold text-white mb-4">Cargando datos del usuario...</h2>
+          <p className="text-gray-400 mb-6">
+            Verificando autenticación y cargando tu perfil.
+          </p>
+          <button
+            onClick={() => {
+              window.location.href = '/login/signin';
+            }}
+            className="px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+          >
+            Ir al Login
+          </button>
         </div>
-      );
-    }
+      </div>
+    );
+  }
+
+  // Verificar si el usuario está autorizado
+  const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
+  const isAuthorized = authorizedEmails.includes(userData.email.toLowerCase().trim());
+  
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 text-6xl mb-4">🚫</div>
+          <h2 className="text-2xl font-bold text-white mb-4">Acceso Denegado</h2>
+          <p className="text-gray-400 mb-6">
+            No tienes acceso a esta página. Debes estar autenticado correctamente.
+          </p>
+          <p className="text-gray-500 text-sm mb-4">
+            Email detectado: {userData.email}
+          </p>
+          <button
+            onClick={() => {
+              window.location.href = '/login/signin';
+            }}
+            className="w-full px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+          >
+            Ir al Login
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -699,8 +720,8 @@ export default function DashboardSelectionPage() {
             {/* Información del usuario y menú de perfil */}
             <div className="flex items-center gap-4">
               <div className="hidden md:flex flex-col items-end">
-                <span className="text-white text-sm font-medium">{userData?.nickname || 'Usuario'}</span>
-                <span className="text-[#8a8a8a] text-xs">{userData?.email || 'email@ejemplo.com'}</span>
+                <span className="text-white text-sm font-medium">{userData?.nickname || 'Cargando...'}</span>
+                <span className="text-[#8a8a8a] text-xs">{userData?.email || 'Cargando...'}</span>
               </div>
               
               {/* Botón de perfil con menú desplegable */}
@@ -797,8 +818,8 @@ export default function DashboardSelectionPage() {
                           </div>
                         </div>
                         <div>
-                          <p className="text-white font-medium text-sm">{userData?.nickname || 'Usuario'}</p>
-                          <p className="text-[#8a8a8a] text-xs">{userData?.email || 'email@ejemplo.com'}</p>
+                          <p className="text-white font-medium text-sm">{userData?.nickname || 'Cargando...'}</p>
+                          <p className="text-[#8a8a8a] text-xs">{userData?.email || 'Cargando...'}</p>
                         </div>
                       </div>
                     </div>
