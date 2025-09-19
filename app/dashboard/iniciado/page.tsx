@@ -1054,18 +1054,6 @@ export default function IniciadoDashboard() {
           </div>
         </div>
 
-        {/* Tribunal Imperial Carousel - Carrusel Principal */}
-        {!tribunalLoading && (
-          <div className="mb-8 md:mb-12 px-2 md:px-0">
-            <DynamicTribunalCarousel
-              modules={activeTab === 'theoretical' ? tribunalTheoretical : tribunalPractical}
-              checkpoints={tribunalCheckpoints.filter(cp => cp.category === activeTab)}
-              title={activeTab === 'theoretical' ? 'Módulos Teóricos del Tribunal Imperial' : 'Módulos Prácticos del Tribunal Imperial'}
-              category={activeTab as 'theoretical' | 'practical'}
-            />
-          </div>
-        )}
-
         {/* Tribunal Imperial - Sistema de Inyección de Contenido */}
         <div className="mb-8 md:mb-12 px-2 md:px-0">
           <TribunalContentInjector
@@ -1078,31 +1066,6 @@ export default function IniciadoDashboard() {
             }}
           />
         </div>
-
-
-              {/* Carrusel Teórico Dinámico */}
-              {activeTab === 'theoretical' && dynamicTheoretical.length > 0 && (
-                <div className="mb-8">
-                  <DynamicCarousel
-                    modules={dynamicTheoretical}
-                    title="Módulos Teóricos Dinámicos"
-                  />
-                </div>
-              )}
-
-              {/* Carrusel Práctico Dinámico */}
-              {activeTab === 'practical' && dynamicPractical.length > 0 && (
-                <div className="mb-8">
-                  <DynamicCarousel
-                    modules={dynamicPractical}
-                    title="Módulos Prácticos Dinámicos"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 gap-6 mb-8 md:mb-12">
