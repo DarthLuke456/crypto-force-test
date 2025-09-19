@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Plus, X, Save, Eye, ArrowRight, GripVertical, Lock, AlignLeft, AlignCenter, AlignRight, ZoomIn, ZoomOut, Play, ExternalLink } from 'lucide-react';
+import LevelSelector from './LevelSelector';
 
 interface ContentBlock {
   id: string;
@@ -18,7 +19,7 @@ interface ContentBlock {
 }
 
 interface MinimalContentCreatorProps {
-  onSave: (content: ContentBlock[]) => void;
+  onSave: (content: ContentBlock[], metadata?: { level: number; customLevelText: string }) => void;
   onPreview: (content: ContentBlock[]) => void;
   initialContent?: ContentBlock[];
 }
@@ -49,6 +50,10 @@ export default function MinimalContentCreator({
       }
     ];
   });
+  
+  // Estado para el nivel y texto personalizado
+  const [selectedLevel, setSelectedLevel] = useState(1);
+  const [customLevelText, setCustomLevelText] = useState('');
 
   const [draggedBlock, setDraggedBlock] = useState<string | null>(null);
   const [showIndexEditor, setShowIndexEditor] = useState(false);
@@ -442,7 +447,7 @@ export default function MinimalContentCreator({
               Vista Previa
             </button>
             <button
-              onClick={() => onSave(blocks)}
+              onClick={() => onSave(blocks, { level: selectedLevel, customLevelText })}
               disabled={!canPublish()}
               className="px-6 py-2 bg-white text-black rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
             >
@@ -843,6 +848,16 @@ export default function MinimalContentCreator({
             <p className="text-sm text-gray-400 mb-4">
               Crea el índice que los usuarios verán antes de acceder al contenido.
             </p>
+            
+            {/* Selector de Nivel */}
+            <div className="mb-6">
+              <LevelSelector
+                selectedLevel={selectedLevel}
+                customLevelText={customLevelText}
+                onLevelChange={setSelectedLevel}
+                onCustomTextChange={setCustomLevelText}
+              />
+            </div>
             
             <div className="space-y-3">
               {indexSections.map((section, index) => (
