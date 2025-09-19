@@ -5,7 +5,7 @@ import { Plus, X, Save, Eye, ArrowRight, GripVertical, Lock } from 'lucide-react
 
 interface ContentBlock {
   id: string;
-  type: 'title' | 'subtitle' | 'text' | 'image' | 'list' | 'quote' | 'link' | 'video' | 'code' | 'divider' | 'checklist' | 'carousel';
+  type: 'title' | 'subtitle' | 'text' | 'image' | 'list' | 'quote' | 'link' | 'video' | 'code' | 'divider' | 'checklist' | 'carousel' | 'url';
   content: string;
   isFixed?: boolean;
   order: number;
@@ -48,6 +48,7 @@ export default function MinimalContentCreator({
   const [showIndexEditor, setShowIndexEditor] = useState(false);
   const [indexSections, setIndexSections] = useState<string[]>(['']);
   const [imagePreviews, setImagePreviews] = useState<{ [key: string]: string }>({});
+  const [imageUploaded, setImageUploaded] = useState<{ [key: string]: boolean }>({});
 
   const addBlock = (type: ContentBlock['type']) => {
     const newBlock: ContentBlock = {
@@ -74,6 +75,25 @@ export default function MinimalContentCreator({
     );
   };
 
+  // Función para agregar viñetas automáticamente a listas
+  const handleListBlur = (blockId: string, content: string) => {
+    if (content.trim()) {
+      const lines = content.split('\n').filter(line => line.trim());
+      const bulletedLines = lines.map(line => {
+        // Si ya tiene viñeta, no agregar otra
+        if (line.trim().startsWith('•') || line.trim().startsWith('-') || line.trim().startsWith('*')) {
+          return line;
+        }
+        return `• ${line.trim()}`;
+      });
+      
+      const formattedContent = bulletedLines.join('\n');
+      if (formattedContent !== content) {
+        updateBlock(blockId, formattedContent);
+      }
+    }
+  };
+
   const removeBlock = (id: string) => {
     setBlocks(prev => prev.filter(block => !block.isFixed && block.id !== id));
   };
@@ -96,6 +116,12 @@ export default function MinimalContentCreator({
     setImagePreviews(prev => ({
       ...prev,
       [blockId]: localUrl
+    }));
+
+    // Marcar como subida para ocultar elementos de carga
+    setImageUploaded(prev => ({
+      ...prev,
+      [blockId]: true
     }));
 
     // Actualizar el contenido del bloque con el nombre del archivo
@@ -262,81 +288,56 @@ export default function MinimalContentCreator({
                     />
                   )}
                   
+                  {block.type === 'divider' && (
+                    <div className="flex items-center justify-center py-4">
+                      <div className="flex-1 border-t border-[#333]"></div>
+                      <div className="px-4 text-gray-500 text-sm">
+                        {block.content || '---'}
+                      </div>
+                      <div className="flex-1 border-t border-[#333]"></div>
+                    </div>
+                  )}
+                  
+                  {block.type === 'video' && (
+                    <div className="space-y-3">
+                      <input
+                        type="url"
+                        value={block.content}
+                        onChange={(e) => updateBlock(block.id, e.target.value)}
+                        placeholder="https://youtube.com/watch?v=... o https://vimeo.com/..."
+                        className="w-full px-3 py-2 bg-[#111] border border-[#333] rounded-lg text-gray-300 placeholder-gray-600 focus:border-white focus:outline-none"
+                      />
+                      {block.content && (
+                        <div className="text-xs text-gray-500">
+                          URL del video: {block.content}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {block.type === 'url' && (
+                    <div className="space-y-3">
+                      <input
+                        type="url"
+                        value={block.content}
+                        onChange={(e) => updateBlock(block.id, e.target.value)}
+                        placeholder="https://ejemplo.com"
+                        className="w-full px-3 py-2 bg-[#111] border border-[#333] rounded-lg text-gray-300 placeholder-gray-600 focus:border-white focus:outline-none"
+                      />
+                      {block.content && (
+                        <div className="text-xs text-gray-500">
+                          Enlace: {block.content}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   {block.type === 'image' && (
                     <div className="space-y-4">
-                      {/* URL Input */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-300">URL de imagen:</label>
-                        <input
-                          type="url"
-                          value={block.content}
-                          onChange={(e) => updateBlock(block.id, e.target.value)}
-                          placeholder="https://ejemplo.com/imagen.jpg"
-                          className="w-full px-3 py-2 bg-[#111] border border-[#333] rounded-lg text-gray-300 placeholder-gray-600 focus:border-white focus:outline-none"
-                        />
-                      </div>
-                      
-                      {/* Divider */}
-                      <div className="flex items-center">
-                        <div className="flex-1 border-t border-[#333]"></div>
-                        <span className="px-3 text-sm text-gray-500">- O -</span>
-                        <div className="flex-1 border-t border-[#333]"></div>
-                      </div>
-                      
-                      {/* Upload Area */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-300">Cargar desde tu computadora:</label>
-                        <div 
-                          className="border-2 border-dashed border-[#444] rounded-lg p-8 text-center hover:border-[#666] transition-colors cursor-pointer"
-                          onClick={() => document.getElementById(`file-input-${block.id}`)?.click()}
-                          onDragOver={(e) => {
-                            e.preventDefault();
-                            e.currentTarget.classList.add('border-[#666]', 'bg-[#111]');
-                          }}
-                          onDragLeave={(e) => {
-                            e.preventDefault();
-                            e.currentTarget.classList.remove('border-[#666]', 'bg-[#111]');
-                          }}
-                          onDrop={(e) => {
-                            e.preventDefault();
-                            e.currentTarget.classList.remove('border-[#666]', 'bg-[#111]');
-                            const files = e.dataTransfer.files;
-                            if (files.length > 0) {
-                              handleFileUpload(files[0], block.id);
-                            }
-                          }}
-                        >
-                          <input
-                            id={`file-input-${block.id}`}
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                handleFileUpload(e.target.files[0], block.id);
-                              }
-                            }}
-                          />
-                          <div className="space-y-2">
-                            <div className="w-12 h-12 mx-auto text-gray-500">
-                              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            </div>
-                            <p className="text-sm text-gray-400">
-                              Haz clic para seleccionar una imagen o arrastra y suelta aquí
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Formatos soportados: JPG, PNG, GIF, WebP. Tamaño máximo: 5MB
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Preview if image exists */}
-                      {(block.content && (block.content.startsWith('http') || imagePreviews[block.id])) && (
-                        <div className="mt-4">
-                          <label className="text-sm font-medium text-gray-300 mb-2 block">Vista previa:</label>
+                      {/* Mostrar solo preview si hay imagen cargada */}
+                      {(block.content && (block.content.startsWith('http') || imagePreviews[block.id])) ? (
+                        <div className="space-y-4">
+                          {/* Preview de la imagen */}
                           <div className="border border-[#333] rounded-lg p-2 bg-[#111]">
                             <img 
                               src={imagePreviews[block.id] || block.content} 
@@ -351,11 +352,98 @@ export default function MinimalContentCreator({
                               }}
                             />
                           </div>
-                          {imagePreviews[block.id] && (
-                            <p className="text-xs text-gray-500 mt-2">
-                              Archivo local: {block.content}
-                            </p>
-                          )}
+                          
+                          {/* Información de la imagen */}
+                          <div className="text-xs text-gray-500">
+                            {imagePreviews[block.id] ? (
+                              <p>Archivo local: {block.content}</p>
+                            ) : (
+                              <p>URL: {block.content}</p>
+                            )}
+                          </div>
+                          
+                          {/* Botón para cambiar imagen */}
+                          <button
+                            onClick={() => {
+                              setImageUploaded(prev => ({ ...prev, [block.id]: false }));
+                              updateBlock(block.id, '');
+                            }}
+                            className="px-3 py-1 text-xs text-gray-400 hover:text-white border border-[#333] rounded hover:border-[#555] transition-colors"
+                          >
+                            Cambiar imagen
+                          </button>
+                        </div>
+                      ) : (
+                        /* Mostrar opciones de carga solo si no hay imagen */
+                        <div className="space-y-4">
+                          {/* URL Input */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300">URL de imagen:</label>
+                            <input
+                              type="url"
+                              value={block.content}
+                              onChange={(e) => updateBlock(block.id, e.target.value)}
+                              placeholder="https://ejemplo.com/imagen.jpg"
+                              className="w-full px-3 py-2 bg-[#111] border border-[#333] rounded-lg text-gray-300 placeholder-gray-600 focus:border-white focus:outline-none"
+                            />
+                          </div>
+                          
+                          {/* Divider */}
+                          <div className="flex items-center">
+                            <div className="flex-1 border-t border-[#333]"></div>
+                            <span className="px-3 text-sm text-gray-500">- O -</span>
+                            <div className="flex-1 border-t border-[#333]"></div>
+                          </div>
+                          
+                          {/* Upload Area */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium text-gray-300">Cargar desde tu computadora:</label>
+                            <div 
+                              className="border-2 border-dashed border-[#444] rounded-lg p-8 text-center hover:border-[#666] transition-colors cursor-pointer"
+                              onClick={() => document.getElementById(`file-input-${block.id}`)?.click()}
+                              onDragOver={(e) => {
+                                e.preventDefault();
+                                e.currentTarget.classList.add('border-[#666]', 'bg-[#111]');
+                              }}
+                              onDragLeave={(e) => {
+                                e.preventDefault();
+                                e.currentTarget.classList.remove('border-[#666]', 'bg-[#111]');
+                              }}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                e.currentTarget.classList.remove('border-[#666]', 'bg-[#111]');
+                                const files = e.dataTransfer.files;
+                                if (files.length > 0) {
+                                  handleFileUpload(files[0], block.id);
+                                }
+                              }}
+                            >
+                              <input
+                                id={`file-input-${block.id}`}
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  if (e.target.files && e.target.files[0]) {
+                                    handleFileUpload(e.target.files[0], block.id);
+                                  }
+                                }}
+                              />
+                              <div className="space-y-2">
+                                <div className="w-12 h-12 mx-auto text-gray-500">
+                                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                </div>
+                                <p className="text-sm text-gray-400">
+                                  Haz clic para seleccionar una imagen o arrastra y suelta aquí
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  Formatos soportados: JPG, PNG, GIF, WebP. Tamaño máximo: 5MB
+                                </p>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -365,6 +453,7 @@ export default function MinimalContentCreator({
                     <textarea
                       value={block.content}
                       onChange={(e) => updateBlock(block.id, e.target.value)}
+                      onBlur={(e) => handleListBlur(block.id, e.target.value)}
                       placeholder="• Elemento 1&#10;• Elemento 2&#10;• Elemento 3"
                       className="w-full min-h-[100px] text-gray-300 bg-transparent border-none outline-none placeholder-gray-600 resize-none"
                     />
@@ -384,7 +473,7 @@ export default function MinimalContentCreator({
             ))}
 
             {/* Add Block Button */}
-            <div className="flex gap-2 pt-4">
+            <div className="flex flex-wrap gap-2 pt-4">
               <button
                 onClick={() => addBlock('text')}
                 className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-[#333] rounded-lg hover:border-[#555] transition-colors"
@@ -405,6 +494,27 @@ export default function MinimalContentCreator({
               >
                 <Plus className="w-4 h-4 inline mr-2" />
                 Lista
+              </button>
+              <button
+                onClick={() => addBlock('divider')}
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-[#333] rounded-lg hover:border-[#555] transition-colors"
+              >
+                <Plus className="w-4 h-4 inline mr-2" />
+                Divisor
+              </button>
+              <button
+                onClick={() => addBlock('video')}
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-[#333] rounded-lg hover:border-[#555] transition-colors"
+              >
+                <Plus className="w-4 h-4 inline mr-2" />
+                Video
+              </button>
+              <button
+                onClick={() => addBlock('url')}
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-[#333] rounded-lg hover:border-[#555] transition-colors"
+              >
+                <Plus className="w-4 h-4 inline mr-2" />
+                URL
               </button>
             </div>
           </div>
