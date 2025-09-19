@@ -680,8 +680,8 @@ export default function TribunalImperialPage() {
 
       {/* Navegación Principal */}
       <div className="bg-[#121212] border-b border-[#333] p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex space-x-2">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="flex flex-wrap gap-2">
             {[
               { id: 'overview', label: 'Vista General', icon: <BarChart3 size={18} /> },
               { id: 'propuestas', label: 'Propuestas', icon: <FileText size={18} /> },
@@ -692,33 +692,35 @@ export default function TribunalImperialPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-[#fafafa] text-[#121212]'
                     : 'text-gray-400 hover:text-white hover:bg-[#2a2a2a]'
                 }`}
               >
                 {tab.icon}
-                <span>{tab.label}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
               </button>
             ))}
           </div>
           
           {/* Botones de Creación */}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setShowMinimalCreator(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition-colors whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
-              Crear Contenido
+              <span className="hidden sm:inline">Crear Contenido</span>
+              <span className="sm:hidden">Crear</span>
             </button>
             <button
               onClick={() => setActiveTab('crear')}
-              className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white border border-[#333] rounded-lg hover:border-[#555] transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white border border-[#333] rounded-lg hover:border-[#555] transition-colors whitespace-nowrap"
             >
               <Edit className="w-4 h-4" />
-              Editor Avanzado
+              <span className="hidden sm:inline">Editor</span>
+              <span className="sm:hidden">Editor</span>
             </button>
           </div>
         </div>
@@ -1176,9 +1178,9 @@ export default function TribunalImperialPage() {
 
       {/* Modal del Creador Minimalista */}
       {showMinimalCreator && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="w-full h-full max-w-7xl max-h-[90vh] bg-[#0a0a0a] rounded-lg overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-[#1a1a1a]">
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="w-full h-full max-w-7xl max-h-[90vh] bg-[#0a0a0a] rounded-lg flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-[#1a1a1a] flex-shrink-0">
               <h2 className="text-xl font-semibold">Creador de Contenido</h2>
               <button
                 onClick={() => setShowMinimalCreator(false)}
@@ -1188,13 +1190,15 @@ export default function TribunalImperialPage() {
               </button>
             </div>
             
-            <MinimalContentCreator
-              onSave={handleSaveProposal}
-              onPreview={(content) => {
-                console.log('Vista previa:', content);
-                // Aquí se puede implementar la vista previa
-              }}
-            />
+            <div className="flex-1 overflow-y-auto">
+              <MinimalContentCreator
+                onSave={handleSaveProposal}
+                onPreview={(content) => {
+                  console.log('Vista previa:', content);
+                  // Aquí se puede implementar la vista previa
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
