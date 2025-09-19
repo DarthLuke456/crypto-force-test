@@ -55,6 +55,7 @@ export default function DashboardSelectionPage() {
   const { avatar: userAvatar, changeAvatar, forceUpdate, reloadAvatar } = useAvatar();
   const { hasSavedData } = useFeedbackPersistence();
   const [redirectAttempts, setRedirectAttempts] = useState(0);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   // Debug del estado de la página (simplificado)
   useEffect(() => {
@@ -66,6 +67,18 @@ export default function DashboardSelectionPage() {
       });
     }
   }, [userData, isReady]);
+
+  // Timeout para evitar carga infinita
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!userData || !userData.email) {
+        console.log('⏰ [TIMEOUT] No se cargaron datos del usuario en 10 segundos');
+        setLoadingTimeout(true);
+      }
+    }, 10000); // 10 segundos
+
+    return () => clearTimeout(timer);
+  }, [userData]);
 
   // Prevenir bucles de redirección
   useEffect(() => {
@@ -651,21 +664,54 @@ export default function DashboardSelectionPage() {
     );
   }
 
-  // NO MOSTRAR LA PÁGINA SIN DATOS REALES DEL USUARIO
-  if (!userData || !userData.email || userData.email === 'email@ejemplo.com' || userData.nickname === 'Usuario') {
+  // Debug: Log user data
+  console.log('🔍 [DASHBOARD-SELECTION] User data:', userData);
+  console.log('🔍 [DASHBOARD-SELECTION] User email:', userData?.email);
+  console.log('🔍 [DASHBOARD-SELECTION] User nickname:', userData?.nickname);
+
+  // Mostrar pantalla de carga solo si no hay datos del usuario
+  if (!userData || !userData.email) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#ec4d58] mx-auto mb-4"></div>
-          <h2 className="text-xl font-bold text-white mb-4">Cargando datos del usuario...</h2>
+          <h2 className="text-xl font-bold text-white mb-4">
+            {loadingTimeout ? 'Error de Carga' : 'Cargando datos del usuario...'}
+          </h2>
           <p className="text-gray-400 mb-6">
-            Verificando autenticación y cargando tu perfil.
+            {loadingTimeout 
+              ? 'No se pudieron cargar los datos. Por favor, intenta de nuevo.'
+              : 'Verificando autenticación y cargando tu perfil.'
+            }
           </p>
           <button
             onClick={() => {
               window.location.href = '/login/signin';
             }}
             className="px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+          >
+            {loadingTimeout ? 'Reintentar Login' : 'Ir al Login'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Bloquear solo datos de ejemplo específicos
+  if (userData.email === 'email@ejemplo.com' || userData.nickname === 'Usuario') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 text-6xl mb-4">🚫</div>
+          <h2 className="text-2xl font-bold text-white mb-4">Datos de Ejemplo Detectados</h2>
+          <p className="text-gray-400 mb-6">
+            Se detectaron datos de ejemplo. Por favor, inicia sesión correctamente.
+          </p>
+          <button
+            onClick={() => {
+              window.location.href = '/login/signin';
+            }}
+            className="w-full px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
           >
             Ir al Login
           </button>
