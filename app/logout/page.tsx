@@ -2,15 +2,16 @@
 
 import { useEffect } from 'react';
 import { useSafeAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabaseClient';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function LogoutPage() {
-  const { signOut } = useSafeAuth();
+  const { user } = useSafeAuth();
 
   useEffect(() => {
     const handleLogout = async () => {
-      // Ejecutar logout
-      await signOut();
+      // Ejecutar logout usando Supabase directamente
+      await supabase.auth.signOut();
       
       // Pequeña pausa para asegurar que el logout se complete
       setTimeout(() => {
@@ -20,7 +21,7 @@ export default function LogoutPage() {
     };
 
     handleLogout();
-  }, [signOut]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#121212] text-white font-inter flex items-center justify-center">
