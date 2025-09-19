@@ -61,9 +61,19 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (contentError) {
-      console.error('❌ Error creando contenido:', contentError);
+      console.error('❌ Error creando contenido:', {
+        error: contentError,
+        details: contentError.details,
+        hint: contentError.hint,
+        code: contentError.code,
+        message: contentError.message,
+        insertData: insertData
+      });
       return NextResponse.json({ 
-        error: `Error creando contenido: ${contentError.message}` 
+        error: `Error creando contenido: ${contentError.message}`,
+        details: contentError.details,
+        hint: contentError.hint,
+        code: contentError.code
       }, { status: 500 });
     }
 
