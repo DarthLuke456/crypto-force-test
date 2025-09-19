@@ -11,7 +11,6 @@ import BackButton from '@/components/ui/BackButton';
 import MinimalContentCreator from '@/components/tribunal/MinimalContentCreator';
 import { ContentBlock } from '@/lib/tribunal/types';
 import { useProposals, TribunalProposal } from '@/lib/tribunal/hooks/useProposals';
-import AuthDebugger from '@/components/debug/AuthDebugger';
 import EnhancedVotingSystem from '@/components/tribunal/EnhancedVotingSystem';
 import { processAutoApproval, isFounderUser, createAutoApprovalNotification } from '@/lib/tribunal/auto-approval';
 
@@ -507,16 +506,6 @@ export default function TribunalImperialPage() {
   };
 
   // Logs de diagnóstico
-  console.log('🔍 Tribunal Imperial - Debug de acceso:', {
-    isReady,
-    userData: userData ? {
-      email: userData.email,
-      user_level: userData.user_level,
-      nickname: userData.nickname
-    } : null,
-    canAccess: userData ? canUserAccessTribunal(userData.user_level) : false,
-    timestamp: new Date().toISOString()
-  });
 
   // Si no tiene acceso, mostrar mensaje de error en lugar de null
   if (!isReady) {
@@ -555,7 +544,6 @@ export default function TribunalImperialPage() {
   }
 
   const handleSaveProposal = async (content: any[]) => {
-    console.log('Contenido guardado:', content);
     
     // Crear propuesta que coincida con la interfaz TribunalProposal
     const proposal = {
@@ -601,7 +589,6 @@ export default function TribunalImperialPage() {
 
         if (response.ok) {
           const result = await response.json();
-          console.log('✅ Contenido guardado en base de datos:', result);
           
           // Crear inyección de contenido
           const injectionResponse = await fetch('/api/tribunal/inject', {
@@ -619,7 +606,6 @@ export default function TribunalImperialPage() {
           });
 
           if (injectionResponse.ok) {
-            console.log('✅ Inyección de contenido creada');
           } else {
             console.error('❌ Error creando inyección:', await injectionResponse.text());
           }
@@ -642,13 +628,11 @@ export default function TribunalImperialPage() {
   };
 
   const handleProposalCreated = (proposal: TribunalProposal) => {
-    console.log('Propuesta creada:', proposal);
     alert('Propuesta creada exitosamente. Ahora puedes verla en la sección de Propuestas.');
     setActiveTab('propuestas');
   };
 
   const handlePreviewContent = (content: ContentBlock[]) => {
-    console.log('Vista previa:', content);
     // La vista previa se maneja internamente en el ContentEditor
   };
 
@@ -657,7 +641,6 @@ export default function TribunalImperialPage() {
 
   return (
     <div className="min-h-screen bg-[#121212] text-white">
-      <AuthDebugger />
       {/* Header del Tribunal Imperial */}
       <div className="bg-[#121212] border-b border-[#333] p-6">
         <div className="flex items-center justify-between">
@@ -792,13 +775,6 @@ export default function TribunalImperialPage() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">Propuestas Pendientes</h2>
-              <button 
-                onClick={() => setShowMinimalCreator(true)}
-                className="px-4 py-2 bg-[#fafafa] text-[#121212] rounded-md font-medium hover:bg-[#8a8a8a] transition-colors flex items-center space-x-2"
-              >
-                <Plus size={16} />
-                <span>Nueva Propuesta</span>
-              </button>
             </div>
             
             <ProposalsList onEditProposal={handleEditProposal} />
