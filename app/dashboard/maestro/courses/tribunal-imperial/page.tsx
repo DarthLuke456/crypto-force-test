@@ -583,7 +583,7 @@ export default function TribunalImperialPage() {
             level: proposal.targetHierarchy,
             category: proposal.category,
             is_published: true, // Auto-publicar para fundadores
-            created_by: proposal.authorId
+            created_by: authorEmail // Usar email en lugar de ID
           })
         });
 

@@ -113,14 +113,41 @@ export default function MinimalContentCreator({
 
   // Función para extraer video ID de YouTube/Vimeo
   const extractVideoId = (url: string) => {
-    const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
-    const vimeoMatch = url.match(/(?:vimeo\.com\/)([0-9]+)/);
+    if (!url) return null;
     
-    if (youtubeMatch) {
-      return { platform: 'youtube', id: youtubeMatch[1] };
-    } else if (vimeoMatch) {
-      return { platform: 'vimeo', id: vimeoMatch[1] };
+    // Limpiar URL
+    const cleanUrl = url.trim();
+    
+    // YouTube patterns
+    const youtubePatterns = [
+      /(?:youtube\.com\/watch\?v=)([^&\n?#]+)/,
+      /(?:youtu\.be\/)([^&\n?#]+)/,
+      /(?:youtube\.com\/embed\/)([^&\n?#]+)/,
+      /(?:youtube\.com\/v\/)([^&\n?#]+)/
+    ];
+    
+    // Vimeo patterns
+    const vimeoPatterns = [
+      /(?:vimeo\.com\/)([0-9]+)/,
+      /(?:player\.vimeo\.com\/video\/)([0-9]+)/
+    ];
+    
+    // Check YouTube
+    for (const pattern of youtubePatterns) {
+      const match = cleanUrl.match(pattern);
+      if (match) {
+        return { platform: 'youtube', id: match[1] };
+      }
     }
+    
+    // Check Vimeo
+    for (const pattern of vimeoPatterns) {
+      const match = cleanUrl.match(pattern);
+      if (match) {
+        return { platform: 'vimeo', id: match[1] };
+      }
+    }
+    
     return null;
   };
 
@@ -155,6 +182,24 @@ export default function MinimalContentCreator({
     setPreviewBlocks(blocks);
     setShowPreview(true);
     onPreview(blocks);
+  };
+
+  // Función para validar índice antes de publicar
+  const validateIndexBeforePublish = () => {
+    const hasValidIndex = indexSections.some(section => section.trim().length > 0);
+    if (!hasValidIndex) {
+      alert('⚠️ Debes completar al menos una sección del índice antes de publicar el contenido.');
+      return false;
+    }
+    return true;
+  };
+
+  // Función para manejar publicación desde vista previa
+  const handlePublishFromPreview = () => {
+    if (validateIndexBeforePublish()) {
+      onSave(blocks);
+      setShowPreview(false);
+    }
   };
 
   // Función para renderizar bloque en vista previa
@@ -509,6 +554,10 @@ export default function MinimalContentCreator({
                                   frameBorder="0"
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                   allowFullScreen
+                                  onError={(e) => {
+                                    console.error('Error cargando video:', e);
+                                    e.currentTarget.style.display = 'none';
+                                  }}
                                 />
                               </div>
                             ) : (
@@ -516,6 +565,7 @@ export default function MinimalContentCreator({
                                 <div className="text-center">
                                   <Play className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                                   <p className="text-gray-400 text-sm">URL de video inválida</p>
+                                  <p className="text-gray-500 text-xs mt-1">Soporta YouTube y Vimeo</p>
                                 </div>
                               </div>
                             )}
@@ -899,10 +949,7 @@ export default function MinimalContentCreator({
                   Cerrar
                 </button>
                 <button
-                  onClick={() => {
-                    onSave(blocks);
-                    setShowPreview(false);
-                  }}
+                  onClick={handlePublishFromPreview}
                   disabled={!canPublish()}
                   className="px-6 py-2 bg-white text-black rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
                 >
