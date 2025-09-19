@@ -211,7 +211,7 @@ function ApprovedProposals() {
                 onClick={() => {
                   const location = {
                     dashboard: 'iniciado',
-                    level: proposal.level || 1,
+                    level: proposal.targetHierarchy || 1,
                     category: proposal.category || 'theoretical',
                     carouselId: `tribunal-carousel-${proposal.category || 'theoretical'}`,
                     cardId: `content-card-${proposal.id}`
