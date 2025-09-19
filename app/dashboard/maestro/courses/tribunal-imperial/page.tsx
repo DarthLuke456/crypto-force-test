@@ -715,7 +715,7 @@ export default function TribunalImperialPage() {
               <span className="sm:hidden">Crear</span>
             </button>
             <button
-              onClick={() => setActiveTab('crear')}
+              onClick={() => setShowMinimalCreator(true)}
               className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white border border-[#333] rounded-lg hover:border-[#555] transition-colors whitespace-nowrap"
             >
               <Edit className="w-4 h-4" />

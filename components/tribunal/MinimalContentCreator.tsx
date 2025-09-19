@@ -47,6 +47,7 @@ export default function MinimalContentCreator({
   const [draggedBlock, setDraggedBlock] = useState<string | null>(null);
   const [showIndexEditor, setShowIndexEditor] = useState(false);
   const [indexSections, setIndexSections] = useState<string[]>(['']);
+  const [imagePreviews, setImagePreviews] = useState<{ [key: string]: string }>({});
 
   const addBlock = (type: ContentBlock['type']) => {
     const newBlock: ContentBlock = {
@@ -75,6 +76,32 @@ export default function MinimalContentCreator({
 
   const removeBlock = (id: string) => {
     setBlocks(prev => prev.filter(block => !block.isFixed && block.id !== id));
+  };
+
+  const handleFileUpload = (file: File, blockId: string) => {
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona un archivo de imagen válido.');
+      return;
+    }
+
+    // Validar tamaño (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('El archivo es demasiado grande. El tamaño máximo es 5MB.');
+      return;
+    }
+
+    // Crear URL local para preview
+    const localUrl = URL.createObjectURL(file);
+    setImagePreviews(prev => ({
+      ...prev,
+      [blockId]: localUrl
+    }));
+
+    // Actualizar el contenido del bloque con el nombre del archivo
+    updateBlock(blockId, file.name);
+
+    console.log('✅ Imagen cargada:', file.name, 'Tamaño:', file.size, 'bytes');
   };
 
   const moveBlock = (fromIndex: number, toIndex: number) => {
@@ -259,7 +286,37 @@ export default function MinimalContentCreator({
                       {/* Upload Area */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-300">Cargar desde tu computadora:</label>
-                        <div className="border-2 border-dashed border-[#444] rounded-lg p-8 text-center hover:border-[#666] transition-colors cursor-pointer">
+                        <div 
+                          className="border-2 border-dashed border-[#444] rounded-lg p-8 text-center hover:border-[#666] transition-colors cursor-pointer"
+                          onClick={() => document.getElementById(`file-input-${block.id}`)?.click()}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            e.currentTarget.classList.add('border-[#666]', 'bg-[#111]');
+                          }}
+                          onDragLeave={(e) => {
+                            e.preventDefault();
+                            e.currentTarget.classList.remove('border-[#666]', 'bg-[#111]');
+                          }}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            e.currentTarget.classList.remove('border-[#666]', 'bg-[#111]');
+                            const files = e.dataTransfer.files;
+                            if (files.length > 0) {
+                              handleFileUpload(files[0], block.id);
+                            }
+                          }}
+                        >
+                          <input
+                            id={`file-input-${block.id}`}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                handleFileUpload(e.target.files[0], block.id);
+                              }
+                            }}
+                          />
                           <div className="space-y-2">
                             <div className="w-12 h-12 mx-auto text-gray-500">
                               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -277,19 +334,28 @@ export default function MinimalContentCreator({
                       </div>
                       
                       {/* Preview if image exists */}
-                      {block.content && block.content.startsWith('http') && (
+                      {(block.content && (block.content.startsWith('http') || imagePreviews[block.id])) && (
                         <div className="mt-4">
                           <label className="text-sm font-medium text-gray-300 mb-2 block">Vista previa:</label>
                           <div className="border border-[#333] rounded-lg p-2 bg-[#111]">
                             <img 
-                              src={block.content} 
+                              src={imagePreviews[block.id] || block.content} 
                               alt="Preview" 
                               className="max-w-full h-32 object-cover rounded"
                               onError={(e) => {
+                                console.error('Error cargando imagen:', e.currentTarget.src);
                                 e.currentTarget.style.display = 'none';
+                              }}
+                              onLoad={() => {
+                                console.log('✅ Imagen cargada exitosamente:', imagePreviews[block.id] || block.content);
                               }}
                             />
                           </div>
+                          {imagePreviews[block.id] && (
+                            <p className="text-xs text-gray-500 mt-2">
+                              Archivo local: {block.content}
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
