@@ -13,7 +13,6 @@ import { ContentBlock } from '@/lib/tribunal/types';
 import { useProposals, TribunalProposal } from '@/lib/tribunal/hooks/useProposals';
 import EnhancedVotingSystem from '@/components/tribunal/EnhancedVotingSystem';
 import { processAutoApproval, isFounderUser, createAutoApprovalNotification } from '@/lib/tribunal/auto-approval';
-import { useSmartNavigation } from '@/lib/tribunal/smart-navigation';
 
 interface TribunalStats {
   propuestasPendientes: number;
@@ -126,7 +125,6 @@ function ProposalsList({ onEditProposal }: { onEditProposal: (proposal: any) => 
 // Componente para mostrar propuestas aprobadas
 function ApprovedProposals() {
   const { proposals } = useProposals();
-  const { createDirectAccessButton } = useSmartNavigation();
   const approvedProposals = proposals.filter(p => p.status === 'approved');
   
   if (approvedProposals.length === 0) {
@@ -209,13 +207,22 @@ function ApprovedProposals() {
             
             {/* Botón de Acceso Directo */}
             <div className="flex justify-center">
-              {createDirectAccessButton({
-                dashboard: 'iniciado',
-                level: proposal.level || 1,
-                category: proposal.category || 'theoretical',
-                carouselId: `tribunal-carousel-${proposal.category || 'theoretical'}`,
-                cardId: `content-card-${proposal.id}`
-              }, 'Ver en Dashboard')}
+              <button
+                onClick={() => {
+                  const location = {
+                    dashboard: 'iniciado',
+                    level: proposal.level || 1,
+                    category: proposal.category || 'theoretical',
+                    carouselId: `tribunal-carousel-${proposal.category || 'theoretical'}`,
+                    cardId: `content-card-${proposal.id}`
+                  };
+                  const url = `/dashboard/iniciado?scrollTo=${location.carouselId}&cardId=${location.cardId}&level=${location.level}&category=${location.category}`;
+                  window.location.href = url;
+                }}
+                className="px-4 py-2 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors text-sm font-medium"
+              >
+                Ver en Dashboard
+              </button>
             </div>
             
             <div className="text-center text-sm text-green-400 bg-green-900/20 border border-green-500/30 rounded-lg p-3">
@@ -328,7 +335,6 @@ function RejectedProposals() {
 export default function TribunalImperialPage() {
   const { userData, loading, isReady } = useSafeAuth();
   const { proposals, createProposal, updateProposal } = useProposals();
-  const { createDirectAccessButton } = useSmartNavigation();
   const [activeTab, setActiveTab] = useState<'overview' | 'propuestas' | 'crear' | 'aprobados' | 'rechazados' | 'gestion'>('overview');
   const [editingProposal, setEditingProposal] = useState<any | null>(null);
   const [isEditingMode, setIsEditingMode] = useState(false);
