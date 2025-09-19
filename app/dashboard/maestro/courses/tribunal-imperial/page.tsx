@@ -336,7 +336,7 @@ function RejectedProposals() {
 export default function TribunalImperialPage() {
   const { userData, loading, isReady } = useSafeAuth();
   const { proposals, createProposal, updateProposal } = useProposals();
-  const [activeTab, setActiveTab] = useState<'overview' | 'propuestas' | 'crear' | 'aprobados' | 'rechazados' | 'gestion'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'propuestas' | 'aprobados' | 'rechazados' | 'gestion'>('overview');
   const [editingProposal, setEditingProposal] = useState<any | null>(null);
   const [isEditingMode, setIsEditingMode] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
@@ -636,8 +636,8 @@ export default function TribunalImperialPage() {
       }
     } else {
       createProposal(proposal);
-      alert('Propuesta guardada exitosamente. Será enviada al Tribunal para votación.');
-      setActiveTab('propuestas');
+    alert('Propuesta guardada exitosamente. Será enviada al Tribunal para votación.');
+    setActiveTab('propuestas');
     }
   };
 
@@ -688,39 +688,31 @@ export default function TribunalImperialPage() {
               { id: 'aprobados', label: 'Aprobados', icon: <CheckCircle size={18} /> },
               { id: 'rechazados', label: 'Rechazados', icon: <XCircle size={18} /> },
               { id: 'gestion', label: 'Gestión', icon: <Edit size={18} /> }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
-                  activeTab === tab.id
+                activeTab === tab.id
                     ? 'bg-[#fafafa] text-[#121212]'
                     : 'text-gray-400 hover:text-white hover:bg-[#2a2a2a]'
-                }`}
-              >
-                {tab.icon}
+              }`}
+            >
+              {tab.icon}
                 <span className="hidden sm:inline">{tab.label}</span>
-              </button>
-            ))}
+            </button>
+          ))}
           </div>
           
-          {/* Botones de Creación */}
+          {/* Botón de Creación */}
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setShowMinimalCreator(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition-colors whitespace-nowrap"
+              className="flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-[#fafafa] to-[#e0e0e0] text-black font-semibold rounded-xl hover:from-[#f0f0f0] hover:to-[#d0d0d0] transition-all duration-300 whitespace-nowrap shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
               <span className="hidden sm:inline">Crear Contenido</span>
               <span className="sm:hidden">Crear</span>
-            </button>
-            <button
-              onClick={() => setShowMinimalCreator(true)}
-              className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white border border-[#333] rounded-lg hover:border-[#555] transition-colors whitespace-nowrap"
-            >
-              <Edit className="w-4 h-4" />
-              <span className="hidden sm:inline">Editor</span>
-              <span className="sm:hidden">Editor</span>
             </button>
           </div>
         </div>
@@ -813,80 +805,6 @@ export default function TribunalImperialPage() {
           </div>
         )}
 
-        {/* TAB: Crear */}
-        {activeTab === 'crear' && (
-          <div className="space-y-6">
-            {/* Verificar permisos para crear/editar contenido */}
-            {!userData?.email || !hasAbsoluteAuthority(userData.email) ? (
-              <div className="bg-[#121212] border border-[#444] rounded-lg p-8 text-center">
-                <div className="flex items-center justify-center space-x-2 mb-4">
-                  <Crown size={32} className="text-[#fafafa]" />
-                  <h3 className="text-xl font-semibold text-[#fafafa]">Acceso Restringido</h3>
-                </div>
-                <p className="text-gray-400 mb-4">
-                  Solo Darth Nihilus y Darth Luke pueden crear y editar contenido.
-                </p>
-                <button
-                  onClick={() => setActiveTab('overview')}
-                  className="px-4 py-2 bg-[#fafafa] text-[#121212] rounded-lg hover:bg-[#8a8a8a] transition-colors"
-                >
-                  Volver al Inicio
-                </button>
-              </div>
-            ) : (
-              <>
-               <div className="flex items-center justify-between mb-6">
-                 <div className="flex items-center space-x-3">
-                   <div className="w-8 h-8 bg-gradient-to-r from-[#fafafa] to-[#8a8a8a] rounded-lg flex items-center justify-center">
-                     <Plus size={16} className="text-[#121212]" />
-                   </div>
-                   <div>
-                     <h2 className="text-xl font-semibold text-white">
-                       Creador de Contenido
-                </h2>
-                     <p className="text-sm text-gray-400">
-                       Crea nuevo contenido para el Tribunal Imperial
-                     </p>
-              </div>
-                 </div>
-                 
-                 {/* Help Button */}
-                <button
-                   onClick={() => setShowGuideModal(true)}
-                   className="group relative inline-flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-out overflow-hidden"
-                   title="Guía de Uso"
-                 >
-                   {/* Fondo expandible */}
-                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full transition-all duration-300 ease-out group-hover:scale-110"></div>
-                   
-                   {/* Ícono */}
-                   <div className="relative z-10 flex items-center justify-center w-10 h-10">
-                     <HelpCircle size={18} className="transition-all duration-300 group-hover:scale-110" />
-                   </div>
-                   
-                   {/* Efecto de pulso sutil */}
-                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full opacity-0 group-hover:opacity-20 group-hover:animate-pulse"></div>
-                </button>
-            </div>
-               
-            
-            {/* Editor de Contenido Minimalista */}
-            <div className="bg-[#121212] rounded-lg p-4">
-              <MinimalContentCreator
-                onSave={(content) => {
-                  console.log('Guardando contenido:', content);
-                  handleSaveProposal(content);
-                }}
-                onPreview={(content) => {
-                  console.log('Vista previa:', content);
-                  // Aquí se puede implementar la vista previa
-                }}
-              />
-            </div>
-              </>
-            )}
-          </div>
-        )}
 
 
         {/* TAB: Aprobados */}
