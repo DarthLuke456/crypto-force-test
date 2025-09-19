@@ -866,82 +866,16 @@ export default function TribunalImperialPage() {
             </div>
                
             
-            {/* Editor de Contenido */}
+            {/* Editor de Contenido Minimalista */}
             <div className="bg-[#121212] rounded-lg p-4">
-              <NotionEditor
-                onBlocksChange={(blocks) => {
-                  console.log('Bloques del editor:', blocks);
+              <MinimalContentCreator
+                onSave={(content) => {
+                  console.log('Guardando contenido:', content);
+                  handleSaveProposal(content);
                 }}
-                onSave={(blocks, metadata) => {
-                  console.log('Guardando propuesta con bloques:', blocks);
-                  console.log('Metadata de la propuesta:', metadata);
-                  
-                  // Crear propuesta con los bloques del editor y metadata
-                  const proposalData = {
-                    id: `proposal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                    title: metadata.title,
-                    description: metadata.description,
-                    content: blocks,
-                    category: metadata.category,
-                    targetHierarchy: metadata.targetHierarchy,
-                    authorId: userData?.id || 'default',
-                    authorName: userData?.email === 'infocryptoforce@gmail.com' ? 'Darth Nihilus' : (userData?.nickname || userData?.email || 'Darth Luke'),
-                    authorLevel: userData?.user_level || 6,
-                    status: 'pending' as const,
-                    votes: {
-                      maestros: [],
-                      approvals: [],
-                      rejections: [],
-                    },
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString()
-                  };
-                  
-                  // Guardar la propuesta usando el hook
-                  try {
-                    createProposal(proposalData);
-                    
-                    // Mostrar mensaje de éxito estilizado
-                    const successMessage = document.createElement('div');
-                    successMessage.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-2';
-                    successMessage.innerHTML = `
-                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                      </svg>
-                      <span class="font-medium">¡Propuesta creada exitosamente!</span>
-                    `;
-                    document.body.appendChild(successMessage);
-                    
-                    // Remover mensaje después de 3 segundos
-                    setTimeout(() => {
-                      if (successMessage.parentNode) {
-                        successMessage.parentNode.removeChild(successMessage);
-                      }
-                    }, 3000);
-                    
-                    // Redirigir a propuestas
-                    setActiveTab('propuestas');
-                  } catch (error) {
-                    console.error('Error al guardar:', error);
-                    
-                    // Mostrar mensaje de error estilizado
-                    const errorMessage = document.createElement('div');
-                    errorMessage.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-2';
-                    errorMessage.innerHTML = `
-                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                      </svg>
-                      <span class="font-medium">Error al crear la propuesta</span>
-                    `;
-                    document.body.appendChild(errorMessage);
-                    
-                    // Remover mensaje después de 3 segundos
-                    setTimeout(() => {
-                      if (errorMessage.parentNode) {
-                        errorMessage.parentNode.removeChild(errorMessage);
-                      }
-                    }, 3000);
-                  }
+                onPreview={(content) => {
+                  console.log('Vista previa:', content);
+                  // Aquí se puede implementar la vista previa
                 }}
               />
             </div>

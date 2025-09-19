@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Tribunal Imperial System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: white;
+            padding: 20px;
+        }
+        .test-section {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .info { color: #60a5fa; }
+        button {
+            background: #ec4d58;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #d43d48; }
+        pre {
+            background: #0a0a0a;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test Tribunal Imperial System</h1>
+    
+    <div class="test-section">
+        <h2>1. Test API de Contenido</h2>
+        <button onclick="testContentAPI()">Probar API de Contenido</button>
+        <div id="content-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test API de Inyección</h2>
+        <button onclick="testInjectionAPI()">Probar API de Inyección</button>
+        <div id="injection-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Crear Contenido</h2>
+        <button onclick="createTestContent()">Crear Contenido de Prueba</button>
+        <div id="create-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Test Obtener Contenido Inyectado</h2>
+        <button onclick="getInjectedContent()">Obtener Contenido Inyectado</button>
+        <div id="injected-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://crypto-force-test.vercel.app/api';
+
+        async function testContentAPI() {
+            const resultDiv = document.getElementById('content-result');
+            resultDiv.innerHTML = '<p class="info">🔄 Probando API de contenido...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/tribunal/content`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ API de contenido funciona</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Error en API de contenido</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ Error de conexión</p>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        }
+
+        async function testInjectionAPI() {
+            const resultDiv = document.getElementById('injection-result');
+            resultDiv.innerHTML = '<p class="info">🔄 Probando API de inyección...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/tribunal/inject?targetLevel=1&targetDashboard=iniciado`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ API de inyección funciona</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Error en API de inyección</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ Error de conexión</p>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        }
+
+        async function createTestContent() {
+            const resultDiv = document.getElementById('create-result');
+            resultDiv.innerHTML = '<p class="info">🔄 Creando contenido de prueba...</p>';
+            
+            try {
+                const testContent = {
+                    title: 'Test Content - ' + new Date().toISOString(),
+                    subtitle: 'Contenido de prueba para verificar el sistema',
+                    content: [
+                        { type: 'title', content: 'Test Content' },
+                        { type: 'subtitle', content: 'Contenido de prueba' },
+                        { type: 'text', content: 'Este es un contenido de prueba para verificar que el sistema funciona correctamente.' }
+                    ],
+                    level: 1,
+                    category: 'theoretical',
+                    is_published: true,
+                    created_by: 'test-user'
+                };
+
+                const response = await fetch(`${API_BASE}/tribunal/content`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testContent)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Contenido creado exitosamente</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    
+                    // Ahora crear la inyección
+                    if (data.id) {
+                        setTimeout(() => createInjection(data.id), 1000);
+                    }
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Error creando contenido</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ Error de conexión</p>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        }
+
+        async function createInjection(contentId) {
+            const resultDiv = document.getElementById('create-result');
+            resultDiv.innerHTML += '<p class="info">🔄 Creando inyección...</p>';
+            
+            try {
+                const injectionData = {
+                    contentId: contentId,
+                    targetLevel: 1,
+                    targetDashboard: 'iniciado',
+                    injectionPosition: 'carousel',
+                    isActive: true
+                };
+
+                const response = await fetch(`${API_BASE}/tribunal/inject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(injectionData)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML += `
+                        <p class="success">✅ Inyección creada exitosamente</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML += `
+                        <p class="error">❌ Error creando inyección</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML += `
+                    <p class="error">❌ Error de conexión en inyección</p>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        }
+
+        async function getInjectedContent() {
+            const resultDiv = document.getElementById('injected-result');
+            resultDiv.innerHTML = '<p class="info">🔄 Obteniendo contenido inyectado...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/tribunal/inject?targetLevel=1&targetDashboard=iniciado`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Contenido inyectado obtenido</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Error obteniendo contenido inyectado</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ Error de conexión</p>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
