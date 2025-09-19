@@ -1,17 +1,21 @@
 'use client';
 
 import { useSafeAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabaseClient';
 import { useEffect, useState } from 'react';
 
 export default function ClearSessionPage() {
-  const { clearSession, user, loading } = useSafeAuth();
+  const { user, loading } = useSafeAuth();
   const [status, setStatus] = useState('');
 
   const handleClearSession = async () => {
     setStatus('Limpiando sesión...');
     try {
-      await clearSession();
-      setStatus('Sesión limpiada exitosamente');
+      await supabase.auth.signOut();
+      setStatus('Sesión limpiada exitosamente, recargando...');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       setStatus(`Error: ${error}`);
     }
