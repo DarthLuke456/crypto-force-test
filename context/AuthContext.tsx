@@ -82,13 +82,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     
+    // Timeout de 10 segundos para evitar que se cuelgue
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Timeout')), 10000);
+    });
+    
     try {
       console.log('📡 [USERDATA] Consultando base de datos...');
-      const { data: userData, error: userError } = await supabase
+      
+      const fetchPromise = supabase
         .from('users')
         .select('*')
         .eq('email', userEmail)
         .maybeSingle();
+      
+      const { data: userData, error: userError } = await Promise.race([
+        fetchPromise,
+        timeoutPromise
+      ]) as any;
       
       if (userError) {
         console.error('❌ [USERDATA] Error al obtener datos de users:', userError);
@@ -120,6 +131,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
     } catch (error) {
       console.error('❌ [USERDATA] Error inesperado en fetchUserData:', error);
+      if (error instanceof Error && error.message === 'Timeout') {
+        console.error('⏰ [USERDATA] Timeout obteniendo datos del usuario');
+      }
       console.log('🔄 [USERDATA] Creando usuario básico como fallback...');
       await createBasicUser(userEmail);
     }
@@ -369,7 +383,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(session.user);
           
           console.log('📊 [SESSION] Obteniendo datos del usuario...');
-          await fetchUserData(session.user.email!);
+          try {
+            await fetchUserData(session.user.email!);
+          } catch (error) {
+            console.error('❌ [SESSION] Error obteniendo datos del usuario:', error);
+            // Continuar aunque falle fetchUserData
+          }
         } else {
           console.log('⚠️ [SESSION] No hay sesión activa, verificando almacenamiento local...');
           // Verificar si hay una sesión almacenada localmente
@@ -403,9 +422,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
+    // Timeout de seguridad para asegurar que isReady se establezca
+    const safetyTimeout = setTimeout(() => {
+      console.log('⏰ [SESSION] Timeout de seguridad - estableciendo isReady=true');
+      setLoading(false);
+      setIsReady(true);
+    }, 15000); // 15 segundos de timeout
+
     console.log('🔄 [SESSION] Marcando componente como montado');
     mounted.current = true;
-    checkSession();
+    checkSession().finally(() => {
+      clearTimeout(safetyTimeout);
+    });
   }, []);
 
   // Listener para cambios de autenticación
