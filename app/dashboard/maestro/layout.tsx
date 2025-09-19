@@ -25,35 +25,30 @@ function MaestroLayoutContent({
 
   useEffect(() => {
     const checkAccess = async () => {
-      console.log('🔍 MAESTRO LAYOUT: checkAccess ejecutándose...', {
-        isReady,
-        hasUserData: !!userData,
-        userEmail: userData?.email,
-        userLevel: userData?.user_level,
-        timestamp: new Date().toISOString()
-      });
+      // Prevenir bucles de redirección
+      const redirectCount = parseInt(sessionStorage.getItem('maestroRedirectCount') || '0');
+      if (redirectCount > 2) {
+        console.error('🚫 Bucle de redirección detectado en maestro layout, deteniendo...');
+        sessionStorage.removeItem('maestroRedirectCount');
+        setIsAuthorized(false);
+        setIsLoading(false);
+        return;
+      }
 
       if (isReady) {
         if (!userData) {
           console.log('🚫 MAESTRO LAYOUT: No hay usuario, redirigiendo a login');
+          sessionStorage.setItem('maestroRedirectCount', (redirectCount + 1).toString());
           router.replace('/login/signin');
           return;
         }
-
-        console.log('👤 MAESTRO LAYOUT: Verificando acceso para:', userData.email);
-        console.log('📋 MAESTRO LAYOUT: Emails autorizados:', MAESTRO_AUTHORIZED_EMAILS);
 
         // Verificar si el email está en la lista de autorizados
         const userEmail = userData.email.toLowerCase().trim();
         const clientAuthorized = MAESTRO_AUTHORIZED_EMAILS.includes(userEmail);
 
-        console.log('🔍 MAESTRO LAYOUT: Email procesado:', userEmail);
-        console.log('✅ MAESTRO LAYOUT: ¿Autorizado por lista?:', clientAuthorized);
-
-        // Verificar autorización real para producción
         if (!clientAuthorized) {
           console.log('🚫 MAESTRO LAYOUT: Acceso denegado - Email no autorizado para maestro');
-          // En lugar de redirigir, mostrar mensaje de error
           setIsAuthorized(false);
           setIsLoading(false);
           return;
@@ -62,6 +57,8 @@ function MaestroLayoutContent({
         console.log('✅ MAESTRO LAYOUT: Acceso autorizado por email');
         setIsAuthorized(true);
         setIsLoading(false);
+        // Limpiar contador de redirección al autorizar
+        sessionStorage.removeItem('maestroRedirectCount');
       }
     };
 
@@ -77,24 +74,60 @@ function MaestroLayoutContent({
   }
 
   if (!isAuthorized) {
+    const redirectCount = parseInt(sessionStorage.getItem('maestroRedirectCount') || '0');
+    const isLoopDetected = redirectCount > 2;
+    
     return (
       <div className="min-h-screen bg-[#121212] flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-400 text-xl mb-4">Acceso Denegado</div>
-          <p className="text-gray-400 mb-2">No tienes permisos para acceder al dashboard de maestro.</p>
-          {userData && (
-            <div className="text-gray-500 text-sm mb-4">
-              <p>Email: {userData.email}</p>
-              <p>Nivel: {userData.user_level}</p>
-              <p>Emails autorizados: {MAESTRO_AUTHORIZED_EMAILS.join(', ')}</p>
-            </div>
+        <div className="text-center max-w-md mx-auto p-6">
+          {isLoopDetected ? (
+            <>
+              <div className="text-red-500 text-6xl mb-4">⚠️</div>
+              <h2 className="text-2xl font-bold text-white mb-4">Bucle de Redirección Detectado</h2>
+              <p className="text-gray-400 mb-6">
+                Se ha detectado un bucle de redirección. Esto puede ser causado por problemas de autenticación.
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    sessionStorage.clear();
+                    localStorage.clear();
+                    window.location.href = '/login/signin';
+                  }}
+                  className="w-full px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+                >
+                  Reiniciar Sesión
+                </button>
+                <button
+                  onClick={() => {
+                    sessionStorage.removeItem('maestroRedirectCount');
+                    window.location.reload();
+                  }}
+                  className="w-full px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Intentar de Nuevo
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-red-400 text-xl mb-4">Acceso Denegado</div>
+              <p className="text-gray-400 mb-2">No tienes permisos para acceder al dashboard de maestro.</p>
+              {userData && (
+                <div className="text-gray-500 text-sm mb-4">
+                  <p>Email: {userData.email}</p>
+                  <p>Nivel: {userData.user_level}</p>
+                  <p>Emails autorizados: {MAESTRO_AUTHORIZED_EMAILS.join(', ')}</p>
+                </div>
+              )}
+              <button 
+                onClick={() => window.location.href = '/login/dashboard-selection'}
+                className="px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+              >
+                Volver a Selección de Dashboard
+              </button>
+            </>
           )}
-          <button 
-            onClick={() => window.location.href = '/login/dashboard-selection'}
-            className="px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
-          >
-            Volver a Selección de Dashboard
-          </button>
         </div>
       </div>
     );
