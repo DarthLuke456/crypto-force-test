@@ -38,10 +38,7 @@ import { useScrollPosition } from '@/hooks/useScrollPosition';
 import { useSafeAuth } from '@/context/AuthContext';
 import EnhancedModuloCarousel from './components/EnhancedModuloCarousel';
 import DynamicCarousel from './components/DynamicCarousel';
-import DynamicTribunalCarousel from './components/DynamicTribunalCarousel';
-import TribunalContentInitializer from './components/TribunalContentInitializer';
 import { useDynamicModules } from '@/hooks/useDynamicModules';
-import { useTribunalModules } from '@/hooks/useTribunalModules';
 
 interface Module {
   id: string;
@@ -701,15 +698,7 @@ export default function IniciadoDashboard() {
     refreshModules 
   } = useDynamicModules();
 
-  // Hook para módulos del Tribunal Imperial
-  const {
-    theoretical: tribunalTheoretical,
-    practical: tribunalPractical,
-    checkpoints: tribunalCheckpoints,
-    loading: tribunalLoading,
-    refreshModules: refreshTribunalModules,
-    getStats: tribunalStats
-  } = useTribunalModules();
+  // Módulos dinámicos (sin referencias al Tribunal Imperial)
 
   // Objetivos a lograr
   const objectives: Objective[] = [
@@ -905,7 +894,6 @@ export default function IniciadoDashboard() {
       ref={scrollRef}
       className="min-h-screen bg-[#0f0f0f] text-white overflow-y-auto scrollbar-iniciado"
     >
-      <TribunalContentInitializer />
       <style jsx>{`
         @keyframes fadeIn {
           from { opacity: 0; }

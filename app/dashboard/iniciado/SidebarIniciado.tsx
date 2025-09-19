@@ -36,13 +36,22 @@ export default function SidebarIniciado({ isCollapsed = false }: SidebarIniciado
       const userLevel = userData.user_level;
       const currentDashboardLevel = 1; // Iniciado = nivel 1
       
-      // Mostrar compass si el usuario es Fundador (0) o de nivel superior (2-6)
-      setShowCompass(userLevel === 0 || (userLevel !== undefined && userLevel > currentDashboardLevel));
+      // Verificar si es usuario fundador por email (backup)
+      const isFundadorByEmail = userData.email && ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'].includes(userData.email.toLowerCase().trim());
+      
+      // Mostrar compass si el usuario es Fundador (0), Maestro (6), o de nivel superior (2-5)
+      // También incluir verificación por email como backup
+      const shouldShowCompass = userLevel === 0 || userLevel === 6 || (userLevel !== undefined && userLevel > currentDashboardLevel) || isFundadorByEmail;
+      
+      setShowCompass(shouldShowCompass);
       
       console.log('🔍 Sidebar Iniciado - Debug:', {
         userLevel,
         currentDashboardLevel,
-        showCompass: userLevel === 0 || (userLevel !== undefined && userLevel > currentDashboardLevel)
+        email: userData.email,
+        isFundadorByEmail,
+        shouldShowCompass,
+        showCompass: shouldShowCompass
       });
     }
   }, [userData, loading]);
