@@ -1,16 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Crown, FileText, CheckCircle, XCircle, Clock, Users, BarChart3, Plus, Eye, Save, Edit, Trash2, ArrowLeft, HelpCircle } from 'lucide-react';
+import { Crown, FileText, CheckCircle, XCircle, Clock, Users, BarChart3, Plus, Eye, Save, Edit, Trash2, ArrowLeft, HelpCircle, ExternalLink, X } from 'lucide-react';
 import { useSafeAuth } from '@/context/AuthContext';
 import { canUserAccessTribunal, hasAbsoluteAuthority } from '@/lib/tribunal/permissions';
 import ContentEditor from '@/components/tribunal/ContentEditor';
 import NotionEditor from '@/components/tribunal/NotionEditor';
 import ProposalHeader from '@/components/tribunal/ProposalHeader';
 import BackButton from '@/components/ui/BackButton';
+import MinimalContentCreator from '@/components/tribunal/MinimalContentCreator';
 import { ContentBlock } from '@/lib/tribunal/types';
 import { useProposals, TribunalProposal } from '@/lib/tribunal/hooks/useProposals';
 import EnhancedVotingSystem from '@/components/tribunal/EnhancedVotingSystem';
+import { processAutoApproval, isFounderUser, createAutoApprovalNotification } from '@/lib/tribunal/auto-approval';
+import { useSmartNavigation } from '@/lib/tribunal/smart-navigation';
 
 interface TribunalStats {
   propuestasPendientes: number;
@@ -123,6 +126,7 @@ function ProposalsList({ onEditProposal }: { onEditProposal: (proposal: any) => 
 // Componente para mostrar propuestas aprobadas
 function ApprovedProposals() {
   const { proposals } = useProposals();
+  const { createDirectAccessButton } = useSmartNavigation();
   const approvedProposals = proposals.filter(p => p.status === 'approved');
   
   if (approvedProposals.length === 0) {
@@ -202,6 +206,17 @@ function ApprovedProposals() {
               </div>
             </div>
             )}
+            
+            {/* Botón de Acceso Directo */}
+            <div className="flex justify-center">
+              {createDirectAccessButton({
+                dashboard: 'iniciado',
+                level: proposal.level || 1,
+                category: proposal.category || 'theoretical',
+                carouselId: `tribunal-carousel-${proposal.category || 'theoretical'}`,
+                cardId: `content-card-${proposal.id}`
+              }, 'Ver en Dashboard')}
+            </div>
             
             <div className="text-center text-sm text-green-400 bg-green-900/20 border border-green-500/30 rounded-lg p-3">
               <p className="font-medium">✅ Esta propuesta ha sido aprobada por Darth Nihilus o Darth Luke</p>
@@ -313,10 +328,12 @@ function RejectedProposals() {
 export default function TribunalImperialPage() {
   const { userData, loading, isReady } = useSafeAuth();
   const { proposals, createProposal, updateProposal } = useProposals();
+  const { createDirectAccessButton } = useSmartNavigation();
   const [activeTab, setActiveTab] = useState<'overview' | 'propuestas' | 'crear' | 'aprobados' | 'rechazados' | 'gestion'>('overview');
   const [editingProposal, setEditingProposal] = useState<any | null>(null);
   const [isEditingMode, setIsEditingMode] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
+  const [showMinimalCreator, setShowMinimalCreator] = useState(false);
 
   // Convert ContentBlock back to Block format for editing
   const convertContentBlockToBlock = (contentBlock: any): any => {
@@ -530,10 +547,39 @@ export default function TribunalImperialPage() {
     );
   }
 
-  const handleSaveProposal = (content: ContentBlock[]) => {
+  const handleSaveProposal = (content: any[]) => {
     console.log('Contenido guardado:', content);
-    alert('Propuesta guardada exitosamente. Será enviada al Tribunal para votación.');
-    setActiveTab('propuestas');
+    
+    // Crear propuesta
+    const proposal = {
+      id: `proposal-${Date.now()}`,
+      title: content.find((b: any) => b.type === 'title')?.content || 'Sin título',
+      subtitle: content.find((b: any) => b.type === 'subtitle')?.content || 'Sin subtítulo',
+      content: content,
+      authorEmail: userData?.email || '',
+      authorId: userData?.id || '',
+      status: 'pending' as const,
+      level: 1, // Por defecto, se puede cambiar
+      category: 'theoretical' as const, // Por defecto, se puede cambiar
+      createdAt: new Date()
+    };
+    
+    // Verificar si debe ser auto-aprobada
+    if (proposal.authorEmail && isFounderUser(proposal.authorEmail)) {
+      const autoApprovedProposal = processAutoApproval(proposal);
+      createProposal(autoApprovedProposal);
+      
+      // Crear notificación
+      const notification = createAutoApprovalNotification(autoApprovedProposal);
+      console.log('Auto-aprobación:', notification);
+      
+      alert('Propuesta creada y aprobada automáticamente por ser usuario fundador.');
+      setActiveTab('aprobados');
+    } else {
+      createProposal(proposal);
+      alert('Propuesta guardada exitosamente. Será enviada al Tribunal para votación.');
+      setActiveTab('propuestas');
+    }
   };
 
   const handleProposalCreated = (proposal: TribunalProposal) => {
@@ -574,28 +620,47 @@ export default function TribunalImperialPage() {
 
       {/* Navegación Principal */}
       <div className="bg-[#121212] border-b border-[#333] p-4">
-        <div className="flex space-x-2">
-          {[
-            { id: 'overview', label: 'Vista General', icon: <BarChart3 size={18} /> },
-            { id: 'propuestas', label: 'Propuestas', icon: <FileText size={18} /> },
-            { id: 'crear', label: 'Crear Contenido', icon: <Plus size={18} /> },
-            { id: 'aprobados', label: 'Aprobados', icon: <CheckCircle size={18} /> },
-            { id: 'rechazados', label: 'Rechazados', icon: <XCircle size={18} /> },
-            { id: 'gestion', label: 'Gestión', icon: <Edit size={18} /> }
-          ].map((tab) => (
+        <div className="flex items-center justify-between">
+          <div className="flex space-x-2">
+            {[
+              { id: 'overview', label: 'Vista General', icon: <BarChart3 size={18} /> },
+              { id: 'propuestas', label: 'Propuestas', icon: <FileText size={18} /> },
+              { id: 'aprobados', label: 'Aprobados', icon: <CheckCircle size={18} /> },
+              { id: 'rechazados', label: 'Rechazados', icon: <XCircle size={18} /> },
+              { id: 'gestion', label: 'Gestión', icon: <Edit size={18} /> }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-[#fafafa] text-[#121212]'
+                    : 'text-gray-400 hover:text-white hover:bg-[#2a2a2a]'
+                }`}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
+          
+          {/* Botones de Creación */}
+          <div className="flex gap-2">
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? 'bg-[#fafafa] text-[#121212]'
-                  : 'text-gray-400 hover:text-white hover:bg-[#2a2a2a]'
-              }`}
+              onClick={() => setShowMinimalCreator(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition-colors"
             >
-              {tab.icon}
-              <span>{tab.label}</span>
+              <Plus className="w-4 h-4" />
+              Crear Contenido
             </button>
-          ))}
+            <button
+              onClick={() => setActiveTab('crear')}
+              className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white border border-[#333] rounded-lg hover:border-[#555] transition-colors"
+            >
+              <Edit className="w-4 h-4" />
+              Editor Avanzado
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1111,6 +1176,31 @@ export default function TribunalImperialPage() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal del Creador Minimalista */}
+      {showMinimalCreator && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="w-full h-full max-w-7xl max-h-[90vh] bg-[#0a0a0a] rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-[#1a1a1a]">
+              <h2 className="text-xl font-semibold">Creador de Contenido</h2>
+              <button
+                onClick={() => setShowMinimalCreator(false)}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <MinimalContentCreator
+              onSave={handleSaveProposal}
+              onPreview={(content) => {
+                console.log('Vista previa:', content);
+                // Aquí se puede implementar la vista previa
+              }}
+            />
           </div>
         </div>
       )}
