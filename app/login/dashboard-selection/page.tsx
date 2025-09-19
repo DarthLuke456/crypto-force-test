@@ -651,6 +651,29 @@ export default function DashboardSelectionPage() {
     );
   }
 
+  // NO PERMITIR ACCESO SIN USUARIO REAL
+  if (!userData || !userData.email || userData.email === 'email@ejemplo.com') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 text-6xl mb-4">🚫</div>
+          <h2 className="text-2xl font-bold text-white mb-4">Acceso Denegado</h2>
+          <p className="text-gray-400 mb-6">
+            No tienes acceso a esta página. Debes estar autenticado correctamente.
+          </p>
+          <button
+            onClick={() => {
+              window.location.href = '/login/signin';
+            }}
+            className="w-full px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+          >
+            Ir al Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f]">
       {/* Mini Navbar Profesional */}

@@ -84,6 +84,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('🔍 [AUTH] Creating basic user for:', user.email);
       
+      // NO CREAR USUARIOS AUTOMÁTICAMENTE - SOLO USUARIOS AUTORIZADOS
+      const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
+      if (!user.email || !authorizedEmails.includes(user.email.toLowerCase().trim())) {
+        console.log('❌ [AUTH] User not authorized:', user.email);
+        return null;
+      }
+      
       const { data, error } = await supabase
         .from('users')
         .insert({
@@ -135,6 +142,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (session?.user) {
           console.log('✅ [AUTH] Session found, user:', session.user.email);
+          
+          // VERIFICAR SI EL USUARIO ESTÁ AUTORIZADO
+          const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
+          if (!session.user.email || !authorizedEmails.includes(session.user.email.toLowerCase().trim())) {
+            console.log('❌ [AUTH] User not authorized:', session.user.email);
+            setUser(null);
+            setUserData(null);
+            setLoading(false);
+            setReady(true);
+            return;
+          }
+          
           setUser(session.user);
           
           // Intentar obtener datos del usuario
@@ -169,6 +188,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🔍 [AUTH] Auth state changed:', event, session?.user?.email);
       
       if (session?.user) {
+        // VERIFICAR SI EL USUARIO ESTÁ AUTORIZADO
+        const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
+        if (!session.user.email || !authorizedEmails.includes(session.user.email.toLowerCase().trim())) {
+          console.log('❌ [AUTH] User not authorized in state change:', session.user.email);
+          setUser(null);
+          setUserData(null);
+          setLoading(false);
+          setReady(true);
+          return;
+        }
+        
         setUser(session.user);
         
         // Intentar obtener datos del usuario
