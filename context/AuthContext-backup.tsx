@@ -1,16 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
-import { useRouter } from 'next/navigation';
-import { isRefreshTokenError, clearAuthStorage, handleAuthError } from '@/lib/authUtils';
-
-// Lista de emails autorizados para acceder a la dashboard de Maestro
-const MAESTRO_AUTHORIZED_EMAILS = [
-  'infocryptoforce@gmail.com',
-  'coeurdeluke.js@gmail.com'
-];
 
 // Tipos
 export interface UserData {
@@ -61,92 +53,79 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isReady, setIsReady] = useState(false);
-  const mounted = useRef(false);
-  const userDataFetched = useRef(false);
-  const loginInProgress = useRef(false);
-  const loginTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const router = useRouter();
+  const [isReady, setReady] = useState(false);
 
-  // Función para obtener datos del usuario
-  const fetchUserData = async (userEmail: string) => {
-    console.log('📊 [USERDATA] Iniciando fetchUserData para:', userEmail);
-    
-    if (!mounted.current) {
-      console.warn('⚠️ [USERDATA] Componente no montado, cancelando fetch');
-      return;
-    }
-    
-    if (userDataFetched.current) {
-      console.warn('⚠️ [USERDATA] Datos ya obtenidos, cancelando fetch duplicado');
-      return;
-    }
-    
+  // Función simplificada para obtener datos del usuario
+  const fetchUserData = async (userId: string): Promise<UserData | null> => {
     try {
-      console.log('📡 [USERDATA] Consultando base de datos...');
+      console.log('🔍 [AUTH] Fetching user data for:', userId);
+      console.log('🔍 [AUTH] User ID type:', typeof userId);
+      console.log('🔍 [AUTH] User ID length:', userId?.length);
       
-      const { data: userData, error: userError } = await supabase
+      // Primero intentar consulta por UID
+      let { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('email', userEmail)
-        .maybeSingle();
-      
-      if (userError) {
-        console.error('❌ [USERDATA] Error al obtener datos de users:', userError);
-        console.log('🔄 [USERDATA] Creando usuario básico...');
-        await createBasicUser(userEmail);
-        return;
-      }
-      
-      if (userData) {
-        console.log('✅ [USERDATA] Datos del usuario obtenidos:', {
-          id: userData.id,
-          email: userData.email,
-          nickname: userData.nickname,
-          user_level: userData.user_level,
-          referral_code: userData.referral_code
-        });
+        .eq('uid', userId)
+        .single();
+
+      if (error) {
+        console.error('❌ [AUTH] Error fetching by UID:', error);
         
-        console.log('🔄 [USERDATA] Estableciendo datos en contexto...');
-        setUserData(userData);
-        userDataFetched.current = true;
+        // Si falla por UID, intentar por email
+        console.log('🔍 [AUTH] Trying to fetch by email instead...');
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session?.user?.email) {
+          const { data: emailData, error: emailError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', sessionData.session.user.email)
+            .single();
+          
+          if (emailError) {
+            console.error('❌ [AUTH] Error fetching by email:', emailError);
+            return null;
+          }
+          
+          console.log('✅ [AUTH] User data fetched by email:', emailData);
+          return emailData;
+        }
         
-        console.log('✅ [USERDATA] Datos del usuario establecidos exitosamente');
-        return;
+        return null;
       }
-      
-      console.log('⚠️ [USERDATA] No se encontraron datos, creando usuario básico...');
-      // Si no hay datos, crear un usuario básico
-      await createBasicUser(userEmail);
-      
+
+      console.log('✅ [AUTH] User data fetched successfully:', data);
+      return data;
     } catch (error) {
-      console.error('❌ [USERDATA] Error inesperado en fetchUserData:', error);
-      console.log('🔄 [USERDATA] Creando usuario básico como fallback...');
-      try {
-        await createBasicUser(userEmail);
-      } catch (createError) {
-        console.error('❌ [USERDATA] Error creando usuario básico:', createError);
-      }
+      console.error('❌ [AUTH] Exception fetching user data:', error);
+      return null;
     }
   };
 
-  // Función para crear usuario básico
-  const createBasicUser = async (userEmail: string) => {
-    console.log('👤 [CREATEUSER] Creando usuario básico para:', userEmail);
-    
+  // Función simplificada para crear usuario básico
+  const createBasicUser = async (user: User): Promise<UserData | null> => {
     try {
-      const { data: newUser, error: createError } = await supabase
+      console.log('🔍 [AUTH] Creating basic user for:', user.email);
+      
+      // NO CREAR USUARIOS AUTOMÁTICAMENTE - SOLO USUARIOS AUTORIZADOS
+      const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
+      if (!user.email || !authorizedEmails.includes(user.email.toLowerCase().trim())) {
+        console.log('❌ [AUTH] User not authorized:', user.email);
+        return null;
+      }
+      
+      const { data, error } = await supabase
         .from('users')
         .insert({
-          email: userEmail,
+          uid: user.id,
+          email: user.email || '',
           nombre: '',
           apellido: '',
-          nickname: userEmail.split('@')[0],
+          nickname: user.email?.split('@')[0] || 'Usuario',
           movil: '',
           exchange: '',
           user_level: 1,
-          referral_code: `CRYPTOFORCE-${userEmail.split('@')[0].toUpperCase()}`,
-          uid: user?.id || '',
+          referral_code: `CRYPTOFORCE-${user.email?.split('@')[0]?.toUpperCase() || 'USER'}`,
           codigo_referido: null,
           referred_by: null,
           total_referrals: 0
@@ -154,31 +133,121 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .select()
         .single();
 
-      if (createError) {
-        console.error('❌ [CREATEUSER] Error creando usuario:', createError);
-        return;
+      if (error) {
+        console.error('❌ [AUTH] Error creating user:', error);
+        return null;
       }
 
-      console.log('✅ [CREATEUSER] Usuario básico creado:', newUser);
-      setUserData(newUser);
-      userDataFetched.current = true;
+      console.log('✅ [AUTH] User created successfully:', data);
+      return data;
     } catch (error) {
-      console.error('❌ [CREATEUSER] Error inesperado:', error);
+      console.error('❌ [AUTH] Exception creating user:', error);
+      return null;
     }
   };
 
-  // Función de login
+  // Inicialización simplificada
+  useEffect(() => {
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        console.log('🔍 [AUTH] Initializing auth...');
+        
+        // Obtener sesión actual
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ [AUTH] Error getting session:', error);
+          setReady(true);
+          return;
+        }
+
+        if (session?.user) {
+          console.log('✅ [AUTH] Session found, user:', session.user.email);
+          
+          // VERIFICAR SI EL USUARIO ESTÁ AUTORIZADO (solo para crear usuarios, no para bloquear)
+          const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
+          const isAuthorized = session.user.email && authorizedEmails.includes(session.user.email.toLowerCase().trim());
+          
+          if (!isAuthorized) {
+            console.log('⚠️ [AUTH] User not in authorized list, but allowing access:', session.user.email);
+          }
+          
+          setUser(session.user);
+          
+          // Intentar obtener datos del usuario
+          const userData = await fetchUserData(session.user.id);
+          if (userData) {
+            setUserData(userData);
+          } else {
+            // Si no hay datos, crear usuario básico
+            const newUserData = await createBasicUser(session.user);
+            if (newUserData) {
+              setUserData(newUserData);
+            }
+          }
+        } else {
+          console.log('ℹ️ [AUTH] No session found');
+        }
+      } catch (error) {
+        console.error('❌ [AUTH] Error in initialization:', error);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+          setReady(true);
+          console.log('✅ [AUTH] Auth initialization complete');
+        }
+      }
+    };
+
+    initializeAuth();
+
+    // Escuchar cambios de autenticación
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔍 [AUTH] Auth state changed:', event, session?.user?.email);
+      
+      if (session?.user) {
+        // VERIFICAR SI EL USUARIO ESTÁ AUTORIZADO (solo para crear usuarios, no para bloquear)
+        const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
+        const isAuthorized = session.user.email && authorizedEmails.includes(session.user.email.toLowerCase().trim());
+        
+        if (!isAuthorized) {
+          console.log('⚠️ [AUTH] User not in authorized list in state change, but allowing access:', session.user.email);
+        }
+        
+        setUser(session.user);
+        
+        // Intentar obtener datos del usuario
+        const userData = await fetchUserData(session.user.id);
+        if (userData) {
+          setUserData(userData);
+        } else {
+          // Si no hay datos, crear usuario básico
+          const newUserData = await createBasicUser(session.user);
+          if (newUserData) {
+            setUserData(newUserData);
+          }
+        }
+      } else {
+        setUser(null);
+        setUserData(null);
+      }
+      
+      setLoading(false);
+      setReady(true);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Función de login simplificada
   const signIn = async (email: string, password: string) => {
-    if (loginInProgress.current) {
-      console.warn('⚠️ [LOGIN] Login ya en progreso, ignorando solicitud');
-      return { success: false, error: 'Login ya en progreso' };
-    }
-
-    loginInProgress.current = true;
-    setLoading(true);
-
     try {
-      console.log('🔐 [LOGIN] Iniciando proceso de login para:', email);
+      console.log('🔍 [AUTH] Signing in:', email);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -186,55 +255,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
-        console.error('❌ [LOGIN] Error en login:', error);
+        console.error('❌ [AUTH] Sign in error:', error);
         return { success: false, error: error.message };
       }
 
-      if (data.user) {
-        console.log('✅ [LOGIN] Login exitoso:', data.user.email);
-        setUser(data.user);
-        
-        try {
-          await fetchUserData(data.user.email!);
-        } catch (error) {
-          console.error('❌ [LOGIN] Error obteniendo datos del usuario:', error);
-        }
-      }
-
+      console.log('✅ [AUTH] Sign in successful');
       return { success: true };
     } catch (error) {
-      console.error('❌ [LOGIN] Error inesperado en login:', error);
+      console.error('❌ [AUTH] Sign in exception:', error);
       return { success: false, error: 'Error inesperado' };
-    } finally {
-      loginInProgress.current = false;
-      setLoading(false);
     }
   };
 
-  // Función de logout
+  // Función de logout simplificada
   const signOut = async () => {
-    console.log('🚪 [LOGOUT] Iniciando logout...');
-    setLoading(true);
-    
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('❌ [LOGOUT] Error en logout:', error);
-      }
-    } catch (error) {
-      console.error('❌ [LOGOUT] Error inesperado en logout:', error);
-    } finally {
+      console.log('🔍 [AUTH] Signing out');
+      await supabase.auth.signOut();
       setUser(null);
       setUserData(null);
-      userDataFetched.current = false;
-      setLoading(false);
-      setIsReady(true);
+      console.log('✅ [AUTH] Sign out successful');
+    } catch (error) {
+      console.error('❌ [AUTH] Sign out error:', error);
     }
   };
 
-  // Función de registro
+  // Función de registro simplificada
   const signUp = async (email: string, password: string, metadata: any) => {
     try {
+      console.log('🔍 [AUTH] Signing up:', email);
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -244,133 +294,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
+        console.error('❌ [AUTH] Sign up error:', error);
         return { success: false, error: error.message };
       }
 
+      console.log('✅ [AUTH] Sign up successful');
       return { success: true };
     } catch (error) {
+      console.error('❌ [AUTH] Sign up exception:', error);
       return { success: false, error: 'Error inesperado' };
     }
   };
 
   // Función para limpiar sesión
   const clearSession = async () => {
-    console.log('🧹 [CLEAR] Limpiando sesión...');
-    setUser(null);
-    setUserData(null);
-    userDataFetched.current = false;
-    setLoading(false);
-    setIsReady(true);
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setUserData(null);
+      console.log('✅ [AUTH] Session cleared');
+    } catch (error) {
+      console.error('❌ [AUTH] Error clearing session:', error);
+    }
   };
 
   // Función para resetear estado de login
   const resetLoginState = () => {
-    console.log('🔄 [RESET] Reseteando estado de login...');
-    loginInProgress.current = false;
-    if (loginTimeoutRef.current) {
-      clearTimeout(loginTimeoutRef.current);
-      loginTimeoutRef.current = null;
-    }
+    console.log('🔍 [AUTH] Resetting login state');
     setLoading(false);
-    setIsReady(true);
+    setReady(true);
   };
 
-  // Función para verificar si un email está autorizado para Maestro
-  const isMaestroAuthorized = (email: string) => {
-    return MAESTRO_AUTHORIZED_EMAILS.includes(email);
+  // Función para verificar autorización de maestro
+  const isMaestroAuthorized = (email: string): boolean => {
+    const authorizedEmails = [
+      'infocryptoforce@gmail.com',
+      'coeurdeluke.js@gmail.com'
+    ];
+    return authorizedEmails.includes(email.toLowerCase().trim());
   };
-
-  // Efecto para verificar sesión al cargar - VERSIÓN SIMPLIFICADA
-  useEffect(() => {
-    console.log('🔄 [SESSION] Iniciando verificación de sesión...');
-    
-    const checkSession = async () => {
-      try {
-        console.log('📡 [SESSION] Consultando sesión actual...');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('❌ [SESSION] Error obteniendo sesión:', error);
-          return;
-        }
-
-        if (session?.user) {
-          console.log('✅ [SESSION] Sesión activa encontrada:', {
-            id: session.user.id,
-            email: session.user.email
-          });
-          
-          setUser(session.user);
-          
-          try {
-            await fetchUserData(session.user.email!);
-          } catch (error) {
-            console.error('❌ [SESSION] Error obteniendo datos del usuario:', error);
-          }
-        } else {
-          console.log('ℹ️ [SESSION] No hay sesión activa');
-        }
-      } catch (error) {
-        console.error('❌ [SESSION] Error inesperado en checkSession:', error);
-      }
-    };
-
-    // Timeout de seguridad MUY CORTO
-    const safetyTimeout = setTimeout(() => {
-      console.log('⏰ [SESSION] Timeout de seguridad alcanzado, estableciendo isReady=true');
-      setLoading(false);
-      setIsReady(true);
-    }, 2000); // Solo 2 segundos
-
-    mounted.current = true;
-    checkSession().finally(() => {
-      clearTimeout(safetyTimeout);
-      // GARANTIZAR que isReady se establezca SIEMPRE
-      console.log('✅ [SESSION] Estableciendo isReady=true y loading=false');
-      setLoading(false);
-      setIsReady(true);
-    });
-  }, []);
-
-  // Listener para cambios de autenticación
-  useEffect(() => {
-    console.log('🔄 [AUTHSTATE] Configurando listener de cambios de autenticación...');
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 [AUTHSTATE] Evento de autenticación detectado:', event);
-      
-      if (event === 'SIGNED_IN' && session?.user) {
-        console.log('✅ [AUTHSTATE] Usuario firmado:', session.user.email);
-        setUser(session.user);
-        try {
-          await fetchUserData(session.user.email!);
-        } catch (error) {
-          console.error('❌ [AUTHSTATE] Error obteniendo datos del usuario:', error);
-        }
-      } else if (event === 'SIGNED_OUT') {
-        console.log('🚪 [AUTHSTATE] Usuario cerrado sesión, limpiando datos...');
-        setUser(null);
-        setUserData(null);
-        userDataFetched.current = false;
-      }
-    });
-
-    return () => {
-      console.log('🧹 [AUTHSTATE] Limpiando listener de autenticación...');
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  // Cleanup al desmontar
-  useEffect(() => {
-    return () => {
-      console.log('🧹 [CLEANUP] Desmontando AuthProvider...');
-      mounted.current = false;
-      if (loginTimeoutRef.current) {
-        clearTimeout(loginTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const value: AuthContextType = {
     user,
