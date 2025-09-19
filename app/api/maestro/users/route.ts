@@ -111,7 +111,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Acceso denegado. Solo maestros pueden acceder a esta información.' }, { status: 403 });
     }
 
-    // Obtener todos los usuarios del sistema
+    // Obtener todos los usuarios del sistema (solo columnas que existen)
     const { data: users, error: usersError } = await supabase
       .from('users')
       .select(`
@@ -120,14 +120,8 @@ export async function GET(request: Request) {
         nombre,
         apellido,
         nickname,
-        movil,
-        exchange,
         user_level,
         referral_code,
-        uid,
-        codigo_referido,
-        referred_by,
-        total_referrals,
         created_at,
         updated_at
       `)

@@ -11,6 +11,7 @@ import BackButton from '@/components/ui/BackButton';
 import MinimalContentCreator from '@/components/tribunal/MinimalContentCreator';
 import { ContentBlock } from '@/lib/tribunal/types';
 import { useProposals, TribunalProposal } from '@/lib/tribunal/hooks/useProposals';
+import AuthDebugger from '@/components/debug/AuthDebugger';
 import EnhancedVotingSystem from '@/components/tribunal/EnhancedVotingSystem';
 import { processAutoApproval, isFounderUser, createAutoApprovalNotification } from '@/lib/tribunal/auto-approval';
 
@@ -656,6 +657,7 @@ export default function TribunalImperialPage() {
 
   return (
     <div className="min-h-screen bg-[#121212] text-white">
+      <AuthDebugger />
       {/* Header del Tribunal Imperial */}
       <div className="bg-[#121212] border-b border-[#333] p-6">
         <div className="flex items-center justify-between">

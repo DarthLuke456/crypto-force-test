@@ -474,7 +474,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log('🔄 [AUTHSTATE] Configurando listener de cambios de autenticación...');
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 [AUTHSTATE] Evento de autenticación detectado:', event);
+      console.log('🔄 [AUTHSTATE] Evento de autenticación detectado:', event, {
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        userEmail: session?.user?.email,
+        timestamp: new Date().toISOString()
+      });
       
       if (event === 'SIGNED_IN' && session?.user) {
         console.log('✅ [AUTHSTATE] Usuario firmado:', {
@@ -482,7 +487,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: session.user.email
         });
         setUser(session.user);
-        await fetchUserData(session.user.email!);
+        try {
+          await fetchUserData(session.user.email!);
+        } catch (error) {
+          console.error('❌ [AUTHSTATE] Error obteniendo datos del usuario:', error);
+        }
       } else if (event === 'SIGNED_OUT') {
         console.log('🚪 [AUTHSTATE] Usuario cerrado sesión, limpiando datos...');
         setUser(null);
@@ -490,6 +499,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         userDataFetched.current = false;
       } else if (event === 'TOKEN_REFRESHED') {
         console.log('🔄 [AUTHSTATE] Token refrescado');
+      } else if (event === 'USER_UPDATED') {
+        console.log('🔄 [AUTHSTATE] Usuario actualizado');
       } else {
         console.log('ℹ️ [AUTHSTATE] Otro evento:', event);
       }
