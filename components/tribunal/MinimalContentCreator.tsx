@@ -184,7 +184,9 @@ export default function MinimalContentCreator({
         );
       
       case 'image':
-        const imageSize = block.imageSize || 'medium';\        const imageAlignment = block.imageAlignment || 'center';\        const sizeClasses = {
+        const imageSize = block.imageSize || 'medium';
+        const imageAlignment = block.imageAlignment || 'center';
+        const sizeClasses = {
           small: 'w-32 h-32',
           medium: 'w-64 h-48',
           large: 'w-96 h-72',
