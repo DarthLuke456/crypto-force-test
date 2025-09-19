@@ -793,7 +793,7 @@ export default function TribunalImperialPage() {
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">Propuestas Pendientes</h2>
               <button 
-                onClick={() => setActiveTab('crear')}
+                onClick={() => setShowMinimalCreator(true)}
                 className="px-4 py-2 bg-[#fafafa] text-[#121212] rounded-md font-medium hover:bg-[#8a8a8a] transition-colors flex items-center space-x-2"
               >
                 <Plus size={16} />
