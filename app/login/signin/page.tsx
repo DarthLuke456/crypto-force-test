@@ -91,8 +91,6 @@ export default function SignInPage() {
     }
   };
 
-  const { user, loading, isReady } = useSafeAuth();
-
   // Solo mostrar loading durante la inicialización
   if (loading && !isReady) {
     return (
