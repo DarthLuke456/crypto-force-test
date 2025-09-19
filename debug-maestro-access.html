@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Maestro Access</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: white;
+            padding: 20px;
+        }
+        .debug-section {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .warning { color: #fbbf24; }
+        .info { color: #60a5fa; }
+        button {
+            background: #ec4d58;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #d43d48; }
+        pre {
+            background: #0a0a0a;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success { background: #065f46; border: 1px solid #10b981; }
+        .status.error { background: #7f1d1d; border: 1px solid #ef4444; }
+        .status.warning { background: #78350f; border: 1px solid #f59e0b; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Maestro Access</h1>
+    
+    <div class="debug-section">
+        <h2>1. Test Authentication Status</h2>
+        <button onclick="testAuth()">Test Authentication</button>
+        <div id="auth-result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>2. Test Maestro Dashboard Access</h2>
+        <button onclick="testMaestroAccess()">Test Maestro Dashboard</button>
+        <div id="maestro-result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>3. Test Tribunal Imperial Access</h2>
+        <button onclick="testTribunalAccess()">Test Tribunal Imperial</button>
+        <div id="tribunal-result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>4. Test API Endpoints</h2>
+        <button onclick="testAPIs()">Test APIs</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>5. Manual Access Test</h2>
+        <button onclick="window.open('/dashboard/maestro/users', '_blank')">Open Maestro Users</button>
+        <button onclick="window.open('/dashboard/maestro/courses/tribunal-imperial', '_blank')">Open Tribunal Imperial</button>
+        <button onclick="window.open('/debug-auth-simple', '_blank')">Open Auth Debug</button>
+    </div>
+
+    <script>
+        async function testAuth() {
+            const resultDiv = document.getElementById('auth-result');
+            resultDiv.innerHTML = '<p class="info">🔄 Testing authentication...</p>';
+            
+            try {
+                // Test if we can access the auth debug page
+                const response = await fetch('/debug-auth-simple');
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            <p class="success">✅ Auth debug page accessible</p>
+                            <p>Status: ${response.status}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="status error">
+                            <p class="error">❌ Auth debug page not accessible</p>
+                            <p>Status: ${response.status}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        <p class="error">❌ Error accessing auth debug</p>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function testMaestroAccess() {
+            const resultDiv = document.getElementById('maestro-result');
+            resultDiv.innerHTML = '<p class="info">🔄 Testing Maestro dashboard access...</p>';
+            
+            try {
+                const response = await fetch('/dashboard/maestro/users');
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            <p class="success">✅ Maestro dashboard accessible</p>
+                            <p>Status: ${response.status}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="status error">
+                            <p class="error">❌ Maestro dashboard not accessible</p>
+                            <p>Status: ${response.status}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        <p class="error">❌ Error accessing Maestro dashboard</p>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function testTribunalAccess() {
+            const resultDiv = document.getElementById('tribunal-result');
+            resultDiv.innerHTML = '<p class="info">🔄 Testing Tribunal Imperial access...</p>';
+            
+            try {
+                const response = await fetch('/dashboard/maestro/courses/tribunal-imperial');
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="status success">
+                            <p class="success">✅ Tribunal Imperial accessible</p>
+                            <p>Status: ${response.status}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="status error">
+                            <p class="error">❌ Tribunal Imperial not accessible</p>
+                            <p>Status: ${response.status}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">
+                        <p class="error">❌ Error accessing Tribunal Imperial</p>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function testAPIs() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<p class="info">🔄 Testing APIs...</p>';
+            
+            const apis = [
+                { name: 'Profile API', url: '/api/profile' },
+                { name: 'Maestro Users API', url: '/api/maestro/users' },
+                { name: 'Tribunal Content API', url: '/api/tribunal/content' }
+            ];
+            
+            let results = '';
+            
+            for (const api of apis) {
+                try {
+                    const response = await fetch(api.url);
+                    const status = response.ok ? 'success' : 'error';
+                    const icon = response.ok ? '✅' : '❌';
+                    results += `
+                        <div class="status ${status}">
+                            <p class="${status}">${icon} ${api.name}</p>
+                            <p>Status: ${response.status}</p>
+                        </div>
+                    `;
+                } catch (error) {
+                    results += `
+                        <div class="status error">
+                            <p class="error">❌ ${api.name}</p>
+                            <p>Error: ${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            resultDiv.innerHTML = results;
+        }
+    </script>
+</body>
+</html>
