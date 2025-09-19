@@ -10,6 +10,17 @@ interface TribunalContent {
   title: string;
   subtitle: string;
   level: number;
+  category?: 'theoretical' | 'practical';
+  content_type?: 'module' | 'checkpoint' | 'resource';
+  description?: string;
+  thumbnail_url?: string;
+  duration_minutes?: number;
+  difficulty_level?: number;
+  is_published?: boolean;
+  is_featured?: boolean;
+  sort_order?: number;
+  created_at?: string;
+  updated_at?: string;
   duration?: number;
   difficulty?: number;
   isCompleted?: boolean;
