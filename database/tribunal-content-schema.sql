@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS tribunal_content (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     subtitle TEXT,
-    level INTEGER NOT NULL CHECK (level >= 1 AND level <= 6),
+    level INTEGER NOT NULL CHECK (level >= 0 AND level <= 6),
     category VARCHAR(50) NOT NULL CHECK (category IN ('theoretical', 'practical')),
     content_type VARCHAR(50) NOT NULL CHECK (content_type IN ('module', 'checkpoint', 'resource')),
     description TEXT,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS content_sections (
 CREATE TABLE IF NOT EXISTS content_injections (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     content_id UUID REFERENCES tribunal_content(id) ON DELETE CASCADE,
-    target_level INTEGER NOT NULL CHECK (target_level >= 1 AND target_level <= 6),
+    target_level INTEGER NOT NULL CHECK (target_level >= 0 AND target_level <= 6),
     target_dashboard VARCHAR(50) NOT NULL, -- 'iniciado', 'acolito', 'warrior', etc.
     injection_position VARCHAR(50) DEFAULT 'carousel' CHECK (injection_position IN ('carousel', 'sidebar', 'header', 'footer')),
     is_active BOOLEAN DEFAULT true,
@@ -178,7 +178,7 @@ COMMENT ON TABLE content_index IS 'Índices de módulos que los usuarios verán 
 COMMENT ON TABLE content_sections IS 'Secciones específicas de contenido dentro de cada módulo';
 COMMENT ON TABLE content_injections IS 'Configuración de inyección de contenido en dashboards específicos';
 
-COMMENT ON COLUMN tribunal_content.level IS 'Nivel del usuario (1-6): 1=Iniciado, 2=Acólito, 3=Warrior, 4=Lord, 5=Darth, 6=Maestro';
+COMMENT ON COLUMN tribunal_content.level IS 'Nivel del usuario (0-6): 0=Fundador, 1=Iniciado, 2=Acólito, 3=Warrior, 4=Lord, 5=Darth, 6=Maestro';
 COMMENT ON COLUMN tribunal_content.category IS 'Categoría: theoretical o practical';
 COMMENT ON COLUMN tribunal_content.content_type IS 'Tipo de contenido: module, checkpoint, resource';
 COMMENT ON COLUMN content_index.section_data IS 'Datos JSON específicos de la sección (enlaces, videos, etc.)';

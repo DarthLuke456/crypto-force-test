@@ -23,6 +23,26 @@ export interface TribunalColorScheme {
 }
 
 export const TRIBUNAL_COLORS: Record<number, TribunalColorScheme> = {
+  // Nivel 0: Fundador - Naranja
+  0: {
+    primary: '#f97316',
+    secondary: '#ea580c',
+    accent: '#c2410c',
+    background: '#121212',
+    text: '#fafafa',
+    border: '#f97316',
+    button: {
+      background: '#f97316',
+      text: '#fafafa',
+      hover: '#ea580c'
+    },
+    card: {
+      background: '#121212',
+      border: '#f97316',
+      shadow: '0 4px 6px -1px rgba(249, 115, 22, 0.1)'
+    }
+  },
+  
   // Nivel 1: Iniciado - #fafafa puro
   1: {
     primary: '#fafafa',
@@ -156,6 +176,7 @@ export function getTribunalColors(level: number): TribunalColorScheme {
  */
 export function getLevelName(level: number): string {
   const names: Record<number, string> = {
+    0: 'Fundador',
     1: 'Iniciado',
     2: 'Acólito', 
     3: 'Warrior',
@@ -171,6 +192,7 @@ export function getLevelName(level: number): string {
  */
 export function getLevelEmoji(level: number): string {
   const emojis: Record<number, string> = {
+    0: '⭐',
     1: '👤',
     2: '🔮',
     3: '⚔️',
@@ -186,6 +208,7 @@ export function getLevelEmoji(level: number): string {
  */
 export function getLevelDescription(level: number): string {
   const descriptions: Record<number, string> = {
+    0: 'Fundador del sistema, creador de la metodología',
     1: 'El primer paso en tu journey de trading',
     2: 'Desarrollando habilidades avanzadas',
     3: 'Dominando las técnicas de mercado',
