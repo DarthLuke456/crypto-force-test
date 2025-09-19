@@ -547,21 +547,33 @@ export default function DashboardSelectionPage() {
 
   // Verificar si el usuario puede acceder a cada rol
   const canAccessRole = (roleLevel: number) => {
+    console.log('🔍 canAccessRole: Verificando acceso para nivel', roleLevel, {
+      userLevel,
+      userEmail: userData?.email,
+      userDataUserLevel: userData?.user_level,
+      isFundadorByEmail: userData?.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim()),
+      authorizedEmails: MAESTRO_AUTHORIZED_EMAILS
+    });
+    
     // Verificar si es usuario fundador por email
     const isFundadorByEmail = userData?.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
     
     // Fundadores tienen acceso a TODOS los dashboards
     if (isFundadorByEmail) {
+      console.log('✅ canAccessRole: Usuario fundador, acceso permitido');
       return true;
     }
     
     // También verificar por nivel 6
     if (userLevel === 6) {
+      console.log('✅ canAccessRole: Usuario nivel 6, acceso permitido');
       return true;
     }
     
     // Otros usuarios solo pueden acceder a su nivel y niveles inferiores
-    return roleLevel <= userLevel;
+    const hasAccess = roleLevel <= userLevel;
+    console.log(`🔍 canAccessRole: Usuario nivel ${userLevel}, acceso a nivel ${roleLevel}: ${hasAccess}`);
+    return hasAccess;
   };
 
   // Mostrar loading mientras no esté listo
