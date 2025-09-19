@@ -69,6 +69,18 @@ export async function POST(request: NextRequest) {
         message: contentError.message,
         insertData: insertData
       });
+      
+      // Si el error es sobre columna faltante, sugerir crear la tabla
+      if (contentError.message.includes('Could not find') || contentError.message.includes('column')) {
+        return NextResponse.json({ 
+          error: `Error de base de datos: ${contentError.message}`,
+          suggestion: 'La tabla tribunal_content puede no existir o tener estructura incorrecta. Ejecuta el script create-tribunal-table.sql en Supabase.',
+          details: contentError.details,
+          hint: contentError.hint,
+          code: contentError.code
+        }, { status: 500 });
+      }
+      
       return NextResponse.json({ 
         error: `Error creando contenido: ${contentError.message}`,
         details: contentError.details,
