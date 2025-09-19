@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { supabase } from '@/lib/supabaseClient';
 import { 
   Home, 
   BarChart3, 
@@ -82,7 +83,7 @@ const menuItems: MenuItem[] = [
 export default function DarthSidebar() {
   const { isExpanded, toggleSidebar } = useDarthSidebar();
   const pathname = usePathname();
-  const { signOut, userData } = useSafeAuth();
+  const { userData } = useSafeAuth();
   const { avatar: userAvatar } = useAvatar();
   const [mounted, setMounted] = useState(false);
 
@@ -104,7 +105,7 @@ export default function DarthSidebar() {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await supabase.auth.signOut();
     } catch (error) {
       console.error('Error signing out:', error);
     }
