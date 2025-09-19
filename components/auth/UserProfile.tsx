@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useSafeAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabaseClient';
 import Button from '@/components/ui/Button';
 
 export default function UserProfile() {
-  const { user, userData, signOut } = useSafeAuth();
+  const { user, userData } = useSafeAuth();
   const [displayName, setDisplayName] = useState('');
 
   useEffect(() => {
@@ -13,6 +14,10 @@ export default function UserProfile() {
       setDisplayName(userData.nickname);
     }
   }, [userData]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
 
   if (!user || !userData) {
     return <div>Debes iniciar sesión para ver tu perfil</div>;
@@ -36,7 +41,7 @@ export default function UserProfile() {
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={signOut}
+          onClick={handleSignOut}
         >
           Cerrar Sesión
         </Button>
