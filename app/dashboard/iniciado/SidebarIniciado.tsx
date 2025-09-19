@@ -37,7 +37,7 @@ export default function SidebarIniciado({ isCollapsed = false }: SidebarIniciado
       const currentDashboardLevel = 1; // Iniciado = nivel 1
       
       // Verificar si es usuario fundador por email (backup)
-      const isFundadorByEmail = userData.email && ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'].includes(userData.email.toLowerCase().trim());
+      const isFundadorByEmail = Boolean(userData.email && ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'].includes(userData.email.toLowerCase().trim()));
       
       // Mostrar compass si el usuario es Fundador (0), Maestro (6), o de nivel superior (2-5)
       // También incluir verificación por email como backup
