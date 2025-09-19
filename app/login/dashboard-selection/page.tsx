@@ -54,6 +54,7 @@ export default function DashboardSelectionPage() {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const { avatar: userAvatar, changeAvatar, forceUpdate, reloadAvatar } = useAvatar();
   const { hasSavedData } = useFeedbackPersistence();
+  const [redirectAttempts, setRedirectAttempts] = useState(0);
 
   // Debug del estado de la página (simplificado)
   useEffect(() => {
@@ -65,6 +66,17 @@ export default function DashboardSelectionPage() {
       });
     }
   }, [userData, isReady]);
+
+  // Prevenir bucles de redirección
+  useEffect(() => {
+    const currentAttempts = parseInt(sessionStorage.getItem('redirectAttempts') || '0');
+    if (currentAttempts > 3) {
+      console.error('🚫 Bucle de redirección detectado, deteniendo...');
+      sessionStorage.removeItem('redirectAttempts');
+      return;
+    }
+    setRedirectAttempts(currentAttempts);
+  }, []);
 
   // Verificar si hay datos de feedback guardados y abrir modal automáticamente
   useEffect(() => {
@@ -576,6 +588,42 @@ export default function DashboardSelectionPage() {
     return hasAccess;
   };
 
+  // Mostrar error si hay bucle de redirección
+  if (redirectAttempts > 3) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-white mb-4">Bucle de Redirección Detectado</h2>
+          <p className="text-gray-400 mb-6">
+            Se ha detectado un bucle de redirección. Esto puede ser causado por problemas de autenticación.
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={() => {
+                sessionStorage.clear();
+                localStorage.clear();
+                window.location.href = '/login/signin';
+              }}
+              className="w-full px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+            >
+              Reiniciar Sesión
+            </button>
+            <button
+              onClick={() => {
+                sessionStorage.removeItem('redirectAttempts');
+                window.location.reload();
+              }}
+              className="w-full px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Intentar de Nuevo
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Mostrar loading mientras no esté listo
   if (!isReady) {
     return (
@@ -855,12 +903,17 @@ export default function DashboardSelectionPage() {
                   }}
                                     onClick={() => {
                     if (isAccessible) {
+                      // Incrementar contador de intentos de redirección
+                      const currentAttempts = parseInt(sessionStorage.getItem('redirectAttempts') || '0');
+                      sessionStorage.setItem('redirectAttempts', (currentAttempts + 1).toString());
+                      
                       console.log('🚀 [NAVIGATION] Iniciando navegación a dashboard:', {
                         path: option.path,
                         title: option.title,
                         level: option.level,
                         userLevel: userLevel,
-                        userEmail: userData?.email
+                        userEmail: userData?.email,
+                        redirectAttempts: currentAttempts + 1
                       });
                       
                       // Guardar el dashboard actual en localStorage
