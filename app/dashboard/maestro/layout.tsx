@@ -47,6 +47,15 @@ function MaestroLayoutContent({
         const userEmail = userData.email.toLowerCase().trim();
         const clientAuthorized = MAESTRO_AUTHORIZED_EMAILS.includes(userEmail);
 
+        console.log('🔍 MAESTRO LAYOUT: Verificando acceso:', {
+          userEmail: userData.email,
+          userEmailLower: userEmail,
+          authorizedEmails: MAESTRO_AUTHORIZED_EMAILS,
+          isAuthorized: clientAuthorized,
+          userLevel: userData.user_level,
+          timestamp: new Date().toISOString()
+        });
+
         if (!clientAuthorized) {
           console.log('🚫 MAESTRO LAYOUT: Acceso denegado - Email no autorizado para maestro');
           setIsAuthorized(false);
