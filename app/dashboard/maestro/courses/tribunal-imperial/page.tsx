@@ -216,7 +216,7 @@ function ApprovedProposals() {
                     carouselId: `tribunal-carousel-${proposal.category || 'theoretical'}`,
                     cardId: `content-card-${proposal.id}`
                   };
-                  const url = `/dashboard/${metadata?.targetDashboard || 'iniciado'}?scrollTo=${location.carouselId}&cardId=${location.cardId}&level=${location.level}&category=${location.category}`;
+                  const url = `/dashboard/iniciado?scrollTo=${location.carouselId}&cardId=${location.cardId}&level=${location.level}&category=${location.category}`;
                   window.location.href = url;
                 }}
                 className="px-4 py-2 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors text-sm font-medium"
