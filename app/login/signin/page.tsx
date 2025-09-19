@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import { useSafeAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabaseClient';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function SignInPage() {
-  const { signIn, resetLoginState } = useSafeAuth();
+  const { user, userData, loading, isReady } = useSafeAuth();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -54,32 +55,33 @@ export default function SignInPage() {
     try {
       console.log('🔐 Iniciando login para:', formData.email);
       
-      const result = await signIn(formData.email.trim().toLowerCase(), formData.password);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password
+      });
       
-      if (result.success) {
+      if (error) {
+        console.warn('⚠️ Error en login:', error.message);
+        
+        // Mejorar el mensaje de error para el usuario
+        let errorMessage = 'Error al iniciar sesión';
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Email o contraseña incorrectos. Verifica tus credenciales.';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Por favor, confirma tu email antes de iniciar sesión.';
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Demasiados intentos. Espera unos minutos antes de intentar nuevamente.';
+        } else {
+          errorMessage = error.message;
+        }
+        
+        setErrors({ general: errorMessage });
+      } else {
         console.log('✅ Login exitoso, mostrando mensaje de éxito');
-        // NO depender del AuthContext para redirección
-        // Mostrar mensaje de éxito y redirigir manualmente
         setErrors({ general: '¡Login exitoso! Redirigiendo al dashboard...' });
         setTimeout(() => {
           window.location.href = '/login/dashboard-selection';
         }, 1500);
-      } else {
-        // Solo logear errores inesperados, no credenciales incorrectas
-        if (!result.error?.includes('Invalid login credentials')) {
-          console.warn('⚠️ Error en login:', result.error);
-        }
-        
-        // Mejorar el mensaje de error para el usuario
-        let errorMessage = 'Error al iniciar sesión';
-        if (result.error?.includes('Invalid login credentials')) {
-          errorMessage = 'Email o contraseña incorrectos. Verifica tus credenciales.';
-        } else if (result.error?.includes('Email not confirmed')) {
-          errorMessage = 'Por favor, confirma tu email antes de iniciar sesión.';
-        } else if (result.error?.includes('Too many requests')) {
-          errorMessage = 'Demasiados intentos. Espera unos minutos antes de intentar nuevamente.';
-        }
-        setErrors({ general: errorMessage });
       }
     } catch (error: any) {
       console.error('❌ Error inesperado en login:', error);

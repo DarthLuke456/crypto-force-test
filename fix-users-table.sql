@@ -9,7 +9,7 @@ BEGIN
         CREATE TABLE users (
             id SERIAL PRIMARY KEY,
             uid UUID UNIQUE NOT NULL,
-            email VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
             nickname VARCHAR(100),
             user_level INTEGER DEFAULT 0,
             created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
