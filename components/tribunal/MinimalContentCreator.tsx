@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Plus, X, Save, Eye, ArrowRight, GripVertical, Lock } from 'lucide-react';
+import { Plus, X, Save, Eye, ArrowRight, GripVertical, Lock, AlignLeft, AlignCenter, AlignRight, ZoomIn, ZoomOut, Play, ExternalLink } from 'lucide-react';
 
 interface ContentBlock {
   id: string;
@@ -9,6 +9,12 @@ interface ContentBlock {
   content: string;
   isFixed?: boolean;
   order: number;
+  // Propiedades para imágenes
+  imageSize?: 'small' | 'medium' | 'large' | 'full';
+  imageAlignment?: 'left' | 'center' | 'right';
+  // Propiedades para videos
+  videoThumbnail?: string;
+  videoTitle?: string;
 }
 
 interface MinimalContentCreatorProps {
@@ -49,6 +55,8 @@ export default function MinimalContentCreator({
   const [indexSections, setIndexSections] = useState<string[]>(['']);
   const [imagePreviews, setImagePreviews] = useState<{ [key: string]: string }>({});
   const [imageUploaded, setImageUploaded] = useState<{ [key: string]: boolean }>({});
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewBlocks, setPreviewBlocks] = useState<ContentBlock[]>([]);
 
   const addBlock = (type: ContentBlock['type']) => {
     const newBlock: ContentBlock = {
@@ -91,6 +99,180 @@ export default function MinimalContentCreator({
       if (formattedContent !== content) {
         updateBlock(blockId, formattedContent);
       }
+    }
+  };
+
+  // Función para actualizar propiedades de imagen
+  const updateImageProperties = (blockId: string, properties: Partial<Pick<ContentBlock, 'imageSize' | 'imageAlignment'>>) => {
+    setBlocks(prev => 
+      prev.map(block => 
+        block.id === blockId ? { ...block, ...properties } : block
+      )
+    );
+  };
+
+  // Función para extraer video ID de YouTube/Vimeo
+  const extractVideoId = (url: string) => {
+    const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+    const vimeoMatch = url.match(/(?:vimeo\.com\/)([0-9]+)/);
+    
+    if (youtubeMatch) {
+      return { platform: 'youtube', id: youtubeMatch[1] };
+    } else if (vimeoMatch) {
+      return { platform: 'vimeo', id: vimeoMatch[1] };
+    }
+    return null;
+  };
+
+  // Función para generar thumbnail de video
+  const getVideoThumbnail = (url: string) => {
+    const videoInfo = extractVideoId(url);
+    if (!videoInfo) return null;
+    
+    if (videoInfo.platform === 'youtube') {
+      return `https://img.youtube.com/vi/${videoInfo.id}/maxresdefault.jpg`;
+    } else if (videoInfo.platform === 'vimeo') {
+      return `https://vumbnail.com/${videoInfo.id}.jpg`;
+    }
+    return null;
+  };
+
+  // Función para generar iframe de video
+  const getVideoEmbed = (url: string) => {
+    const videoInfo = extractVideoId(url);
+    if (!videoInfo) return null;
+    
+    if (videoInfo.platform === 'youtube') {
+      return `https://www.youtube.com/embed/${videoInfo.id}`;
+    } else if (videoInfo.platform === 'vimeo') {
+      return `https://player.vimeo.com/video/${videoInfo.id}`;
+    }
+    return null;
+  };
+
+  // Función para abrir vista previa
+  const handlePreview = () => {
+    setPreviewBlocks(blocks);
+    setShowPreview(true);
+    onPreview(blocks);
+  };
+
+  // Función para renderizar bloque en vista previa
+  const renderPreviewBlock = (block: ContentBlock) => {
+    switch (block.type) {
+      case 'title':
+        return (
+          <h1 className="text-3xl font-bold text-white mb-4">
+            {block.content || 'Título del contenido'}
+          </h1>
+        );
+      
+      case 'subtitle':
+        return (
+          <h2 className="text-xl text-gray-300 mb-6">
+            {block.content || 'Subtítulo del contenido'}
+          </h2>
+        );
+      
+      case 'text':
+        return (
+          <div className="text-gray-300 mb-4 leading-relaxed">
+            {block.content.split('\n').map((line, index) => (
+              <p key={index} className="mb-2">{line}</p>
+            ))}
+          </div>
+        );
+      
+      case 'image':
+        const imageSize = block.imageSize || 'medium';\        const imageAlignment = block.imageAlignment || 'center';\        const sizeClasses = {
+          small: 'w-32 h-32',
+          medium: 'w-64 h-48',
+          large: 'w-96 h-72',
+          full: 'w-full h-64'
+        };
+        const alignmentClasses = {
+          left: 'float-left mr-4 mb-4',
+          center: 'mx-auto block',
+          right: 'float-right ml-4 mb-4'
+        };
+        
+        return (
+          <div className={`${alignmentClasses[imageAlignment]} ${sizeClasses[imageSize]} mb-4`}>
+            <img 
+              src={imagePreviews[block.id] || block.content} 
+              alt="Content image" 
+              className="w-full h-full object-cover rounded-lg shadow-lg"
+            />
+          </div>
+        );
+      
+      case 'video':
+        const embedUrl = getVideoEmbed(block.content);
+        const thumbnail = getVideoThumbnail(block.content);
+        
+        return (
+          <div className="mb-6">
+            {embedUrl ? (
+              <div className="relative w-full h-64 bg-black rounded-lg overflow-hidden">
+                <iframe
+                  src={embedUrl}
+                  className="w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : (
+              <div className="w-full h-64 bg-gray-800 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <Play className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-400">URL de video inválida</p>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      
+      case 'list':
+        return (
+          <ul className="text-gray-300 mb-4 space-y-1">
+            {block.content.split('\n').filter(line => line.trim()).map((item, index) => (
+              <li key={index} className="flex items-start">
+                <span className="text-white mr-2">•</span>
+                <span>{item.replace(/^[•\-\*]\s*/, '')}</span>
+              </li>
+            ))}
+          </ul>
+        );
+      
+      case 'divider':
+        return (
+          <div className="flex items-center justify-center my-8">
+            <div className="flex-1 border-t border-gray-600"></div>
+            <div className="px-4 text-gray-500 text-sm">
+              {block.content || '---'}
+            </div>
+            <div className="flex-1 border-t border-gray-600"></div>
+          </div>
+        );
+      
+      case 'url':
+        return (
+          <div className="mb-4">
+            <a 
+              href={block.content} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              {block.content}
+            </a>
+          </div>
+        );
+      
+      default:
+        return null;
     }
   };
 
@@ -206,7 +388,7 @@ export default function MinimalContentCreator({
           <h1 className="text-xl font-medium">Crear Contenido</h1>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => onPreview(blocks)}
+              onClick={handlePreview}
               className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
             >
               <Eye className="w-4 h-4 inline mr-2" />
@@ -299,17 +481,47 @@ export default function MinimalContentCreator({
                   )}
                   
                   {block.type === 'video' && (
-                    <div className="space-y-3">
-                      <input
-                        type="url"
-                        value={block.content}
-                        onChange={(e) => updateBlock(block.id, e.target.value)}
-                        placeholder="https://youtube.com/watch?v=... o https://vimeo.com/..."
-                        className="w-full px-3 py-2 bg-[#111] border border-[#333] rounded-lg text-gray-300 placeholder-gray-600 focus:border-white focus:outline-none"
-                      />
+                    <div className="space-y-4">
+                      {/* Input de URL */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-300">URL del video:</label>
+                        <input
+                          type="url"
+                          value={block.content}
+                          onChange={(e) => updateBlock(block.id, e.target.value)}
+                          placeholder="https://youtube.com/watch?v=... o https://vimeo.com/..."
+                          className="w-full px-3 py-2 bg-[#111] border border-[#333] rounded-lg text-gray-300 placeholder-gray-600 focus:border-white focus:outline-none"
+                        />
+                      </div>
+                      
+                      {/* Preview del video */}
                       {block.content && (
-                        <div className="text-xs text-gray-500">
-                          URL del video: {block.content}
+                        <div className="space-y-3">
+                          <label className="text-sm font-medium text-gray-300">Vista previa:</label>
+                          <div className="border border-[#333] rounded-lg p-2 bg-[#111]">
+                            {getVideoEmbed(block.content) ? (
+                              <div className="relative w-full h-48 bg-black rounded overflow-hidden">
+                                <iframe
+                                  src={getVideoEmbed(block.content)}
+                                  className="w-full h-full"
+                                  frameBorder="0"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-full h-48 bg-gray-800 rounded flex items-center justify-center">
+                                <div className="text-center">
+                                  <Play className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                  <p className="text-gray-400 text-sm">URL de video inválida</p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="text-xs text-gray-500">
+                            URL: {block.content}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -337,7 +549,7 @@ export default function MinimalContentCreator({
                       {/* Mostrar solo preview si hay imagen cargada */}
                       {(block.content && (block.content.startsWith('http') || imagePreviews[block.id])) ? (
                         <div className="space-y-4">
-                          {/* Preview de la imagen */}
+                          {/* Preview de la imagen con controles */}
                           <div className="border border-[#333] rounded-lg p-2 bg-[#111]">
                             <img 
                               src={imagePreviews[block.id] || block.content} 
@@ -351,6 +563,58 @@ export default function MinimalContentCreator({
                                 console.log('✅ Imagen cargada exitosamente:', imagePreviews[block.id] || block.content);
                               }}
                             />
+                          </div>
+                          
+                          {/* Controles de imagen */}
+                          <div className="space-y-3">
+                            {/* Controles de tamaño */}
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-gray-300">Tamaño:</label>
+                              <div className="flex gap-2">
+                                {['small', 'medium', 'large', 'full'].map((size) => (
+                                  <button
+                                    key={size}
+                                    onClick={() => updateImageProperties(block.id, { imageSize: size as any })}
+                                    className={`px-3 py-1 text-xs rounded transition-colors ${
+                                      (block.imageSize || 'medium') === size
+                                        ? 'bg-white text-black'
+                                        : 'bg-[#222] text-gray-300 hover:bg-[#333]'
+                                    }`}
+                                  >
+                                    {size === 'small' && <ZoomOut className="w-3 h-3 inline mr-1" />}
+                                    {size === 'medium' && <ZoomIn className="w-3 h-3 inline mr-1" />}
+                                    {size === 'large' && <ZoomIn className="w-3 h-3 inline mr-1" />}
+                                    {size === 'full' && <ZoomIn className="w-3 h-3 inline mr-1" />}
+                                    {size.charAt(0).toUpperCase() + size.slice(1)}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            {/* Controles de alineación */}
+                            <div className="space-y-2">
+                              <label className="text-sm font-medium text-gray-300">Alineación:</label>
+                              <div className="flex gap-2">
+                                {[
+                                  { value: 'left', icon: AlignLeft, label: 'Izquierda' },
+                                  { value: 'center', icon: AlignCenter, label: 'Centro' },
+                                  { value: 'right', icon: AlignRight, label: 'Derecha' }
+                                ].map(({ value, icon: Icon, label }) => (
+                                  <button
+                                    key={value}
+                                    onClick={() => updateImageProperties(block.id, { imageAlignment: value as any })}
+                                    className={`px-3 py-1 text-xs rounded transition-colors flex items-center gap-1 ${
+                                      (block.imageAlignment || 'center') === value
+                                        ? 'bg-white text-black'
+                                        : 'bg-[#222] text-gray-300 hover:bg-[#333]'
+                                    }`}
+                                  >
+                                    <Icon className="w-3 h-3" />
+                                    {label}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                           
                           {/* Información de la imagen */}
@@ -581,6 +845,73 @@ export default function MinimalContentCreator({
           </div>
         </div>
       </div>
+
+      {/* Modal de Vista Previa */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4">
+          <div className="w-full max-w-4xl max-h-[90vh] bg-[#0a0a0a] rounded-lg flex flex-col">
+            {/* Header del modal */}
+            <div className="flex items-center justify-between p-4 border-b border-[#1a1a1a]">
+              <h2 className="text-xl font-semibold text-white">Vista Previa del Contenido</h2>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Contenido del modal */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="max-w-3xl mx-auto">
+                {previewBlocks.map((block) => (
+                  <div key={block.id} className="mb-6">
+                    {renderPreviewBlock(block)}
+                  </div>
+                ))}
+                
+                {/* Índice del contenido */}
+                {indexSections.some(section => section.trim()) && (
+                  <div className="mt-8 p-4 bg-[#111] rounded-lg">
+                    <h3 className="text-lg font-semibold text-white mb-4">Índice del Contenido</h3>
+                    <ul className="space-y-2">
+                      {indexSections.filter(section => section.trim()).map((section, index) => (
+                        <li key={index} className="text-gray-300 flex items-start">
+                          <span className="text-white mr-2">{index + 1}.</span>
+                          <span>{section}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Footer del modal */}
+            <div className="p-4 border-t border-[#1a1a1a]">
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  Cerrar
+                </button>
+                <button
+                  onClick={() => {
+                    onSave(blocks);
+                    setShowPreview(false);
+                  }}
+                  disabled={!canPublish()}
+                  className="px-6 py-2 bg-white text-black rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+                >
+                  <Save className="w-4 h-4 inline mr-2" />
+                  Publicar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
