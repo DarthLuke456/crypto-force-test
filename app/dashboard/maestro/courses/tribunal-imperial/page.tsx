@@ -556,22 +556,30 @@ export default function TribunalImperialPage() {
   const handleSaveProposal = async (content: any[]) => {
     console.log('Contenido guardado:', content);
     
-    // Crear propuesta
+    // Crear propuesta que coincida con la interfaz TribunalProposal
     const proposal = {
       id: `proposal-${Date.now()}`,
       title: content.find((b: any) => b.type === 'title')?.content || 'Sin título',
-      subtitle: content.find((b: any) => b.type === 'subtitle')?.content || 'Sin subtítulo',
+      description: content.find((b: any) => b.type === 'subtitle')?.content || 'Sin subtítulo',
+      category: 'theoretical' as const,
+      targetHierarchy: 1,
       content: content,
-      authorEmail: userData?.email || '',
       authorId: userData?.id || '',
+      authorName: userData?.nickname || userData?.email || 'Usuario',
+      authorLevel: userData?.user_level || 1,
       status: 'pending' as const,
-      level: 1, // Por defecto, se puede cambiar
-      category: 'theoretical' as const, // Por defecto, se puede cambiar
-      createdAt: new Date()
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      votes: {
+        maestros: [],
+        approvals: [],
+        rejections: []
+      }
     };
     
     // Verificar si debe ser auto-aprobada
-    if (proposal.authorEmail && isFounderUser(proposal.authorEmail)) {
+    const authorEmail = userData?.email || '';
+    if (authorEmail && isFounderUser(authorEmail)) {
       try {
         // Guardar en la base de datos
         const response = await fetch('/api/tribunal/content', {
@@ -581,9 +589,9 @@ export default function TribunalImperialPage() {
           },
           body: JSON.stringify({
             title: proposal.title,
-            subtitle: proposal.subtitle,
+            subtitle: proposal.description,
             content: proposal.content,
-            level: proposal.level,
+            level: proposal.targetHierarchy,
             category: proposal.category,
             is_published: true, // Auto-publicar para fundadores
             created_by: proposal.authorId
@@ -602,7 +610,7 @@ export default function TribunalImperialPage() {
             },
             body: JSON.stringify({
               contentId: result.id,
-              targetLevel: proposal.level,
+              targetLevel: proposal.targetHierarchy,
               targetDashboard: 'iniciado',
               injectionPosition: 'carousel',
               isActive: true
