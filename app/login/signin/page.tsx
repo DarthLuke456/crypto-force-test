@@ -232,8 +232,9 @@ export default function SignInPage() {
                 type="button"
                 onClick={() => {
                   console.log('🔄 Reseteando estado de login manualmente');
-                  resetLoginState();
-                  setErrors({ general: 'Estado de login reseteado. Intenta nuevamente.' });
+                  setErrors({});
+                  setIsSubmitting(false);
+                  setFormData({ email: '', password: '' });
                 }}
                 className="block mx-auto text-xs text-[#8a8a8a] hover:text-[#ec4d58] transition-colors underline"
               >
