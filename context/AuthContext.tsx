@@ -143,15 +143,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           console.log('✅ [AUTH] Session found, user:', session.user.email);
           
-          // VERIFICAR SI EL USUARIO ESTÁ AUTORIZADO
+          // VERIFICAR SI EL USUARIO ESTÁ AUTORIZADO (solo para crear usuarios, no para bloquear)
           const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
-          if (!session.user.email || !authorizedEmails.includes(session.user.email.toLowerCase().trim())) {
-            console.log('❌ [AUTH] User not authorized:', session.user.email);
-            setUser(null);
-            setUserData(null);
-            setLoading(false);
-            setReady(true);
-            return;
+          const isAuthorized = session.user.email && authorizedEmails.includes(session.user.email.toLowerCase().trim());
+          
+          if (!isAuthorized) {
+            console.log('⚠️ [AUTH] User not in authorized list, but allowing access:', session.user.email);
           }
           
           setUser(session.user);
@@ -188,15 +185,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🔍 [AUTH] Auth state changed:', event, session?.user?.email);
       
       if (session?.user) {
-        // VERIFICAR SI EL USUARIO ESTÁ AUTORIZADO
+        // VERIFICAR SI EL USUARIO ESTÁ AUTORIZADO (solo para crear usuarios, no para bloquear)
         const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
-        if (!session.user.email || !authorizedEmails.includes(session.user.email.toLowerCase().trim())) {
-          console.log('❌ [AUTH] User not authorized in state change:', session.user.email);
-          setUser(null);
-          setUserData(null);
-          setLoading(false);
-          setReady(true);
-          return;
+        const isAuthorized = session.user.email && authorizedEmails.includes(session.user.email.toLowerCase().trim());
+        
+        if (!isAuthorized) {
+          console.log('⚠️ [AUTH] User not in authorized list in state change, but allowing access:', session.user.email);
         }
         
         setUser(session.user);
