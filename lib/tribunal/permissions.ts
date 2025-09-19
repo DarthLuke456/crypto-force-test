@@ -10,6 +10,19 @@ const TESTING_MAESTRO_EMAIL = 'coeurdeluke.js@gmail.com';
 
 // Configuración de permisos por nivel de usuario
 export const TRIBUNAL_PERMISSIONS = {
+  // Nivel 0: Maestro Fundador
+  0: {
+    canCreateProposals: true,
+    canVoteOnProposals: true,
+    canRejectProposals: true,
+    canApproveProposals: true,
+    canViewAllProposals: true,
+    canEditOwnProposals: true,
+    canDeleteOwnProposals: true,
+    canViewTribunalStats: true,
+    canManageTribunalSettings: true,
+  },
+  
   // Nivel 1: Iniciado
   1: {
     canCreateProposals: false,
@@ -166,8 +179,8 @@ export function canUserViewAllProposals(userLevel: number): boolean {
 
 // Función para verificar si un usuario puede acceder al tribunal imperial
 export function canUserAccessTribunal(userLevel: number): boolean {
-  // Solo Darths y Maestros pueden acceder
-  return userLevel >= 5;
+  // Solo Maestros Fundadores (0), Darths (5) y Maestros (6) pueden acceder
+  return userLevel === 0 || userLevel >= 5;
 }
 
 // Función para verificar si un usuario es miembro del tribunal
