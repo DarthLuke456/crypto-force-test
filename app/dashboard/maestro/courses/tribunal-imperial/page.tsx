@@ -216,7 +216,7 @@ function ApprovedProposals() {
                     carouselId: `tribunal-carousel-${proposal.category || 'theoretical'}`,
                     cardId: `content-card-${proposal.id}`
                   };
-                  const url = `/dashboard/iniciado?scrollTo=${location.carouselId}&cardId=${location.cardId}&level=${location.level}&category=${location.category}`;
+                  const url = `/dashboard/${metadata?.targetDashboard || 'iniciado'}?scrollTo=${location.carouselId}&cardId=${location.cardId}&level=${location.level}&category=${location.category}`;
                   window.location.href = url;
                 }}
                 className="px-4 py-2 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors text-sm font-medium"
@@ -547,7 +547,7 @@ export default function TribunalImperialPage() {
   //   );
   // }
 
-  const handleSaveProposal = async (content: any[]) => {
+  const handleSaveProposal = async (content: any[], metadata?: { level: number; customLevelText: string; targetDashboard: string }) => {
     
     // Crear propuesta que coincida con la interfaz TribunalProposal
     const proposal = {
@@ -555,7 +555,7 @@ export default function TribunalImperialPage() {
       title: content.find((b: any) => b.type === 'title')?.content || 'Sin título',
       description: content.find((b: any) => b.type === 'subtitle')?.content || 'Sin subtítulo',
       category: 'theoretical' as const,
-      targetHierarchy: 1,
+      targetHierarchy: metadata?.level || 1,
       content: content,
       authorId: userData?.id || '',
       authorName: userData?.nickname || userData?.email || 'Usuario',
@@ -603,7 +603,7 @@ export default function TribunalImperialPage() {
             body: JSON.stringify({
               contentId: result.id,
               targetLevel: proposal.targetHierarchy,
-              targetDashboard: 'iniciado',
+              targetDashboard: metadata?.targetDashboard || 'iniciado',
               injectionPosition: 'carousel',
               isActive: true
             })

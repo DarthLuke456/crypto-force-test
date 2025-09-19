@@ -243,7 +243,22 @@ export default function DashboardSelectionPage() {
       console.error('❌ handleAvatarChange - Error completo:', error);
       console.error('❌ handleAvatarChange - Error message:', error instanceof Error ? error.message : 'Error desconocido');
       console.error('❌ handleAvatarChange - Error stack:', error instanceof Error ? error.stack : 'No stack');
-      alert(`Error al procesar la imagen: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      
+      // Mostrar error más específico
+      let errorMessage = 'Error desconocido';
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch')) {
+          errorMessage = 'Error de conexión. Verifica tu internet e intenta de nuevo.';
+        } else if (error.message.includes('400')) {
+          errorMessage = 'Formato de imagen no válido. Usa JPG, PNG o GIF.';
+        } else if (error.message.includes('413')) {
+          errorMessage = 'Imagen demasiado grande. Máximo 2MB.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      alert(`Error al procesar la imagen: ${errorMessage}`);
     }
   };
 

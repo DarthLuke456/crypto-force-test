@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Plus, X, Save, Eye, ArrowRight, GripVertical, Lock, AlignLeft, AlignCenter, AlignRight, ZoomIn, ZoomOut, Play, ExternalLink } from 'lucide-react';
 import LevelSelector from './LevelSelector';
+import DashboardSelector from './DashboardSelector';
 
 interface ContentBlock {
   id: string;
@@ -19,7 +20,7 @@ interface ContentBlock {
 }
 
 interface MinimalContentCreatorProps {
-  onSave: (content: ContentBlock[], metadata?: { level: number; customLevelText: string }) => void;
+  onSave: (content: ContentBlock[], metadata?: { level: number; customLevelText: string; targetDashboard: string }) => void;
   onPreview: (content: ContentBlock[]) => void;
   initialContent?: ContentBlock[];
 }
@@ -54,6 +55,7 @@ export default function MinimalContentCreator({
   // Estado para el nivel y texto personalizado
   const [selectedLevel, setSelectedLevel] = useState(1);
   const [customLevelText, setCustomLevelText] = useState('');
+  const [selectedDashboard, setSelectedDashboard] = useState('iniciado');
 
   const [draggedBlock, setDraggedBlock] = useState<string | null>(null);
   const [showIndexEditor, setShowIndexEditor] = useState(false);
@@ -447,7 +449,7 @@ export default function MinimalContentCreator({
               Vista Previa
             </button>
             <button
-              onClick={() => onSave(blocks, { level: selectedLevel, customLevelText })}
+              onClick={() => onSave(blocks, { level: selectedLevel, customLevelText, targetDashboard: selectedDashboard })}
               disabled={!canPublish()}
               className="px-6 py-2 bg-white text-black rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
             >
@@ -856,6 +858,14 @@ export default function MinimalContentCreator({
                 customLevelText={customLevelText}
                 onLevelChange={setSelectedLevel}
                 onCustomTextChange={setCustomLevelText}
+              />
+            </div>
+            
+            {/* Selector de Dashboard */}
+            <div className="mb-6">
+              <DashboardSelector
+                selectedDashboard={selectedDashboard}
+                onDashboardChange={setSelectedDashboard}
               />
             </div>
             

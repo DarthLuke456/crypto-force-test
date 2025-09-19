@@ -80,6 +80,16 @@ export default function TribunalContentCarousel({
     }
   };
 
+  // Manejar scroll con ruedita del mouse
+  const handleWheel = (e: React.WheelEvent) => {
+    if (scrollRef.current) {
+      e.preventDefault();
+      const scrollAmount = e.deltaY > 0 ? 1 : -1;
+      const newIndex = Math.max(0, Math.min(maxIndex, currentIndex + scrollAmount));
+      scrollToIndex(newIndex);
+    }
+  };
+
   if (content.length === 0) {
     return (
       <div className={`w-full max-w-6xl mx-auto ${className}`}>
@@ -173,6 +183,7 @@ export default function TribunalContentCarousel({
           ref={scrollRef}
           className="flex space-x-4 overflow-x-hidden scrollbar-hide"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          onWheel={handleWheel}
         >
           {content.map((item) => (
             <div

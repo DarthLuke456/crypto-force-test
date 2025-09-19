@@ -9,6 +9,7 @@ interface TribunalContentCardProps {
   title: string;
   subtitle: string;
   level: number;
+  customLevelText?: string; // Texto personalizado para el nivel
   duration?: number;
   difficulty?: number;
   isCompleted?: boolean;
@@ -22,6 +23,7 @@ export default function TribunalContentCard({
   title,
   subtitle,
   level,
+  customLevelText,
   duration = 0,
   difficulty = 1,
   isCompleted = false,
@@ -30,8 +32,10 @@ export default function TribunalContentCard({
   className = ''
 }: TribunalContentCardProps) {
   const colors = getTribunalColors(level);
-  const levelName = getLevelName(level);
-  const levelEmoji = getLevelEmoji(level);
+  
+  // Usar texto personalizado si está disponible, sino usar el nivel normal
+  const displayLevel = customLevelText || `Nivel ${level}`;
+  const levelEmoji = level === 0 ? '📝' : `Nivel ${level}`;
 
   const handleClick = () => {
     if (!isLocked && onClick) {
@@ -59,21 +63,19 @@ export default function TribunalContentCard({
         {/* Header con Nivel */}
         <div className="flex items-center justify-between mb-4">
           <div 
-            className="flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium"
+            className="px-3 py-1 rounded-full text-sm font-medium"
             style={{
               backgroundColor: `${colors.primary}20`,
               color: colors.primary,
               border: `1px solid ${colors.border}40`
             }}
           >
-            <span className="text-lg">{levelEmoji}</span>
-            <span>{levelName}</span>
+            <span>{displayLevel}</span>
           </div>
           
           {isCompleted && (
             <div className="flex items-center space-x-1">
-              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-              <span className="text-xs text-yellow-400 font-medium">Completado</span>
+              <span className="text-xs text-green-400 font-medium">Completado</span>
             </div>
           )}
         </div>
@@ -101,20 +103,6 @@ export default function TribunalContentCard({
               <div className="flex items-center space-x-1">
                 <Clock className="w-3 h-3" />
                 <span style={{ color: colors.text }}>{duration} min</span>
-              </div>
-            )}
-            
-            {difficulty > 0 && (
-              <div className="flex items-center space-x-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-3 h-3 ${
-                      i < difficulty ? 'fill-current' : 'opacity-30'
-                    }`}
-                    style={{ color: colors.primary }}
-                  />
-                ))}
               </div>
             )}
           </div>
