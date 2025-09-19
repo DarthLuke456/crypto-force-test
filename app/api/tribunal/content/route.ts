@@ -18,32 +18,45 @@ export async function POST(request: NextRequest) {
       level,
       category,
       is_published,
-      created_by
+      created_by,
+      bodyKeys: Object.keys(body)
     });
 
     // Validar datos requeridos
     if (!title || !level || !category || !created_by) {
+      console.error('❌ Datos faltantes:', {
+        hasTitle: !!title,
+        hasLevel: !!level,
+        hasCategory: !!category,
+        hasCreatedBy: !!created_by,
+        receivedData: body
+      });
       return NextResponse.json({ 
-        error: 'Faltan datos requeridos: title, level, category, created_by' 
+        error: 'Faltan datos requeridos: title, level, category, created_by',
+        received: body
       }, { status: 400 });
     }
 
     // Crear contenido en la base de datos
+    const insertData = {
+      title: String(title),
+      subtitle: String(subtitle || ''),
+      content: Array.isArray(content) ? content : [],
+      level: parseInt(String(level)),
+      category: String(category),
+      is_published: Boolean(is_published),
+      is_featured: false,
+      sort_order: 0,
+      created_by: String(created_by),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    console.log('📝 Datos a insertar:', insertData);
+
     const { data: tribunalContent, error: contentError } = await supabase
       .from('tribunal_content')
-      .insert({
-        title,
-        subtitle: subtitle || '',
-        content: content || [],
-        level: parseInt(level),
-        category,
-        is_published: is_published || false,
-        is_featured: false,
-        sort_order: 0,
-        created_by,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
+      .insert(insertData)
       .select()
       .single();
 
