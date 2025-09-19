@@ -482,9 +482,52 @@ export default function TribunalImperialPage() {
     propuestasRechazadas: rejectedCount
   };
 
-  // Si no tiene acceso, no renderizar nada
-  if (!isReady || !userData || !canUserAccessTribunal(userData.user_level)) {
-    return null;
+  // Logs de diagnóstico
+  console.log('🔍 Tribunal Imperial - Debug de acceso:', {
+    isReady,
+    userData: userData ? {
+      email: userData.email,
+      user_level: userData.user_level,
+      nickname: userData.nickname
+    } : null,
+    canAccess: userData ? canUserAccessTribunal(userData.user_level) : false,
+    timestamp: new Date().toISOString()
+  });
+
+  // Si no tiene acceso, mostrar mensaje de error en lugar de null
+  if (!isReady) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#ec4d58] mx-auto mb-4"></div>
+          <p className="text-white mt-4">Verificando acceso de maestro...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Error de Autenticación</h1>
+          <p className="text-[#a0a0a0] mb-6">No se pudo cargar la información del usuario</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!canUserAccessTribunal(userData.user_level)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Acceso Denegado</h1>
+          <p className="text-[#a0a0a0] mb-6">Tu nivel de usuario no tiene acceso al Tribunal Imperial</p>
+          <p className="text-[#6a6a6a] text-sm">Tu nivel actual: {userData.user_level}</p>
+          <p className="text-[#6a6a6a] text-sm">Niveles permitidos: 0 (Maestro Fundador), 5 (Darth), 6 (Maestro)</p>
+        </div>
+      </div>
+    );
   }
 
   const handleSaveProposal = (content: ContentBlock[]) => {
