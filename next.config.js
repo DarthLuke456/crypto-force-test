@@ -53,7 +53,7 @@ const nextConfig = {
     optimizePackageImports: ['@/components', '@/hooks', '@/lib'],
   },
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: false, // Temporalmente deshabilitado para debugging
   },
   // Configuración de seguridad adicional
   poweredByHeader: false,

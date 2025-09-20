@@ -27,7 +27,7 @@ import {
   Share2
 } from 'lucide-react';
 import { useSafeAuth } from '@/context/AuthContext-working';
-import { useAvatar } from '@/hooks/useAvatar';
+import { useAvatarSimple as useAvatar } from '@/hooks/useAvatarSimple';
 import { getUserProfilePath, getLevelDisplayName } from '@/utils/dashboardUtils';
 import FeedbackModalWithTabs from '@/components/feedback/FeedbackModalWithTabs';
 import { useFeedbackPersistence } from '@/hooks/useFeedbackPersistence';
