@@ -126,7 +126,9 @@ export default function TribunalImperialSimplePage() {
                   console.log('Contenido guardado:', { blocks, metadata });
                   setShowCreator(false);
                 }}
-                onCancel={() => setShowCreator(false)}
+                onPreview={(blocks) => {
+                  console.log('Vista previa:', blocks);
+                }}
               />
             </div>
           </div>
