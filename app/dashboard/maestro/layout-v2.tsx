@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSafeAuth } from '@/context/AuthContext-v2';
 import { useRouter } from 'next/navigation';
 import MaestroSidebar from '@/components/layout/MaestroSidebar';
@@ -14,11 +14,11 @@ const MAESTRO_AUTHORIZED_EMAILS = [
   'coeurdeluke.js@gmail.com'
 ];
 
-function MaestroLayoutContent({
-  children,
-}: {
+interface MaestroLayoutContentProps {
   children: React.ReactNode;
-}) {
+}
+
+function MaestroLayoutContent({ children }: MaestroLayoutContentProps) {
   const { userData, isReady, loading, error, retryAuth } = useSafeAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +36,7 @@ function MaestroLayoutContent({
   });
 
   // Función para verificar acceso con logs detallados
-  const checkAccess = async () => {
+  const checkAccess = useCallback(async () => {
     try {
       layoutLog.info('Starting access check', { 
         isReady, 
@@ -110,7 +110,7 @@ function MaestroLayoutContent({
       setAccessCheckComplete(true);
       setIsLoading(false);
     }
-  };
+  }, [isReady, loading, error, userData, router]);
 
   // Efecto para verificar acceso
   useEffect(() => {
@@ -124,7 +124,7 @@ function MaestroLayoutContent({
     if (!accessCheckComplete) {
       checkAccess();
     }
-  }, [isReady, loading, userData, accessCheckComplete]);
+  }, [checkAccess, accessCheckComplete]);
 
   // Efecto para manejar cambios en el estado de autenticación
   useEffect(() => {
@@ -139,7 +139,7 @@ function MaestroLayoutContent({
       layoutLog.info('Auth state ready, checking access');
       checkAccess();
     }
-  }, [isReady, loading, error, userData]);
+  }, [isReady, loading, error, userData, checkAccess]);
 
   // Mostrar loading mientras se verifica el acceso
   if (isLoading || !accessCheckComplete) {
@@ -218,25 +218,19 @@ function MaestroLayoutContent({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] mobile-container">
-      {/* Layout container con flexbox - Responsive */}
       <div className="flex min-h-screen">
-        {/* Sidebar - Responsive con ancho fijo */}
         <div className="flex-shrink-0">
           <MaestroSidebar />
         </div>
         
-        {/* Main Content Area - Responsive con overflow controlado */}
         <div className="flex-1 min-w-0 transition-all duration-300 overflow-hidden">
-          <main 
-            className="min-h-screen p-2 sm:p-3 md:p-4 lg:p-6 xl:p-8 w-full max-w-none main-content-maestro"
-          >
+          <main className="min-h-screen p-2 sm:p-3 md:p-4 lg:p-6 xl:p-8 w-full max-w-none main-content-maestro">
             <div className="w-full max-w-full">
               {children}
             </div>
           </main>
         </div>
       </div>
-
     </div>
   );
 }
