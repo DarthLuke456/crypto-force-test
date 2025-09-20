@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Crown, FileText, CheckCircle, XCircle, Clock, Users, BarChart3, Plus, Eye, Save, Edit, Trash2, ArrowLeft, HelpCircle, ExternalLink, X } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { canUserAccessTribunal, hasAbsoluteAuthority } from '@/lib/tribunal/permissions';
 import ContentEditor from '@/components/tribunal/ContentEditor';
 import NotionEditor from '@/components/tribunal/NotionEditor';
@@ -507,9 +507,19 @@ export default function TribunalImperialPage() {
 
   // Logs de diagnóstico
 
+  // Debug: Log authentication state
+  console.log('🔍 TRIBUNAL IMPERIAL: Estado de autenticación:', {
+    isReady,
+    hasUserData: !!userData,
+    userEmail: userData?.email,
+    userLevel: userData?.user_level,
+    timestamp: new Date().toISOString()
+  });
+
   // SOLUCIÓN SIMPLIFICADA - Mostrar siempre el contenido
   // Solo verificar si hay datos del usuario, pero no bloquear el acceso
   if (!isReady || !userData) {
+    console.log('⏳ TRIBUNAL IMPERIAL: Esperando datos del usuario...');
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
         <div className="text-center">
@@ -519,6 +529,8 @@ export default function TribunalImperialPage() {
       </div>
     );
   }
+
+  console.log('✅ TRIBUNAL IMPERIAL: Datos del usuario cargados, mostrando contenido');
 
   // Verificación simplificada de acceso - Solo para debugging
   if (isReady && userData) {
