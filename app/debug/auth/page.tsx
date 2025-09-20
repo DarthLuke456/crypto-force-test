@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSafeAuth } from '@/context/AuthContext-v3';
+import { useSafeAuth } from '@/context/AuthContext-v4';
 import { logger } from '@/lib/logger';
 
 export default function AuthDebugPage() {
