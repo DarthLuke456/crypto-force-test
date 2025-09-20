@@ -4,7 +4,7 @@ import { Edit3, Save, Camera, Star, CheckCircle, Phone, Mail, User as UserIcon, 
 import Image from 'next/image';
 import { useSafeAuth } from '@/context/AuthContext-working';
 import { supabase } from '@/lib/supabaseClient';
-import { useAvatarSimple as useAvatar } from '@/hooks/useAvatarSimple';
+import { useAvatarStable as useAvatar } from '@/hooks/useAvatarStable';
 import { useReferralDataSimple } from '@/hooks/useReferralDataSimple';
 
 const countries = [

@@ -606,6 +606,15 @@ export default function TribunalImperialPage() {
         rejections: []
       }
     };
+
+    console.log('🔍 TRIBUNAL IMPERIAL: Creando propuesta:', {
+      id: proposal.id,
+      title: proposal.title,
+      description: proposal.description,
+      status: proposal.status,
+      authorName: proposal.authorName,
+      contentLength: proposal.content.length
+    });
     
     // Verificar si debe ser auto-aprobada
     const authorEmail = userData?.email || '';
@@ -663,8 +672,9 @@ export default function TribunalImperialPage() {
       }
     } else {
       createProposal(proposal);
-    alert('Propuesta guardada exitosamente. Será enviada al Tribunal para votación.');
-    setActiveTab('propuestas');
+      console.log('🔍 TRIBUNAL IMPERIAL: Propuesta creada con createProposal:', proposal.id);
+      alert('Propuesta guardada exitosamente. Será enviada al Tribunal para votación.');
+      setActiveTab('propuestas');
     }
   };
 
