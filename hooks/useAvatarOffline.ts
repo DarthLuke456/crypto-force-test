@@ -104,19 +104,20 @@ export function useAvatarOffline() {
     const storedAvatar = loadAvatarFromStorage();
     if (storedAvatar) {
       setAvatar(storedAvatar);
-    }
-
-    // Cargar desde cache global si no hay localStorage
-    if (!globalAvatarCache) {
-      loadAvatar();
+      globalAvatarCache = storedAvatar;
     } else {
-      setAvatar(globalAvatarCache);
+      // Cargar desde cache global si no hay localStorage
+      if (!globalAvatarCache) {
+        loadAvatar();
+      } else {
+        setAvatar(globalAvatarCache);
+      }
     }
 
     return () => {
       avatarListeners.delete(listener);
     };
-  }, [loadAvatar]);
+  }, []); // Removido loadAvatar de las dependencias para evitar loops
 
   const refreshAvatar = useCallback(async () => {
     globalAvatarCache = null; // Limpiar cache
