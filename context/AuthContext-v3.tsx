@@ -1,9 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
-import { authLog, supabaseLog } from '@/lib/logger';
+import { authLog } from '@/lib/logger';
 
 // Tipos
 export interface UserData {
@@ -54,6 +54,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isReady, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const mountedRef = useRef(true);
+  const initRef = useRef(false);
 
   authLog.info('AuthProvider initialized', { retryCount });
 
@@ -122,6 +124,80 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Función para inicializar autenticación - SOLO UNA VEZ
+  const initializeAuth = useCallback(async () => {
+    if (initRef.current) {
+      authLog.debug('Auth already initialized, skipping');
+      return;
+    }
+
+    initRef.current = true;
+    
+    try {
+      authLog.info('Starting auth initialization', { retryCount });
+      setLoading(true);
+      setError(null);
+
+      // Obtener sesión actual
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (!mountedRef.current) return;
+      
+      if (sessionError) {
+        authLog.error('Error getting session', { error: sessionError.message });
+        setError(`Error de sesión: ${sessionError.message}`);
+        setReady(true);
+        setLoading(false);
+        return;
+      }
+
+      if (!session?.user) {
+        authLog.info('No active session found');
+        setUser(null);
+        setUserData(null);
+        setReady(true);
+        setLoading(false);
+        return;
+      }
+
+      authLog.info('Active session found', { 
+        userId: session.user.id, 
+        email: session.user.email,
+        emailConfirmed: session.user.email_confirmed_at ? 'Yes' : 'No'
+      });
+
+      setUser(session.user);
+
+      // Intentar obtener datos del usuario
+      const userData = await fetchUserData(session.user.id);
+      
+      if (!mountedRef.current) return;
+      
+      if (userData) {
+        authLog.info('User data loaded successfully', { userLevel: userData.user_level });
+        setUserData(userData);
+      } else {
+        authLog.warn('No user data found, creating basic data');
+        const basicUserData = createBasicUserData(session.user);
+        setUserData(basicUserData);
+      }
+
+      setReady(true);
+      setLoading(false);
+      authLog.info('Auth initialization completed successfully');
+
+    } catch (error) {
+      if (!mountedRef.current) return;
+      
+      authLog.error('Exception in auth initialization', { 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      setError(`Error de inicialización: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      setReady(true);
+      setLoading(false);
+    }
+  }, [fetchUserData, createBasicUserData, retryCount]);
 
   // Función para reintentar autenticación
   const retryAuth = useCallback(() => {
@@ -130,127 +206,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     setLoading(true);
     setReady(false);
+    initRef.current = false; // Reset initialization flag
     
     // Reiniciar el proceso de autenticación
-    const retryInit = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          setError(`Error de sesión: ${sessionError.message}`);
-          setReady(true);
-          setLoading(false);
-          return;
-        }
+    initializeAuth();
+  }, [initializeAuth, retryCount]);
 
-        if (!session?.user) {
-          setUser(null);
-          setUserData(null);
-          setReady(true);
-          setLoading(false);
-          return;
-        }
-
-        setUser(session.user);
-        const userData = await fetchUserData(session.user.id);
-        
-        if (userData) {
-          setUserData(userData);
-        } else {
-          const basicUserData = createBasicUserData(session.user);
-          setUserData(basicUserData);
-        }
-
-        setReady(true);
-        setLoading(false);
-      } catch (error) {
-        setError(`Error de inicialización: ${error instanceof Error ? error.message : 'Error desconocido'}`);
-        setReady(true);
-        setLoading(false);
-      }
-    };
-
-    retryInit();
-  }, [fetchUserData, createBasicUserData, retryCount]);
-
-  // Efecto para inicializar autenticación - solo se ejecuta una vez
+  // Efecto para inicializar autenticación - SOLO UNA VEZ
   useEffect(() => {
-    let isMounted = true;
-    
-    const initAuth = async () => {
-      if (!isMounted) return;
-      
-      try {
-        authLog.info('Starting auth initialization', { retryCount });
-        setLoading(true);
-        setError(null);
+    if (initRef.current) {
+      authLog.debug('Auth already initialized, skipping effect');
+      return;
+    }
 
-        // Obtener sesión actual
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (!isMounted) return;
-        
-        if (sessionError) {
-          authLog.error('Error getting session', { error: sessionError.message });
-          setError(`Error de sesión: ${sessionError.message}`);
-          setReady(true);
-          setLoading(false);
-          return;
-        }
-
-        if (!session?.user) {
-          authLog.info('No active session found');
-          setUser(null);
-          setUserData(null);
-          setReady(true);
-          setLoading(false);
-          return;
-        }
-
-        authLog.info('Active session found', { 
-          userId: session.user.id, 
-          email: session.user.email,
-          emailConfirmed: session.user.email_confirmed_at ? 'Yes' : 'No'
-        });
-
-        setUser(session.user);
-
-        // Intentar obtener datos del usuario
-        const userData = await fetchUserData(session.user.id);
-        
-        if (!isMounted) return;
-        
-        if (userData) {
-          authLog.info('User data loaded successfully', { userLevel: userData.user_level });
-          setUserData(userData);
-        } else {
-          authLog.warn('No user data found, creating basic data');
-          const basicUserData = createBasicUserData(session.user);
-          setUserData(basicUserData);
-        }
-
-        setReady(true);
-        setLoading(false);
-        authLog.info('Auth initialization completed successfully');
-
-      } catch (error) {
-        if (!isMounted) return;
-        
-        authLog.error('Exception in auth initialization', { 
-          error: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined
-        });
-        setError(`Error de inicialización: ${error instanceof Error ? error.message : 'Error desconocido'}`);
-        setReady(true);
-        setLoading(false);
-      }
-    };
-
-    initAuth();
-
-    return () => {
-      isMounted = false;
-    };
+    initializeAuth();
   }, []); // Empty dependency array - only run once
 
   // Listener para cambios de autenticación
@@ -286,6 +255,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe();
     };
   }, [fetchUserData, createBasicUserData]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const value: AuthContextType = {
     user,
