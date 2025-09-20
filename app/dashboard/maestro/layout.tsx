@@ -23,10 +23,20 @@ function MaestroLayoutContent({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [accessChecked, setAccessChecked] = useState(false);
 
   useEffect(() => {
     const checkAccess = async () => {
-      if (isReady) {
+      console.log('🔍 MAESTRO LAYOUT: useEffect ejecutado', {
+        isReady,
+        hasUserData: !!userData,
+        userEmail: userData?.email,
+        accessChecked,
+        timestamp: new Date().toISOString()
+      });
+
+      // Solo verificar acceso una vez cuando esté listo y no se haya verificado antes
+      if (isReady && !accessChecked) {
         if (!userData) {
           console.log('🚫 MAESTRO LAYOUT: No hay usuario, redirigiendo a login');
           router.replace('/login/signin');
@@ -63,17 +73,19 @@ function MaestroLayoutContent({
           console.log('🚫 MAESTRO LAYOUT: Acceso denegado - Email no autorizado para maestro');
           setIsAuthorized(false);
           setIsLoading(false);
+          setAccessChecked(true);
           return;
         }
 
         console.log('✅ MAESTRO LAYOUT: Acceso autorizado');
         setIsAuthorized(true);
         setIsLoading(false);
+        setAccessChecked(true);
       }
     };
 
     checkAccess();
-  }, [isReady, userData, router]);
+  }, [isReady, userData, router, accessChecked]);
 
   if (isLoading) {
     return (
