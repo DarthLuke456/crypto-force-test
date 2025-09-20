@@ -43,7 +43,7 @@ export const useSafeAuth = () => {
 };
 
 // Provider offline que funciona sin Supabase
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
