@@ -124,73 +124,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Inicialización
+  // Inicialización inmediata y robusta
   useEffect(() => {
-    const initializeAuth = () => {
-      console.log('🔍 [OFFLINE-AUTH] Inicializando autenticación offline');
-      
-      if (typeof window !== 'undefined') {
-        // Intentar cargar usuario desde localStorage
-        const storedUser = localStorage.getItem('crypto-force-user');
-        const storedUserData = localStorage.getItem('crypto-force-user-data');
-        
-        if (storedUser && storedUserData) {
-          try {
-            const user = JSON.parse(storedUser);
-            const userData = JSON.parse(storedUserData);
-            
-            console.log('✅ [OFFLINE-AUTH] Usuario encontrado en localStorage:', user.email);
-            setUser(user);
-            setUserData(userData);
-            setLoading(false);
-            setReady(true);
-            return;
-          } catch (error) {
-            console.error('❌ [OFFLINE-AUTH] Error cargando usuario desde localStorage:', error);
-          }
-        }
-        
-        // Si no hay usuario almacenado, simular login para usuario autorizado
-        const defaultEmail = 'coeurdeluke.js@gmail.com';
-        console.log('🔍 [OFFLINE-AUTH] No hay usuario almacenado, simulando login para:', defaultEmail);
-        simulateLogin(defaultEmail);
-      } else {
-        // En servidor, simular login inmediatamente
-        console.log('🔍 [OFFLINE-AUTH] En servidor, simulando login inmediatamente');
-        const defaultEmail = 'coeurdeluke.js@gmail.com';
-        const userData = createBasicUserData(defaultEmail);
-        const mockUser: User = {
-          id: `offline-${Date.now()}`,
-          email: defaultEmail,
-          created_at: new Date().toISOString(),
-          aud: 'authenticated',
-          role: 'authenticated',
-          updated_at: new Date().toISOString(),
-          app_metadata: {},
-          user_metadata: {},
-          identities: [],
-          factors: []
-        };
-        
-        setUser(mockUser);
-        setUserData(userData);
-        setLoading(false);
-        setReady(true);
-      }
-    };
-
-    // Asegurar que se inicialice inmediatamente
-    initializeAuth();
+    console.log('🔍 [OFFLINE-AUTH] Inicializando autenticación offline');
     
-    // También inicializar después de un pequeño delay para asegurar que funcione
-    const timeout = setTimeout(() => {
-      if (!user && !userData) {
-        console.log('🔍 [OFFLINE-AUTH] Timeout - forzando inicialización');
-        initializeAuth();
-      }
-    }, 1000);
-
-    return () => clearTimeout(timeout);
+    const defaultEmail = 'coeurdeluke.js@gmail.com';
+    const userData = createBasicUserData(defaultEmail);
+    const mockUser: User = {
+      id: `offline-${Date.now()}`,
+      email: defaultEmail,
+      created_at: new Date().toISOString(),
+      aud: 'authenticated',
+      role: 'authenticated',
+      updated_at: new Date().toISOString(),
+      app_metadata: {},
+      user_metadata: {},
+      identities: [],
+      factors: []
+    };
+    
+    console.log('✅ [OFFLINE-AUTH] Usuario simulado creado:', mockUser.email);
+    console.log('✅ [OFFLINE-AUTH] Datos del usuario:', userData);
+    
+    setUser(mockUser);
+    setUserData(userData);
+    setLoading(false);
+    setReady(true);
+    
+    // Guardar en localStorage si estamos en el cliente
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('crypto-force-user', JSON.stringify(mockUser));
+      localStorage.setItem('crypto-force-user-data', JSON.stringify(userData));
+      console.log('✅ [OFFLINE-AUTH] Usuario guardado en localStorage');
+    }
   }, []);
 
   // Exponer funciones de simulación para debugging
@@ -207,3 +173,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
+
+// Exportar el AuthProvider
+export { AuthProvider };
