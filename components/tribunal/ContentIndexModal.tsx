@@ -79,30 +79,36 @@ export default function ContentIndexModal({
   };
 
   // Contenido de ejemplo para el modal
-  const getExampleContent = (contentId: string) => {
+  const getExampleContent = (contentId: string): ContentIndex[] => {
     const exampleContent = {
       'lógica-avanzada': [
         {
           id: 'intro',
+          content_id: contentId,
           section_title: 'Introducción a la Lógica Avanzada',
           section_description: 'Fundamentos de la lógica económica avanzada',
-          section_type: 'video',
+          section_type: 'video' as const,
+          section_order: 1,
           estimated_duration: 15,
           is_required: true
         },
         {
           id: 'conceptos',
+          content_id: contentId,
           section_title: 'Conceptos Clave',
           section_description: 'Principios fundamentales de la lógica económica',
-          section_type: 'video',
+          section_type: 'video' as const,
+          section_order: 2,
           estimated_duration: 20,
           is_required: true
         },
         {
           id: 'ejercicios',
+          content_id: contentId,
           section_title: 'Ejercicios Prácticos',
           section_description: 'Aplicación práctica de los conceptos aprendidos',
-          section_type: 'exercise',
+          section_type: 'exercise' as const,
+          section_order: 3,
           estimated_duration: 10,
           is_required: false
         }
@@ -110,25 +116,31 @@ export default function ContentIndexModal({
       'análisis-mercados': [
         {
           id: 'fundamentos',
+          content_id: contentId,
           section_title: 'Fundamentos del Análisis',
           section_description: 'Bases del análisis de mercados financieros',
-          section_type: 'video',
+          section_type: 'video' as const,
+          section_order: 1,
           estimated_duration: 25,
           is_required: true
         },
         {
           id: 'herramientas',
+          content_id: contentId,
           section_title: 'Herramientas de Análisis',
           section_description: 'Instrumentos y técnicas de análisis',
-          section_type: 'video',
+          section_type: 'video' as const,
+          section_order: 2,
           estimated_duration: 20,
           is_required: true
         },
         {
           id: 'casos',
+          content_id: contentId,
           section_title: 'Casos de Estudio',
           section_description: 'Análisis de casos reales del mercado',
-          section_type: 'quiz',
+          section_type: 'quiz' as const,
+          section_order: 3,
           estimated_duration: 15,
           is_required: false
         }
