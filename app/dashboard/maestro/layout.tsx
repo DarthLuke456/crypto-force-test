@@ -43,11 +43,21 @@ function MaestroLayoutContent({
           authorizedEmails: MAESTRO_AUTHORIZED_EMAILS,
           isAuthorized: clientAuthorized,
           userLevel: userData.user_level,
+          userLevelType: typeof userData.user_level,
           timestamp: new Date().toISOString()
         });
 
         // Permitir acceso si es autorizado O si es nivel 6 (maestro)
-        const hasAccess = clientAuthorized || userData.user_level === 6;
+        // Verificar tanto número como string para mayor compatibilidad
+        const isLevel6 = userData.user_level === 6 || userData.user_level === '6' || userData.user_level === 6.0;
+        const hasAccess = clientAuthorized || isLevel6;
+        
+        console.log('🔍 MAESTRO LAYOUT: Verificación de nivel:', {
+          userLevel: userData.user_level,
+          isLevel6: isLevel6,
+          clientAuthorized: clientAuthorized,
+          hasAccess: hasAccess
+        });
 
         if (!hasAccess) {
           console.log('🚫 MAESTRO LAYOUT: Acceso denegado - Email no autorizado para maestro');
