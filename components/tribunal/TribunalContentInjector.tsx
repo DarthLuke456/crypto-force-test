@@ -120,7 +120,7 @@ export default function TribunalContentInjector({
         <>
           <TribunalContentCarousel
             title={category === 'theoretical' ? 'Módulos Teóricos' : 'Módulos Prácticos'}
-            content={realContent.map(content => ({
+            content={realContent.map((content: any) => ({
               id: content.id,
               title: content.title,
               subtitle: content.subtitle || '',
