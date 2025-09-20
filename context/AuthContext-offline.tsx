@@ -38,18 +38,23 @@ export const useAuth = () => useContext(AuthContext);
 
 // Hook simplificado para compatibilidad
 export const useSafeAuth = () => {
+  console.log('🔍 [OFFLINE-AUTH] useSafeAuth llamado');
   const { user, userData, loading, isReady } = useAuth();
+  console.log('🔍 [OFFLINE-AUTH] useSafeAuth retornando:', { user, userData, loading, isReady });
   return { user, userData, loading, isReady };
 };
 
 // Provider offline que funciona sin Supabase
 function AuthProvider({ children }: { children: React.ReactNode }) {
   console.log('🔍 [OFFLINE-AUTH] AuthProvider renderizando');
+  console.log('🔍 [OFFLINE-AUTH] AuthProvider renderizando - TIMESTAMP:', new Date().toISOString());
   
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isReady, setReady] = useState(false);
+  
+  console.log('🔍 [OFFLINE-AUTH] AuthProvider estado inicial:', { user, userData, loading, isReady });
 
   // Emails autorizados
   const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
@@ -130,50 +135,35 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     console.log('🔍 [OFFLINE-AUTH] Inicializando autenticación offline');
     
-    const initializeAuth = () => {
-      const defaultEmail = 'coeurdeluke.js@gmail.com';
-      const userData = createBasicUserData(defaultEmail);
-      const mockUser: User = {
-        id: `offline-${Date.now()}`,
-        email: defaultEmail,
-        created_at: new Date().toISOString(),
-        aud: 'authenticated',
-        role: 'authenticated',
-        updated_at: new Date().toISOString(),
-        app_metadata: {},
-        user_metadata: {},
-        identities: [],
-        factors: []
-      };
-      
-      console.log('✅ [OFFLINE-AUTH] Usuario simulado creado:', mockUser.email);
-      console.log('✅ [OFFLINE-AUTH] Datos del usuario:', userData);
-      
-      setUser(mockUser);
-      setUserData(userData);
-      setLoading(false);
-      setReady(true);
-      
-      // Guardar en localStorage si estamos en el cliente
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('crypto-force-user', JSON.stringify(mockUser));
-        localStorage.setItem('crypto-force-user-data', JSON.stringify(userData));
-        console.log('✅ [OFFLINE-AUTH] Usuario guardado en localStorage');
-      }
+    const defaultEmail = 'coeurdeluke.js@gmail.com';
+    const userData = createBasicUserData(defaultEmail);
+    const mockUser: User = {
+      id: `offline-${Date.now()}`,
+      email: defaultEmail,
+      created_at: new Date().toISOString(),
+      aud: 'authenticated',
+      role: 'authenticated',
+      updated_at: new Date().toISOString(),
+      app_metadata: {},
+      user_metadata: {},
+      identities: [],
+      factors: []
     };
-
-    // Inicializar inmediatamente
-    initializeAuth();
     
-    // También inicializar después de un pequeño delay para asegurar que funcione
-    const timeout = setTimeout(() => {
-      if (!user && !userData) {
-        console.log('🔍 [OFFLINE-AUTH] Timeout - forzando inicialización');
-        initializeAuth();
-      }
-    }, 100);
-
-    return () => clearTimeout(timeout);
+    console.log('✅ [OFFLINE-AUTH] Usuario simulado creado:', mockUser.email);
+    console.log('✅ [OFFLINE-AUTH] Datos del usuario:', userData);
+    
+    setUser(mockUser);
+    setUserData(userData);
+    setLoading(false);
+    setReady(true);
+    
+    // Guardar en localStorage si estamos en el cliente
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('crypto-force-user', JSON.stringify(mockUser));
+      localStorage.setItem('crypto-force-user-data', JSON.stringify(userData));
+      console.log('✅ [OFFLINE-AUTH] Usuario guardado en localStorage');
+    }
   }, []);
 
   // Exponer funciones de simulación para debugging
