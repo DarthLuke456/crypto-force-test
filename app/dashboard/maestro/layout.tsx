@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSafeAuth } from '@/context/AuthContext-v4';
+import { useSafeAuth } from '@/context/AuthContext-v5';
 import { useRouter } from 'next/navigation';
 import MaestroSidebar from '@/components/layout/MaestroSidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
