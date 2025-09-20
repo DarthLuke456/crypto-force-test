@@ -179,11 +179,11 @@ export default function PerfilPage() {
   const [avatarPreview, setAvatarPreview] = useState('/images/default-avatar.png');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Actualizar avatar preview cuando cambie el avatar global o profileData
+  // Actualizar avatar preview cuando cambie el avatar global
   useEffect(() => {
-    const avatar = userAvatar || profileData.avatar || '/images/default-avatar.png';
+    const avatar = userAvatar || '/images/default-avatar.png';
     setAvatarPreview(avatar);
-  }, [userAvatar, profileData.avatar]);
+  }, [userAvatar]);
 
   // Guardar cambios en la base de datos
   const saveProfile = async (newData: typeof profileData) => {

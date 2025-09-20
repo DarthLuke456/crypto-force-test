@@ -512,6 +512,11 @@ export default function TribunalImperialPage() {
       author: p.authorName
     }))
   });
+
+  // Función para refrescar propuestas
+  const refreshProposals = () => {
+    window.location.reload();
+  };
   
   const stats: TribunalStats = {
     propuestasPendientes: pendingCount,
@@ -738,8 +743,16 @@ export default function TribunalImperialPage() {
           ))}
           </div>
           
-          {/* Botón de Creación */}
+          {/* Botones de Acción */}
           <div className="flex flex-wrap gap-2">
+            <button
+              onClick={refreshProposals}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              title="Refrescar propuestas"
+            >
+              <ArrowLeft className="w-4 h-4 rotate-180" />
+              <span className="hidden sm:inline">Refrescar</span>
+            </button>
             <button
               onClick={() => setShowMinimalCreator(true)}
               className="flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-[#fafafa] to-[#e0e0e0] text-black font-semibold rounded-xl hover:from-[#f0f0f0] hover:to-[#d0d0d0] transition-all duration-300 whitespace-nowrap shadow-lg hover:shadow-xl transform hover:scale-105"
