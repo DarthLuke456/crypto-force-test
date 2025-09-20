@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
-import { authLog } from '@/lib/logger';
+import { authLog, supabaseLog } from '@/lib/logger';
 
 // Tipos
 export interface UserData {
