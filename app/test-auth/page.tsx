@@ -86,10 +86,22 @@ export default function TestAuthPage() {
               Reintentar Auth
             </button>
             <button
-              onClick={() => window.location.href = '/login/signin'}
+              onClick={() => {
+                (window as any).simulateLogin('coeurdeluke.js@gmail.com');
+                window.location.reload();
+              }}
               className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
             >
-              Ir a Login
+              Simular Login (Maestro)
+            </button>
+            <button
+              onClick={() => {
+                (window as any).simulateLogin('usuario@ejemplo.com');
+                window.location.reload();
+              }}
+              className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+            >
+              Simular Login (Usuario)
             </button>
             <button
               onClick={() => window.location.href = '/dashboard/maestro'}
