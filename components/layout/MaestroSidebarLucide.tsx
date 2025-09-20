@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
 import { 
   Home, 
   BarChart3, 
@@ -60,11 +61,11 @@ const menuItems: MenuItem[] = [
 export default function MaestroSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
-  const { signOut, userData } = useSafeAuth();
+  const { userData } = useSafeAuth();
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await supabase.auth.signOut();
     } catch (error) {
       console.error('Error signing out:', error);
     }
