@@ -1,12 +1,11 @@
 'use client';
 
-import { AuthProvider } from '@/context/AuthContext-simple';
+import { AuthProvider } from '@/context/AuthContext-working';
 
 interface ClientAuthProviderProps {
   children: React.ReactNode;
 }
 
 export default function ClientAuthProvider({ children }: ClientAuthProviderProps) {
-  console.log('🔍 [CLIENT-AUTH] ClientAuthProvider renderizando');
   return <AuthProvider>{children}</AuthProvider>;
 } 
