@@ -29,7 +29,6 @@ import {
 import { useSafeAuth } from '@/context/AuthContext';
 import { useMaestroSidebar } from '@/app/dashboard/maestro/MaestroSidebarContext';
 import { useAvatar } from '@/hooks/useAvatar';
-import { supabase } from '@/lib/supabaseClient';
 
 
 interface MenuItem {
