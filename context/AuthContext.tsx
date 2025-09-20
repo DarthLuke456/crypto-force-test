@@ -55,39 +55,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('🔍 [AUTH] Fetching user data for:', userId);
       
-      // Intentar por UID primero
-      let { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('uid', userId)
-        .single();
-
-      if (error) {
-        console.log('⚠️ [AUTH] Error fetching by UID, trying by email...', error.message);
-        
-        // Fallback: buscar por email
-        const { data: sessionData } = await supabase.auth.getSession();
-        if (sessionData?.session?.user?.email) {
-          const { data: emailData, error: emailError } = await supabase
+      // Intentar por UID primero con timeout
+      try {
+        const { data, error } = await Promise.race([
+          supabase
             .from('users')
             .select('*')
-            .eq('email', sessionData.session.user.email)
-            .single();
-          
-          if (emailError) {
-            console.error('❌ [AUTH] Error fetching by email:', emailError);
-            return null;
-          }
-          
-          console.log('✅ [AUTH] User data fetched by email:', emailData);
-          return emailData;
+            .eq('uid', userId)
+            .single(),
+          new Promise<{data: null, error: {message: string}}>((_, reject) => 
+            setTimeout(() => reject({data: null, error: {message: 'Timeout'}}), 3000)
+          )
+        ]);
+
+        if (!error && data) {
+          console.log('✅ [AUTH] User data fetched by UID');
+          return data;
         }
-        
-        return null;
+
+        console.log('⚠️ [AUTH] Error fetching by UID, trying by email...', error?.message);
+      } catch (timeoutError) {
+        console.log('⏰ [AUTH] Timeout fetching by UID, trying by email...');
+      }
+      
+      // Fallback: buscar por email
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData?.session?.user?.email) {
+        try {
+          const { data: emailData, error: emailError } = await Promise.race([
+            supabase
+              .from('users')
+              .select('*')
+              .eq('email', sessionData.session.user.email)
+              .single(),
+            new Promise<{data: null, error: {message: string}}>((_, reject) => 
+              setTimeout(() => reject({data: null, error: {message: 'Timeout'}}), 3000)
+            )
+          ]);
+
+          if (!emailError && emailData) {
+            console.log('✅ [AUTH] User data fetched by email');
+            return emailData;
+          }
+
+          console.log('⚠️ [AUTH] Error fetching by email:', emailError?.message);
+        } catch (timeoutError) {
+          console.log('⏰ [AUTH] Timeout fetching by email');
+        }
       }
 
-      console.log('✅ [AUTH] User data fetched by UID:', data);
-      return data;
+      console.log('❌ [AUTH] All fetch methods failed, returning null');
+      return null;
     } catch (error) {
       console.error('❌ [AUTH] Exception fetching user data:', error);
       return null;
@@ -168,7 +186,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const userData = await Promise.race([
               fetchUserData(session.user.id),
               new Promise<null>((_, reject) => 
-                setTimeout(() => reject(new Error('Timeout')), 5000)
+                setTimeout(() => reject(new Error('Timeout')), 2000)
               )
             ]);
             
@@ -177,36 +195,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setUserData(userData);
               }
             } else {
-              // Si no se encuentran datos, crear usuario básico solo para usuarios autorizados
+              console.log('⚠️ [AUTH] No user data found, creating fallback');
+              // Crear datos básicos como fallback inmediato
               const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
               const isAuthorized = session.user.email && authorizedEmails.includes(session.user.email.toLowerCase().trim());
               
-              if (isAuthorized) {
-                const newUserData = await createBasicUser(session.user);
-                if (newUserData && mounted) {
-                  setUserData(newUserData);
-                }
-              } else {
-                // Para usuarios no autorizados, crear datos básicos temporales
-                const tempUserData: UserData = {
-                  id: session.user.id,
-                  email: session.user.email || '',
-                  nombre: '',
-                  apellido: '',
-                  nickname: session.user.email?.split('@')[0] || 'Usuario',
-                  movil: '',
-                  exchange: '',
-                  user_level: 1,
-                  referral_code: `TEMP-${session.user.id.slice(0, 8)}`,
-                  uid: session.user.id,
-                  codigo_referido: null,
-                  referred_by: null,
-                  total_referrals: 0
-                };
-                
-                if (mounted) {
-                  setUserData(tempUserData);
-                }
+              const fallbackUserData: UserData = {
+                id: session.user.id,
+                email: session.user.email || '',
+                nombre: '',
+                apellido: '',
+                nickname: session.user.email?.split('@')[0] || 'Usuario',
+                movil: '',
+                exchange: '',
+                user_level: isAuthorized ? 6 : 1, // Nivel 6 para usuarios autorizados
+                referral_code: `AUTH-${session.user.id.slice(0, 8)}`,
+                uid: session.user.id,
+                codigo_referido: null,
+                referred_by: null,
+                total_referrals: 0
+              };
+              
+              if (mounted) {
+                setUserData(fallbackUserData);
               }
             }
           } catch (fetchError) {
