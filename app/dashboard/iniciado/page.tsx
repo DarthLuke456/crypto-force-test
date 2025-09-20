@@ -35,7 +35,7 @@ import EnhancedCarousel from './components/EnhancedCarousel';
 import ProgressRuler from './components/ProgressRuler';
 import { useProgress } from '@/context/ProgressContext';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import EnhancedModuloCarousel from './components/EnhancedModuloCarousel';
 import DynamicCarousel from './components/DynamicCarousel';
 import { useDynamicModules } from '@/hooks/useDynamicModules';

@@ -79,20 +79,69 @@ export default function TribunalContentInjector({
   }
 
   if (filteredContent.length === 0) {
+    // Mostrar contenido de ejemplo cuando no hay inyecciones
+    const exampleContent = [
+      {
+        id: 'example-1',
+        title: 'Lógica Avanzada',
+        subtitle: 'Fundamentos de la lógica económica avanzada',
+        level: targetLevel,
+        category: category,
+        duration_minutes: 45,
+        difficulty_level: 1,
+        is_published: true,
+        is_featured: true,
+        sort_order: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'example-2',
+        title: 'Análisis de Mercados',
+        subtitle: 'Técnicas avanzadas de análisis de mercados financieros',
+        level: targetLevel,
+        category: category,
+        duration_minutes: 60,
+        difficulty_level: 2,
+        is_published: true,
+        is_featured: false,
+        sort_order: 2,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+
     return (
-      <div className={`w-full max-w-6xl mx-auto ${className}`}>
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">📚</span>
-          </div>
-          <h3 className="text-xl font-bold text-gray-400 mb-2">
-            No hay contenido disponible
-          </h3>
-          <p className="text-gray-500">
-            El contenido para {category === 'theoretical' ? 'módulos teóricos' : 'módulos prácticos'} se está preparando
-          </p>
-        </div>
-      </div>
+      <>
+        <TribunalContentCarousel
+          title={category === 'theoretical' ? 'Módulos Teóricos' : 'Módulos Prácticos'}
+          content={exampleContent.map(content => ({
+            id: content.id,
+            title: content.title,
+            subtitle: content.subtitle || '',
+            level: content.level,
+            duration: content.duration_minutes,
+            difficulty: content.difficulty_level,
+            isCompleted: false,
+            isLocked: false
+          }))}
+          level={targetLevel}
+          onContentClick={handleContentClick}
+          className={className}
+        />
+
+        {/* Modal de Índice para contenido de ejemplo */}
+        {selectedContent && (
+          <ContentIndexModal
+            isOpen={isIndexModalOpen}
+            onClose={handleIndexModalClose}
+            contentId={selectedContent.id}
+            contentTitle={selectedContent.title}
+            level={targetLevel}
+            onSectionClick={handleSectionClick}
+          />
+        )}
+      </>
     );
   }
 
