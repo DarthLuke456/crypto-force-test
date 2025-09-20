@@ -1,6 +1,6 @@
 'use client';
 
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext-simple';
 
 export default function TestOfflinePage() {
   const { user, userData, loading, isReady } = useSafeAuth();

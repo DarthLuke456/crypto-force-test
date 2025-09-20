@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext-simple';
 import { supabase } from '@/lib/supabaseClient';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 

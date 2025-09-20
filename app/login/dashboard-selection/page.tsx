@@ -26,7 +26,7 @@ import {
   MessageSquare,
   Share2
 } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext-simple';
 import { useAvatar } from '@/hooks/useAvatar';
 import { getUserProfilePath, getLevelDisplayName } from '@/utils/dashboardUtils';
 import FeedbackModalWithTabs from '@/components/feedback/FeedbackModalWithTabs';
