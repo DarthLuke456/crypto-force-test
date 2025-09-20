@@ -86,7 +86,7 @@ export default function TribunalContentInjector({
           const storedProposals = localStorage.getItem('tribunal_proposals');
           if (storedProposals) {
             const proposals = JSON.parse(storedProposals);
-            const approvedProposals = proposals.filter((p: any) => p.status === 'approved');
+            const approvedProposals = proposals.filter((p: any) => p.status === 'approved' || p.status === 'pending');
             
             if (approvedProposals.length > 0) {
               return approvedProposals.map((proposal: any) => ({
