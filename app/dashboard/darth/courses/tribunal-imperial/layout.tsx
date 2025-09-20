@@ -1,6 +1,6 @@
 'use client';
 
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { canUserAccessTribunal } from '@/lib/tribunal/permissions';

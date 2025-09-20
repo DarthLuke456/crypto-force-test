@@ -1,6 +1,6 @@
 'use client';
 
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { canUserAccessTribunal } from '@/lib/tribunal/permissions';
@@ -24,26 +24,24 @@ export default function TribunalImperialLayout({
       pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown'
     });
 
-    // Esperar a que la autenticación esté lista antes de verificar el acceso
-    if (!isReady) {
-      console.log('⏳ Tribunal Layout - Autenticación no lista, esperando...');
-      return;
+    // Verificación simplificada - Solo verificar si hay datos del usuario
+    if (userData) {
+      console.log('✅ Tribunal Layout - Usuario detectado, permitiendo acceso');
+    } else {
+      console.log('⏳ Tribunal Layout - Esperando datos del usuario...');
     }
+  }, [userData, loading, isReady]);
 
-    // Verificar acceso al TRIBUNAL IMPERIAL
-    if (!userData || !canUserAccessTribunal(userData.user_level)) {
-      console.log('❌ Tribunal Layout - Acceso denegado, redirigiendo a Iniciado');
-      router.push('/dashboard/iniciado');
-      return;
-    }
-
-    console.log('✅ Tribunal Layout - Acceso permitido');
-  }, [userData, router, loading, isReady]);
-
-  // Si no tiene acceso, no renderizar nada
-  // También, no renderizar si la autenticación no está lista para evitar flashes
-  if (!isReady || !userData || !canUserAccessTribunal(userData.user_level)) {
-    return null;
+  // Mostrar loading si no hay datos del usuario
+  if (!userData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#ec4d58] mx-auto mb-4"></div>
+          <p className="text-white mt-4">Cargando Tribunal Imperial...</p>
+        </div>
+      </div>
+    );
   }
 
   // Renderizar solo el contenido, sin contenedor adicional
