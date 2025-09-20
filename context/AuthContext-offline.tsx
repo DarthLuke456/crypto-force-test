@@ -155,13 +155,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('🔍 [OFFLINE-AUTH] No hay usuario almacenado, simulando login para:', defaultEmail);
         simulateLogin(defaultEmail);
       } else {
-        // En servidor, solo marcar como listo
+        // En servidor, simular login inmediatamente
+        console.log('🔍 [OFFLINE-AUTH] En servidor, simulando login inmediatamente');
+        const defaultEmail = 'coeurdeluke.js@gmail.com';
+        const userData = createBasicUserData(defaultEmail);
+        const mockUser: User = {
+          id: `offline-${Date.now()}`,
+          email: defaultEmail,
+          created_at: new Date().toISOString(),
+          aud: 'authenticated',
+          role: 'authenticated',
+          updated_at: new Date().toISOString(),
+          app_metadata: {},
+          user_metadata: {},
+          identities: [],
+          factors: []
+        };
+        
+        setUser(mockUser);
+        setUserData(userData);
         setLoading(false);
         setReady(true);
       }
     };
 
+    // Asegurar que se inicialice inmediatamente
     initializeAuth();
+    
+    // También inicializar después de un pequeño delay para asegurar que funcione
+    const timeout = setTimeout(() => {
+      if (!user && !userData) {
+        console.log('🔍 [OFFLINE-AUTH] Timeout - forzando inicialización');
+        initializeAuth();
+      }
+    }, 1000);
+
+    return () => clearTimeout(timeout);
   }, []);
 
   // Exponer funciones de simulación para debugging
