@@ -520,22 +520,43 @@ export default function TribunalImperialPage() {
     );
   }
 
-  // Verificación simplificada de acceso
+  // Verificación simplificada de acceso - Solo para debugging
   if (isReady && userData) {
     const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
     const isAuthorized = authorizedEmails.includes(userData.email.toLowerCase().trim());
     
-    if (!isAuthorized) {
+    console.log('🔍 TRIBUNAL IMPERIAL: Verificando acceso:', {
+      userEmail: userData.email,
+      isAuthorized: isAuthorized,
+      userLevel: userData.user_level,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Solo bloquear si no es autorizado Y no es nivel 6
+    const isLevel6 = userData.user_level === 6 || String(userData.user_level) === '6' || userData.user_level === 6.0;
+    const hasAccess = isAuthorized || isLevel6;
+    
+    if (!hasAccess) {
+      console.log('🚫 TRIBUNAL IMPERIAL: Acceso denegado');
       return (
         <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-white mb-4">Acceso Denegado</h1>
             <p className="text-[#a0a0a0] mb-6">No tienes acceso al Tribunal Imperial</p>
             <p className="text-[#6a6a6a] text-sm">Tu email: {userData.email}</p>
+            <p className="text-[#6a6a6a] text-sm">Tu nivel: {userData.user_level}</p>
+            <button 
+              onClick={() => window.location.href = '/login/dashboard-selection'}
+              className="mt-4 px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+            >
+              Volver a Selección de Dashboard
+            </button>
           </div>
         </div>
       );
     }
+    
+    console.log('✅ TRIBUNAL IMPERIAL: Acceso autorizado');
   }
 
   const handleSaveProposal = async (content: any[], metadata?: { level: number; customLevelText: string; targetDashboard: string }) => {
