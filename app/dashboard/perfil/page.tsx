@@ -2,9 +2,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Edit3, Save, Camera, Star, CheckCircle, Phone, Mail, User as UserIcon, Calendar, Globe, Lock, Eye, EyeOff, AlertCircle, Loader2, Users, Crown } from 'lucide-react';
 import Image from 'next/image';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { supabase } from '@/lib/supabaseClient';
-import { useAvatar } from '@/hooks/useAvatar';
+import { useAvatarOffline as useAvatar } from '@/hooks/useAvatarOffline';
 import { useReferralDataSimple } from '@/hooks/useReferralDataSimple';
 
 const countries = [
