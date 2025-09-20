@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabaseClient';
 
 // Tipos
 interface UserData {
@@ -44,7 +45,7 @@ export const useSafeAuth = () => {
   return { user, userData, loading, isReady };
 };
 
-// Provider que funciona sin logs
+// Provider que funciona con Supabase real
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -52,46 +53,100 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isReady, setReady] = useState(false);
 
   // Función para crear datos de usuario básicos
-  const createBasicUserData = (email: string): UserData => {
-    const timestamp = Date.now();
+  const createBasicUserData = (user: User): UserData => {
     return {
-      id: `working-${timestamp}`,
-      email: email,
+      id: user.id,
+      email: user.email || '',
       nombre: '',
       apellido: '',
-      nickname: email.split('@')[0],
+      nickname: user.email?.split('@')[0] || 'Usuario',
       movil: '',
       exchange: '',
-      user_level: email === 'coeurdeluke.js@gmail.com' ? 6 : 1,
-      referral_code: `WORKING-${timestamp.toString().slice(-8)}`,
-      uid: `working-${timestamp}`,
+      user_level: user.email === 'coeurdeluke.js@gmail.com' ? 6 : 1,
+      referral_code: `USER-${user.id.slice(-8)}`,
+      uid: user.id,
       codigo_referido: null,
       referred_by: null,
       total_referrals: 0
     };
   };
 
-  // Inicialización inmediata
+  // Función para obtener datos del usuario desde Supabase
+  const fetchUserData = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('uid', userId)
+        .single();
+
+      if (error) {
+        console.warn('Error fetching user data:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.warn('Error in fetchUserData:', error);
+      return null;
+    }
+  };
+
+  // Inicialización con Supabase
   useEffect(() => {
-    const defaultEmail = 'coeurdeluke.js@gmail.com';
-    const userData = createBasicUserData(defaultEmail);
-    const mockUser: User = {
-      id: `working-${Date.now()}`,
-      email: defaultEmail,
-      created_at: new Date().toISOString(),
-      aud: 'authenticated',
-      role: 'authenticated',
-      updated_at: new Date().toISOString(),
-      app_metadata: {},
-      user_metadata: {},
-      identities: [],
-      factors: []
+    const initializeAuth = async () => {
+      try {
+        // Obtener sesión actual
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          setUser(session.user);
+          
+          // Intentar obtener datos del usuario desde la base de datos
+          const userData = await fetchUserData(session.user.id);
+          
+          if (userData) {
+            setUserData(userData);
+          } else {
+            // Si no hay datos en la base de datos, crear datos básicos
+            const basicUserData = createBasicUserData(session.user);
+            setUserData(basicUserData);
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        setLoading(false);
+        setReady(true);
+      }
     };
-    
-    setUser(mockUser);
-    setUserData(userData);
-    setLoading(false);
-    setReady(true);
+
+    initializeAuth();
+
+    // Escuchar cambios en la autenticación
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          setUser(session.user);
+          
+          const userData = await fetchUserData(session.user.id);
+          if (userData) {
+            setUserData(userData);
+          } else {
+            const basicUserData = createBasicUserData(session.user);
+            setUserData(basicUserData);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setUserData(null);
+        }
+        
+        setLoading(false);
+        setReady(true);
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   return (
