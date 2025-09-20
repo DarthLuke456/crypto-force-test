@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { supabase } from '@/lib/supabaseClient';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
@@ -91,8 +91,8 @@ export default function SignInPage() {
     }
   };
 
-  // Solo mostrar loading durante la inicialización
-  if (loading && !isReady) {
+  // Solo mostrar loading durante la inicialización (simplificado)
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center p-4">
         <div className="text-center">
@@ -106,10 +106,8 @@ export default function SignInPage() {
   // Si el usuario está autenticado y listo, redirigir inmediatamente
   if (user && isReady) {
     console.log('🔄 Usuario autenticado detectado en signin, redirigiendo...');
-    // Redirigir inmediatamente sin mostrar loading
-    setTimeout(() => {
-      window.location.href = '/login/dashboard-selection';
-    }, 100);
+    // Redirigir inmediatamente
+    window.location.href = '/login/dashboard-selection';
     
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center p-4">
