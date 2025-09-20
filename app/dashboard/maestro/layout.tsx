@@ -24,6 +24,21 @@ function MaestroLayoutContent({
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [accessChecked, setAccessChecked] = useState(false);
+  const [timeoutReached, setTimeoutReached] = useState(false);
+
+  // Timeout para evitar carga infinita
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!accessChecked) {
+        console.log('⏰ MAESTRO LAYOUT: Timeout alcanzado, forzando verificación');
+        setTimeoutReached(true);
+        setIsLoading(false);
+        setAccessChecked(true);
+      }
+    }, 5000); // 5 segundos
+
+    return () => clearTimeout(timeout);
+  }, [accessChecked]);
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -32,11 +47,20 @@ function MaestroLayoutContent({
         hasUserData: !!userData,
         userEmail: userData?.email,
         accessChecked,
+        timeoutReached,
         timestamp: new Date().toISOString()
       });
 
-      // Solo verificar acceso una vez cuando esté listo y no se haya verificado antes
-      if (isReady && !accessChecked) {
+      // Si ya se verificó el acceso, no hacer nada
+      if (accessChecked) {
+        console.log('🔍 MAESTRO LAYOUT: Acceso ya verificado, saltando');
+        return;
+      }
+
+      // Si se alcanzó el timeout, permitir acceso para usuarios autorizados
+      if (timeoutReached) {
+        console.log('⏰ MAESTRO LAYOUT: Timeout alcanzado, verificando acceso básico');
+        
         if (!userData) {
           console.log('🚫 MAESTRO LAYOUT: No hay usuario, redirigiendo a login');
           router.replace('/login/signin');
@@ -46,46 +70,75 @@ function MaestroLayoutContent({
         // Verificar si el email está en la lista de autorizados
         const userEmail = userData.email.toLowerCase().trim();
         const clientAuthorized = MAESTRO_AUTHORIZED_EMAILS.includes(userEmail);
-
-        console.log('🔍 MAESTRO LAYOUT: Verificando acceso:', {
-          userEmail: userData.email,
-          userEmailLower: userEmail,
-          authorizedEmails: MAESTRO_AUTHORIZED_EMAILS,
-          isAuthorized: clientAuthorized,
-          userLevel: userData.user_level,
-          userLevelType: typeof userData.user_level,
-          timestamp: new Date().toISOString()
-        });
-
-        // Permitir acceso si es autorizado O si es nivel 6 (maestro)
-        // Verificar tanto número como string para mayor compatibilidad
-        const isLevel6 = userData.user_level === 6 || String(userData.user_level) === '6' || userData.user_level === 6.0;
-        const hasAccess = clientAuthorized || isLevel6;
         
-        console.log('🔍 MAESTRO LAYOUT: Verificación de nivel:', {
-          userLevel: userData.user_level,
-          isLevel6: isLevel6,
-          clientAuthorized: clientAuthorized,
-          hasAccess: hasAccess
-        });
-
-        if (!hasAccess) {
-          console.log('🚫 MAESTRO LAYOUT: Acceso denegado - Email no autorizado para maestro');
+        if (clientAuthorized) {
+          console.log('✅ MAESTRO LAYOUT: Acceso autorizado por timeout (email autorizado)');
+          setIsAuthorized(true);
+          setIsLoading(false);
+        } else {
+          console.log('🚫 MAESTRO LAYOUT: Acceso denegado por timeout (email no autorizado)');
           setIsAuthorized(false);
           setIsLoading(false);
-          setAccessChecked(true);
-          return;
         }
+        return;
+      }
 
-        console.log('✅ MAESTRO LAYOUT: Acceso autorizado');
-        setIsAuthorized(true);
+      // Si no está listo, esperar
+      if (!isReady) {
+        console.log('🔍 MAESTRO LAYOUT: Aún no está listo, esperando...');
+        return;
+      }
+
+      // Si no hay datos del usuario, redirigir a login
+      if (!userData) {
+        console.log('🚫 MAESTRO LAYOUT: No hay usuario, redirigiendo a login');
+        router.replace('/login/signin');
+        setAccessChecked(true);
+        return;
+      }
+
+      // Verificar si el email está en la lista de autorizados
+      const userEmail = userData.email.toLowerCase().trim();
+      const clientAuthorized = MAESTRO_AUTHORIZED_EMAILS.includes(userEmail);
+
+      console.log('🔍 MAESTRO LAYOUT: Verificando acceso:', {
+        userEmail: userData.email,
+        userEmailLower: userEmail,
+        authorizedEmails: MAESTRO_AUTHORIZED_EMAILS,
+        isAuthorized: clientAuthorized,
+        userLevel: userData.user_level,
+        userLevelType: typeof userData.user_level,
+        timestamp: new Date().toISOString()
+      });
+
+      // Permitir acceso si es autorizado O si es nivel 6 (maestro)
+      // Verificar tanto número como string para mayor compatibilidad
+      const isLevel6 = userData.user_level === 6 || String(userData.user_level) === '6' || userData.user_level === 6.0;
+      const hasAccess = clientAuthorized || isLevel6;
+      
+      console.log('🔍 MAESTRO LAYOUT: Verificación de nivel:', {
+        userLevel: userData.user_level,
+        isLevel6: isLevel6,
+        clientAuthorized: clientAuthorized,
+        hasAccess: hasAccess
+      });
+
+      if (!hasAccess) {
+        console.log('🚫 MAESTRO LAYOUT: Acceso denegado - Email no autorizado para maestro');
+        setIsAuthorized(false);
         setIsLoading(false);
         setAccessChecked(true);
+        return;
       }
+
+      console.log('✅ MAESTRO LAYOUT: Acceso autorizado');
+      setIsAuthorized(true);
+      setIsLoading(false);
+      setAccessChecked(true);
     };
 
     checkAccess();
-  }, [isReady, userData, router, accessChecked]);
+  }, [isReady, userData, router, accessChecked, timeoutReached]);
 
   if (isLoading) {
     return (
