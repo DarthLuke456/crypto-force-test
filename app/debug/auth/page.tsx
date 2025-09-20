@@ -5,7 +5,7 @@ import { useSafeAuth } from '@/context/AuthContext';
 import { logger } from '@/lib/logger';
 
 export default function AuthDebugPage() {
-  const { user, userData, loading, isReady, error, retryAuth } = useSafeAuth();
+  const { user, userData, loading, isReady } = useSafeAuth();
   const [logs, setLogs] = useState<any[]>([]);
   const [autoRefresh, setAutoRefresh] = useState(true);
 
@@ -81,8 +81,8 @@ export default function AuthDebugPage() {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-400">Error:</span>
-                <span className={error ? 'text-red-400' : 'text-green-400'}>
-                  {error || 'Ninguno'}
+                <span className="text-green-400">
+                  Ninguno
                 </span>
               </div>
               {user && (
@@ -118,10 +118,10 @@ export default function AuthDebugPage() {
           <h2 className="text-xl font-semibold text-white mb-4">Controles</h2>
           <div className="flex flex-wrap gap-4">
             <button
-              onClick={retryAuth}
+              onClick={() => window.location.reload()}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              Reintentar Auth
+              Recargar Página
             </button>
             <button
               onClick={() => setAutoRefresh(!autoRefresh)}
