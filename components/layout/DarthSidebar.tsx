@@ -26,7 +26,7 @@ import {
   UserPlus,
   Compass
 } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { useDarthSidebar } from '@/app/dashboard/darth/DarthSidebarContext';
 import { useAvatar } from '@/hooks/useAvatar';
 

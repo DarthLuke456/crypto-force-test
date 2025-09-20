@@ -6,7 +6,7 @@ export function useAvatarSimple() {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Cargar avatar desde localStorage al inicializar
+  // Cargar avatar desde localStorage al inicializar - Solo una vez
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedAvatar = localStorage.getItem('user-avatar');
@@ -19,7 +19,7 @@ export function useAvatarSimple() {
         localStorage.setItem('user-avatar', defaultAvatar);
       }
     }
-  }, []);
+  }, []); // Dependencias vacías para ejecutar solo una vez
 
   const changeAvatar = useCallback(async (newAvatar: string | null) => {
     if (!newAvatar) return;

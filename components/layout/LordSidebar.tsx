@@ -12,7 +12,7 @@ import {
   Crown,
   Compass
 } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import DashboardSelectorModal from '@/components/DashboardSelectorModal';
 
 export default function LordSidebar() {
