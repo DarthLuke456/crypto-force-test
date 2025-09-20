@@ -57,7 +57,7 @@ export default function DashboardSelectionPage() {
   const [redirectAttempts, setRedirectAttempts] = useState(0);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
 
-  // Debug del estado de la página (simplificado)
+  // Debug del estado de la página (simplificado) - Solo una vez
   useEffect(() => {
     if (userData && isReady) {
       console.log('✅ Dashboard Selection - Usuario listo:', {
@@ -66,7 +66,7 @@ export default function DashboardSelectionPage() {
         user_level: userData.user_level
       });
     }
-  }, [userData, isReady]);
+  }, []); // Solo ejecutar una vez al montar
 
   // Timeout para evitar carga infinita
   useEffect(() => {
@@ -490,7 +490,7 @@ export default function DashboardSelectionPage() {
   const userLevel = getUserLevel();
   const roleDisplayText = getRoleDisplayText();
 
-  // Debug simplificado del usuario
+  // Debug simplificado del usuario - Solo una vez
   useEffect(() => {
     if (userData && isReady) {
       console.log('🔍 Dashboard Selection - Usuario cargado:', {
@@ -501,7 +501,7 @@ export default function DashboardSelectionPage() {
         roleDisplayText: roleDisplayText
       });
     }
-  }, [userData, isReady]);
+  }, []); // Solo ejecutar una vez al montar
 
   // Función para cerrar sesión
   const handleLogout = async () => {
