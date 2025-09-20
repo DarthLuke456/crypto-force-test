@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { useRouter } from 'next/navigation';
 import MaestroSidebar from '@/components/layout/MaestroSidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -109,6 +109,12 @@ function MaestroLayoutContent({
         userLevel: userData.user_level,
         userLevelType: typeof userData.user_level,
         timestamp: new Date().toISOString()
+      });
+
+      console.log('🔍 MAESTRO LAYOUT: Datos completos del usuario:', {
+        userData: userData,
+        userDataKeys: Object.keys(userData),
+        userDataStringified: JSON.stringify(userData, null, 2)
       });
 
       // Permitir acceso si es autorizado O si es nivel 6 (maestro)
