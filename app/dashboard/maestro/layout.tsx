@@ -49,7 +49,7 @@ function MaestroLayoutContent({
 
         // Permitir acceso si es autorizado O si es nivel 6 (maestro)
         // Verificar tanto número como string para mayor compatibilidad
-        const isLevel6 = userData.user_level === 6 || userData.user_level === '6' || userData.user_level === 6.0;
+        const isLevel6 = userData.user_level === 6 || String(userData.user_level) === '6' || userData.user_level === 6.0;
         const hasAccess = clientAuthorized || isLevel6;
         
         console.log('🔍 MAESTRO LAYOUT: Verificación de nivel:', {
