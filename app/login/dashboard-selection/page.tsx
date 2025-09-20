@@ -532,7 +532,9 @@ export default function DashboardSelectionPage() {
     switch (action) {
       case 'profile':
         // Redirigir al perfil del dashboard de nivel más alto
+        console.log('🔍 handleProfileAction - userData recibido:', userData);
         const profilePath = getUserProfilePath(userData);
+        console.log('🔍 handleProfileAction - ProfilePath calculado:', profilePath);
         console.log('🔍 handleProfileAction - Redirigiendo a perfil:', profilePath);
         window.location.href = profilePath;
         break;

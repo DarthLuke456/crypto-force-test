@@ -43,22 +43,99 @@ export default function ContentIndexModal({
       setLoading(true);
       setError(null);
 
-      const indexData = await fetchContentIndex(contentId);
-      setIndex(indexData);
+      // Primero intentar cargar desde la base de datos
+      try {
+        const indexData = await fetchContentIndex(contentId);
+        if (indexData && indexData.length > 0) {
+          setIndex(indexData);
 
-      // Cargar secciones para cada índice
-      const sectionsData: Record<string, ContentSection[]> = {};
-      for (const indexItem of indexData) {
-        const sectionData = await fetchContentSections(indexItem.id);
-        sectionsData[indexItem.id] = sectionData;
+          // Cargar secciones para cada índice
+          const sectionsData: Record<string, ContentSection[]> = {};
+          for (const indexItem of indexData) {
+            const sectionData = await fetchContentSections(indexItem.id);
+            sectionsData[indexItem.id] = sectionData;
+          }
+          setSections(sectionsData);
+          return;
+        }
+      } catch (dbError) {
+        console.log('No hay contenido en la base de datos, usando contenido de ejemplo');
       }
-      setSections(sectionsData);
+
+      // Si no hay contenido en la base de datos, usar contenido de ejemplo
+      const exampleContent = getExampleContent(contentId);
+      if (exampleContent.length > 0) {
+        setIndex(exampleContent);
+        setSections({});
+      } else {
+        setError('No hay contenido disponible para este módulo');
+      }
     } catch (err) {
       console.error('Error loading content index:', err);
       setError(err instanceof Error ? err.message : 'Error cargando contenido');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Contenido de ejemplo para el modal
+  const getExampleContent = (contentId: string) => {
+    const exampleContent = {
+      'lógica-avanzada': [
+        {
+          id: 'intro',
+          section_title: 'Introducción a la Lógica Avanzada',
+          section_description: 'Fundamentos de la lógica económica avanzada',
+          section_type: 'video',
+          estimated_duration: 15,
+          is_required: true
+        },
+        {
+          id: 'conceptos',
+          section_title: 'Conceptos Clave',
+          section_description: 'Principios fundamentales de la lógica económica',
+          section_type: 'video',
+          estimated_duration: 20,
+          is_required: true
+        },
+        {
+          id: 'ejercicios',
+          section_title: 'Ejercicios Prácticos',
+          section_description: 'Aplicación práctica de los conceptos aprendidos',
+          section_type: 'exercise',
+          estimated_duration: 10,
+          is_required: false
+        }
+      ],
+      'análisis-mercados': [
+        {
+          id: 'fundamentos',
+          section_title: 'Fundamentos del Análisis',
+          section_description: 'Bases del análisis de mercados financieros',
+          section_type: 'video',
+          estimated_duration: 25,
+          is_required: true
+        },
+        {
+          id: 'herramientas',
+          section_title: 'Herramientas de Análisis',
+          section_description: 'Instrumentos y técnicas de análisis',
+          section_type: 'video',
+          estimated_duration: 20,
+          is_required: true
+        },
+        {
+          id: 'casos',
+          section_title: 'Casos de Estudio',
+          section_description: 'Análisis de casos reales del mercado',
+          section_type: 'quiz',
+          estimated_duration: 15,
+          is_required: false
+        }
+      ]
+    };
+
+    return exampleContent[contentId as keyof typeof exampleContent] || [];
   };
 
   const handleSectionClick = (section: ContentIndex) => {
