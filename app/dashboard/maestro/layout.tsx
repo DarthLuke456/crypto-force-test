@@ -64,6 +64,7 @@ function MaestroLayoutContent({
         if (!userData) {
           console.log('🚫 MAESTRO LAYOUT: No hay usuario, redirigiendo a login');
           router.replace('/login/signin');
+          setAccessChecked(true);
           return;
         }
 
@@ -75,10 +76,12 @@ function MaestroLayoutContent({
           console.log('✅ MAESTRO LAYOUT: Acceso autorizado por timeout (email autorizado)');
           setIsAuthorized(true);
           setIsLoading(false);
+          setAccessChecked(true);
         } else {
           console.log('🚫 MAESTRO LAYOUT: Acceso denegado por timeout (email no autorizado)');
           setIsAuthorized(false);
           setIsLoading(false);
+          setAccessChecked(true);
         }
         return;
       }
@@ -144,7 +147,7 @@ function MaestroLayoutContent({
     };
 
     checkAccess();
-  }, [isReady, userData, router, accessChecked, timeoutReached]);
+  }, [isReady, userData, router]); // Removido accessChecked y timeoutReached de las dependencias
 
   if (isLoading) {
     return (
