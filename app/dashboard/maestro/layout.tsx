@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import MaestroSidebar from '@/components/layout/MaestroSidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -19,202 +19,83 @@ function MaestroLayoutContent({
 }: {
   children: React.ReactNode;
 }) {
-  const { userData, isReady, loading, error, retryAuth } = useSafeAuth();
+  const { userData, isReady } = useSafeAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const [accessCheckComplete, setAccessCheckComplete] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>({});
 
-  layoutLog.info('MaestroLayoutContent rendered', { 
-    hasUserData: !!userData, 
-    isReady, 
-    loading, 
-    hasError: !!error,
-    isAuthorized,
-    accessCheckComplete
-  });
-
-  // Función para verificar acceso con logs detallados
-  const checkAccess = async () => {
-    try {
-      layoutLog.info('Starting access check', { 
-        isReady, 
-        hasUserData: !!userData, 
-        userEmail: userData?.email,
-        userLevel: userData?.user_level 
-      });
-
-      if (!isReady) {
-        layoutLog.debug('Auth not ready yet, waiting...');
-        return;
-      }
-
-      if (loading) {
-        layoutLog.debug('Auth still loading, waiting...');
-        return;
-      }
-
-      if (error) {
-        layoutLog.error('Auth error detected', { error });
-        setIsAuthorized(false);
-        setAccessCheckComplete(true);
-        setIsLoading(false);
-        return;
-      }
-
-      if (!userData) {
-        layoutLog.warn('No user data available, redirecting to login');
-        router.replace('/login/signin');
-        return;
-      }
-
-      // Verificar si el email está en la lista de autorizados
-      const userEmail = userData.email?.toLowerCase().trim();
-      const clientAuthorized = userEmail && MAESTRO_AUTHORIZED_EMAILS.includes(userEmail);
-      const isLevel6 = userData.user_level === 6;
-
-      const debugData = {
-        userEmail: userData.email,
-        userEmailLower: userEmail,
-        authorizedEmails: MAESTRO_AUTHORIZED_EMAILS,
-        isAuthorizedByEmail: clientAuthorized,
-        userLevel: userData.user_level,
-        isLevel6,
-        hasAccess: clientAuthorized || isLevel6,
-        timestamp: new Date().toISOString()
-      };
-
-      setDebugInfo(debugData);
-      layoutLog.info('Access check completed', debugData);
-
-      if (!clientAuthorized && !isLevel6) {
-        layoutLog.warn('Access denied - user not authorized', debugData);
-        setIsAuthorized(false);
-        setAccessCheckComplete(true);
-        setIsLoading(false);
-        return;
-      }
-
-      layoutLog.info('Access granted', debugData);
-      setIsAuthorized(true);
-      setAccessCheckComplete(true);
-      setIsLoading(false);
-
-    } catch (error) {
-      layoutLog.error('Exception in access check', { 
-        error: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      });
-      setIsAuthorized(false);
-      setAccessCheckComplete(true);
-      setIsLoading(false);
-    }
-  };
-
-  // Efecto para verificar acceso
   useEffect(() => {
-    layoutLog.debug('Access check effect triggered', { 
-      isReady, 
-      loading, 
-      hasUserData: !!userData,
-      accessCheckComplete 
-    });
+    const checkAccess = async () => {
+      if (isReady) {
+        if (!userData) {
+          console.log('🚫 MAESTRO LAYOUT: No hay usuario, redirigiendo a login');
+          router.replace('/login/signin');
+          return;
+        }
 
-    if (!accessCheckComplete) {
-      checkAccess();
-    }
-  }, [isReady, loading, userData, accessCheckComplete]);
+        // Verificar si el email está en la lista de autorizados
+        const userEmail = userData.email.toLowerCase().trim();
+        const clientAuthorized = MAESTRO_AUTHORIZED_EMAILS.includes(userEmail);
 
-  // Efecto para manejar cambios en el estado de autenticación
-  useEffect(() => {
-    layoutLog.debug('Auth state change effect triggered', { 
-      isReady, 
-      loading, 
-      hasUserData: !!userData,
-      hasError: !!error 
-    });
+        console.log('🔍 MAESTRO LAYOUT: Verificando acceso:', {
+          userEmail: userData.email,
+          userEmailLower: userEmail,
+          authorizedEmails: MAESTRO_AUTHORIZED_EMAILS,
+          isAuthorized: clientAuthorized,
+          userLevel: userData.user_level,
+          timestamp: new Date().toISOString()
+        });
 
-    if (isReady && !loading && !error && userData) {
-      layoutLog.info('Auth state ready, checking access');
-      checkAccess();
-    }
-  }, [isReady, loading, error, userData]);
+        // Permitir acceso si es autorizado O si es nivel 6 (maestro)
+        const hasAccess = clientAuthorized || userData.user_level === 6;
 
-  // Mostrar loading mientras se verifica el acceso
-  if (isLoading || !accessCheckComplete) {
-    layoutLog.debug('Showing loading screen', { 
-      isLoading, 
-      accessCheckComplete,
-      isReady,
-      loading,
-      hasUserData: !!userData 
-    });
+        if (!hasAccess) {
+          console.log('🚫 MAESTRO LAYOUT: Acceso denegado - Email no autorizado para maestro');
+          setIsAuthorized(false);
+          setIsLoading(false);
+          return;
+        }
 
+        console.log('✅ MAESTRO LAYOUT: Acceso autorizado');
+        setIsAuthorized(true);
+        setIsLoading(false);
+      }
+    };
+
+    checkAccess();
+  }, [isReady, userData, router]);
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[#121212] flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner message="Verificando acceso de maestro..." />
-          <div className="mt-4 text-sm text-gray-400">
-            <p>Estado: {isReady ? 'Listo' : 'Cargando'}</p>
-            <p>Usuario: {userData ? 'Cargado' : 'No cargado'}</p>
-            <p>Error: {error || 'Ninguno'}</p>
-          </div>
-          {error && (
-            <button
-              onClick={retryAuth}
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Reintentar
-            </button>
-          )}
-        </div>
+        <LoadingSpinner message="Verificando acceso de maestro..." />
       </div>
     );
   }
 
-  // Mostrar error si no está autorizado
   if (!isAuthorized) {
-    layoutLog.warn('Access denied, showing error screen', { debugInfo });
-
     return (
       <div className="min-h-screen bg-[#121212] flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="text-red-400 text-xl mb-4">Acceso Denegado</div>
           <p className="text-gray-400 mb-2">No tienes permisos para acceder al dashboard de maestro.</p>
-          
           {userData && (
-            <div className="text-gray-500 text-sm mb-4 text-left">
-              <p><strong>Email:</strong> {userData.email}</p>
-              <p><strong>Nivel:</strong> {userData.user_level}</p>
-              <p><strong>Emails autorizados:</strong> {MAESTRO_AUTHORIZED_EMAILS.join(', ')}</p>
-              <p><strong>Autorizado por email:</strong> {debugInfo.isAuthorizedByEmail ? 'Sí' : 'No'}</p>
-              <p><strong>Nivel 6:</strong> {debugInfo.isLevel6 ? 'Sí' : 'No'}</p>
+            <div className="text-gray-500 text-sm mb-4">
+              <p>Email: {userData.email}</p>
+              <p>Nivel: {userData.user_level}</p>
+              <p>Emails autorizados: {MAESTRO_AUTHORIZED_EMAILS.join(', ')}</p>
             </div>
           )}
-
-          <div className="space-y-2">
-            <button 
-              onClick={() => window.location.href = '/login/dashboard-selection'}
-              className="w-full px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
-            >
-              Volver a Selección de Dashboard
-            </button>
-            
-            <button 
-              onClick={retryAuth}
-              className="w-full px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Reintentar Verificación
-            </button>
-          </div>
+          <button 
+            onClick={() => window.location.href = '/login/dashboard-selection'}
+            className="px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+          >
+            Volver a Selección de Dashboard
+          </button>
         </div>
       </div>
     );
   }
-
-  // Mostrar el dashboard si está autorizado
-  layoutLog.info('Access granted, showing dashboard', { debugInfo });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] mobile-container">

@@ -17,7 +17,7 @@ import '../styles/dashboard-spinners.css'
 import '../styles/sidebar-hover-fix.css'
 import '../styles/sith-scrollbar.css'
 import '../styles/force-scrollbar.css'
-import { AuthProvider } from '@/context/AuthContext-offline'
+import ClientAuthProvider from '@/components/auth/ClientAuthProvider'
 import { ProgressProvider } from '@/context/ProgressContext'
 import { ScrollProvider } from '@/context/ScrollContext'
 
@@ -74,7 +74,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} ${exo2.variable} bg-[#121212] text-white`}>
-        <AuthProvider>
+        <ClientAuthProvider>
           <ProgressProvider>
             <ScrollProvider>
               <div className="triangle-background">
@@ -85,7 +85,7 @@ export default function RootLayout({
               </div>
             </ScrollProvider>
           </ProgressProvider>
-        </AuthProvider>
+        </ClientAuthProvider>
       </body>
     </html>
   )
