@@ -100,20 +100,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
 
       // Simular verificación de sesión (sin Supabase)
-      const storedUser = localStorage.getItem('crypto-force-user');
-      
-      if (storedUser) {
-        try {
-          const user = JSON.parse(storedUser);
-          setUser(user);
-          
-          const basicUserData = createBasicUserData(user);
-          setUserData(basicUserData);
-          
-          console.log('✅ Usuario cargado desde localStorage:', user.email);
-        } catch (e) {
-          console.log('⚠️ Error parseando usuario almacenado');
-          localStorage.removeItem('crypto-force-user');
+      if (typeof window !== 'undefined') {
+        const storedUser = localStorage.getItem('crypto-force-user');
+        
+        if (storedUser) {
+          try {
+            const user = JSON.parse(storedUser);
+            setUser(user);
+            
+            const basicUserData = createBasicUserData(user);
+            setUserData(basicUserData);
+            
+            console.log('✅ Usuario cargado desde localStorage:', user.email);
+          } catch (e) {
+            console.log('⚠️ Error parseando usuario almacenado');
+            localStorage.removeItem('crypto-force-user');
+          }
         }
       }
 
@@ -150,14 +152,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const basicUserData = createBasicUserData(mockUser);
     setUserData(basicUserData);
     
-    // Guardar en localStorage
-    localStorage.setItem('crypto-force-user', JSON.stringify(mockUser));
+    // Guardar en localStorage (solo en cliente)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('crypto-force-user', JSON.stringify(mockUser));
+    }
     
     console.log('✅ Login simulado para:', email);
   };
 
-  // Exponer función de login simulado para testing
-  (window as any).simulateLogin = simulateLogin;
+  // Exponer función de login simulado para testing (solo en cliente)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).simulateLogin = simulateLogin;
+    }
+  }, []);
 
   const value: AuthContextType = {
     user,
