@@ -652,13 +652,24 @@ export default function DashboardSelectionPage() {
     );
   }
 
-  // Mostrar loading mientras no esté listo
-  if (!isReady) {
+  // Mostrar loading mientras no esté listo o no haya datos del usuario
+  if (!isReady || !userData || !userData.email) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#ec4d58] mx-auto mb-4"></div>
           <p className="text-white mt-4">Cargando tu perfil...</p>
+          {loadingTimeout && (
+            <div className="mt-4">
+              <p className="text-red-400 mb-4">Error de carga - Recargando automáticamente...</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+              >
+                Recargar Página
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -668,34 +679,6 @@ export default function DashboardSelectionPage() {
   console.log('🔍 [DASHBOARD-SELECTION] User data:', userData);
   console.log('🔍 [DASHBOARD-SELECTION] User email:', userData?.email);
   console.log('🔍 [DASHBOARD-SELECTION] User nickname:', userData?.nickname);
-
-  // Mostrar pantalla de carga solo si no hay datos del usuario
-  if (!userData || !userData.email) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#ec4d58] mx-auto mb-4"></div>
-          <h2 className="text-xl font-bold text-white mb-4">
-            {loadingTimeout ? 'Error de Carga' : 'Cargando datos del usuario...'}
-          </h2>
-          <p className="text-gray-400 mb-6">
-            {loadingTimeout 
-              ? 'No se pudieron cargar los datos. Por favor, intenta de nuevo.'
-              : 'Verificando autenticación y cargando tu perfil.'
-            }
-          </p>
-          <button
-            onClick={() => {
-              window.location.href = '/login/signin';
-            }}
-            className="px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
-          >
-            {loadingTimeout ? 'Reintentar Login' : 'Ir al Login'}
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // Bloquear solo datos de ejemplo específicos
   if (userData.email === 'email@ejemplo.com' || userData.nickname === 'Usuario') {
