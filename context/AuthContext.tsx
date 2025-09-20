@@ -159,29 +159,78 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           console.log('✅ [AUTH] Session found, user:', session.user.email);
           
-          const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
-          const isAuthorized = session.user.email && authorizedEmails.includes(session.user.email.toLowerCase().trim());
-          
-          if (!isAuthorized) {
-            console.log('⚠️ [AUTH] User not in authorized list, but allowing access:', session.user.email);
-          }
-
           if (mounted) {
             setUser(session.user);
           }
 
-          // Intentar obtener datos del usuario
-          const userData = await fetchUserData(session.user.id);
-          
-          if (userData) {
-            if (mounted) {
-              setUserData(userData);
+          // Intentar obtener datos del usuario con timeout
+          try {
+            const userData = await Promise.race([
+              fetchUserData(session.user.id),
+              new Promise<null>((_, reject) => 
+                setTimeout(() => reject(new Error('Timeout')), 5000)
+              )
+            ]);
+            
+            if (userData) {
+              if (mounted) {
+                setUserData(userData);
+              }
+            } else {
+              // Si no se encuentran datos, crear usuario básico solo para usuarios autorizados
+              const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
+              const isAuthorized = session.user.email && authorizedEmails.includes(session.user.email.toLowerCase().trim());
+              
+              if (isAuthorized) {
+                const newUserData = await createBasicUser(session.user);
+                if (newUserData && mounted) {
+                  setUserData(newUserData);
+                }
+              } else {
+                // Para usuarios no autorizados, crear datos básicos temporales
+                const tempUserData: UserData = {
+                  id: session.user.id,
+                  email: session.user.email || '',
+                  nombre: '',
+                  apellido: '',
+                  nickname: session.user.email?.split('@')[0] || 'Usuario',
+                  movil: '',
+                  exchange: '',
+                  user_level: 1,
+                  referral_code: `TEMP-${session.user.id.slice(0, 8)}`,
+                  uid: session.user.id,
+                  codigo_referido: null,
+                  referred_by: null,
+                  total_referrals: 0
+                };
+                
+                if (mounted) {
+                  setUserData(tempUserData);
+                }
+              }
             }
-          } else {
-            // Si no se encuentran datos, crear usuario básico
-            const newUserData = await createBasicUser(session.user);
-            if (newUserData && mounted) {
-              setUserData(newUserData);
+          } catch (fetchError) {
+            console.warn('⚠️ [AUTH] Error fetching user data, using fallback:', fetchError);
+            
+            // Fallback: crear datos básicos
+            const fallbackUserData: UserData = {
+              id: session.user.id,
+              email: session.user.email || '',
+              nombre: '',
+              apellido: '',
+              nickname: session.user.email?.split('@')[0] || 'Usuario',
+              movil: '',
+              exchange: '',
+              user_level: 1,
+              referral_code: `FALLBACK-${session.user.id.slice(0, 8)}`,
+              uid: session.user.id,
+              codigo_referido: null,
+              referred_by: null,
+              total_referrals: 0
+            };
+            
+            if (mounted) {
+              setUserData(fallbackUserData);
             }
           }
         }
@@ -208,14 +257,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (event === 'SIGNED_IN' && session?.user) {
         setUser(session.user);
         
-        const userData = await fetchUserData(session.user.id);
-        if (userData) {
-          setUserData(userData);
-        } else {
-          const newUserData = await createBasicUser(session.user);
-          if (newUserData) {
-            setUserData(newUserData);
+        try {
+          const userData = await fetchUserData(session.user.id);
+          if (userData) {
+            setUserData(userData);
+          } else {
+            // Fallback para usuarios no encontrados
+            const fallbackUserData: UserData = {
+              id: session.user.id,
+              email: session.user.email || '',
+              nombre: '',
+              apellido: '',
+              nickname: session.user.email?.split('@')[0] || 'Usuario',
+              movil: '',
+              exchange: '',
+              user_level: 1,
+              referral_code: `AUTH-${session.user.id.slice(0, 8)}`,
+              uid: session.user.id,
+              codigo_referido: null,
+              referred_by: null,
+              total_referrals: 0
+            };
+            setUserData(fallbackUserData);
           }
+        } catch (error) {
+          console.warn('⚠️ [AUTH] Error in auth state change, using fallback:', error);
+          const fallbackUserData: UserData = {
+            id: session.user.id,
+            email: session.user.email || '',
+            nombre: '',
+            apellido: '',
+            nickname: session.user.email?.split('@')[0] || 'Usuario',
+            movil: '',
+            exchange: '',
+            user_level: 1,
+            referral_code: `AUTH-${session.user.id.slice(0, 8)}`,
+            uid: session.user.id,
+            codigo_referido: null,
+            referred_by: null,
+            total_referrals: 0
+          };
+          setUserData(fallbackUserData);
         }
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
