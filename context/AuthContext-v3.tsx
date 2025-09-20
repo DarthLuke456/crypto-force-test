@@ -85,12 +85,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       authLog.debug('Fetching user data from Supabase', { userId });
       
+      // Crear una promesa con timeout
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Supabase query timeout after 10 seconds')), 10000);
+      });
+      
       // Intentar por UID primero
-      let { data, error } = await supabase
+      const queryPromise = supabase
         .from('users')
         .select('*')
         .eq('uid', userId)
         .single();
+
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
 
       if (error) {
         supabaseLog.warn('Error fetching by UID, trying by email', { error: error.message, userId });
@@ -98,11 +105,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Fallback: buscar por email
         const { data: sessionData } = await supabase.auth.getSession();
         if (sessionData?.session?.user?.email) {
-          const { data: emailData, error: emailError } = await supabase
+          const emailQueryPromise = supabase
             .from('users')
             .select('*')
             .eq('email', sessionData.session.user.email)
             .single();
+          
+          const { data: emailData, error: emailError } = await Promise.race([emailQueryPromise, timeoutPromise]);
           
           if (emailError) {
             supabaseLog.error('Error fetching by email', { error: emailError.message, email: sessionData.session.user.email });
@@ -168,16 +177,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(session.user);
 
-      // Intentar obtener datos del usuario
-      const userData = await fetchUserData(session.user.id);
-      
-      if (!mountedRef.current) return;
-      
-      if (userData) {
-        authLog.info('User data loaded successfully', { userLevel: userData.user_level });
-        setUserData(userData);
-      } else {
-        authLog.warn('No user data found, creating basic data');
+      // Intentar obtener datos del usuario con timeout
+      try {
+        const userData = await fetchUserData(session.user.id);
+        
+        if (!mountedRef.current) return;
+        
+        if (userData) {
+          authLog.info('User data loaded successfully', { userLevel: userData.user_level });
+          setUserData(userData);
+        } else {
+          authLog.warn('No user data found, creating basic data');
+          const basicUserData = createBasicUserData(session.user);
+          setUserData(basicUserData);
+        }
+      } catch (fetchError) {
+        authLog.error('Failed to fetch user data, using basic data', { 
+          error: fetchError instanceof Error ? fetchError.message : 'Unknown error' 
+        });
+        
+        if (!mountedRef.current) return;
+        
+        // Usar datos básicos si falla la consulta
         const basicUserData = createBasicUserData(session.user);
         setUserData(basicUserData);
       }
@@ -233,10 +254,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         authLog.info('User signed in', { userId: session.user.id, email: session.user.email });
         setUser(session.user);
         
-        const userData = await fetchUserData(session.user.id);
-        if (userData) {
-          setUserData(userData);
-        } else {
+        try {
+          const userData = await fetchUserData(session.user.id);
+          if (userData) {
+            setUserData(userData);
+          } else {
+            const basicUserData = createBasicUserData(session.user);
+            setUserData(basicUserData);
+          }
+        } catch (fetchError) {
+          authLog.error('Failed to fetch user data in auth listener, using basic data', { 
+            error: fetchError instanceof Error ? fetchError.message : 'Unknown error' 
+          });
           const basicUserData = createBasicUserData(session.user);
           setUserData(basicUserData);
         }
