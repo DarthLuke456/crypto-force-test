@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronRight, Menu, LogOut, Compass, MessageSquare } from 
 import { useSafeAuth } from '@/context/AuthContext';
 import { useAvatarSync } from '@/hooks/useAvatarSync';
 import { useMyFeedback } from '@/hooks/useMyFeedback';
+import { supabase } from '@/lib/supabaseClient';
 // Removed FeedbackModalEnhanced import - now using dedicated page
 
 export default function Sidebar() {
@@ -596,10 +597,8 @@ export default function Sidebar() {
             <button 
               onClick={async () => {
                 if (typeof window !== 'undefined') {
-                  // Usar la función de logout del AuthContext
-                  if (authContext?.signOut) {
-                    await authContext.signOut();
-                  }
+                  // Usar Supabase directamente para logout
+                  await supabase.auth.signOut();
                   // Redirigir a signin
                   window.location.href = '/login/signin';
                 }
