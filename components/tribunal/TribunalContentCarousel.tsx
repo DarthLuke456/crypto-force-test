@@ -84,6 +84,7 @@ export default function TribunalContentCarousel({
   const handleWheel = (e: React.WheelEvent) => {
     if (scrollRef.current) {
       e.preventDefault();
+      e.stopPropagation();
       const scrollAmount = e.deltaY > 0 ? 1 : -1;
       const newIndex = Math.max(0, Math.min(maxIndex, currentIndex + scrollAmount));
       scrollToIndex(newIndex);

@@ -65,9 +65,8 @@ export default function TribunalContentCard({
           <div 
             className="px-3 py-1 rounded-full text-sm font-medium"
             style={{
-              backgroundColor: `${colors.primary}20`,
-              color: colors.primary,
-              border: `1px solid ${colors.border}40`
+              color: '#fafafa',
+              border: `1px solid #fafafa`
             }}
           >
             <span>{displayLevel}</span>

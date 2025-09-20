@@ -499,6 +499,20 @@ export default function TribunalImperialPage() {
   const approvedCount = proposals.filter(p => p.status === 'approved').length;
   const rejectedCount = proposals.filter(p => p.status === 'rejected').length;
   
+  // Debug: Log proposals data
+  console.log('🔍 TRIBUNAL IMPERIAL: Propuestas cargadas:', {
+    total: proposals.length,
+    pending: pendingCount,
+    approved: approvedCount,
+    rejected: rejectedCount,
+    proposals: proposals.map(p => ({
+      id: p.id,
+      title: p.title,
+      status: p.status,
+      author: p.authorName
+    }))
+  });
+  
   const stats: TribunalStats = {
     propuestasPendientes: pendingCount,
     propuestasAprobadas: approvedCount,
