@@ -12,6 +12,7 @@ interface ContentIndexModalProps {
   contentTitle: string;
   level: number;
   onSectionClick?: (section: ContentIndex) => void;
+  realContent?: any[];
 }
 
 export default function ContentIndexModal({
@@ -20,7 +21,8 @@ export default function ContentIndexModal({
   contentId,
   contentTitle,
   level,
-  onSectionClick
+  onSectionClick,
+  realContent
 }: ContentIndexModalProps) {
   const [index, setIndex] = useState<ContentIndex[]>([]);
   const [sections, setSections] = useState<Record<string, ContentSection[]>>({});
@@ -58,8 +60,31 @@ export default function ContentIndexModal({
       setError(null);
 
       console.log('🔍 ContentIndexModal: Cargando contenido para ID:', contentId);
+      console.log('🔍 ContentIndexModal: Contenido real disponible:', realContent);
 
-      // Primero intentar cargar desde la base de datos
+      // Si hay contenido real, usarlo directamente
+      if (realContent && Array.isArray(realContent) && realContent.length > 0) {
+        console.log('✅ ContentIndexModal: Usando contenido real del creador');
+        
+        // Convertir el contenido real a formato ContentIndex
+        const realContentIndex = realContent.map((block, index) => ({
+          id: `block-${index}`,
+          content_id: contentId,
+          section_title: getBlockTitle(block),
+          section_description: getBlockDescription(block),
+          section_type: getBlockType(block.type),
+          section_order: index + 1,
+          estimated_duration: getBlockDuration(block),
+          is_required: true
+        }));
+
+        setIndex(realContentIndex);
+        setSections({});
+        console.log('✅ ContentIndexModal: Contenido real cargado:', realContentIndex);
+        return;
+      }
+
+      // Si no hay contenido real, intentar cargar desde la base de datos
       try {
         const indexData = await fetchContentIndex(contentId);
         console.log('🔍 ContentIndexModal: Datos de BD:', indexData);
@@ -81,7 +106,7 @@ export default function ContentIndexModal({
         console.log('⚠️ ContentIndexModal: No hay contenido en la base de datos, usando contenido de ejemplo');
       }
 
-      // Si no hay contenido en la base de datos, usar contenido de ejemplo
+      // Si no hay contenido real ni en BD, usar contenido de ejemplo
       const exampleContent = getExampleContent(contentId);
       console.log('🔍 ContentIndexModal: Contenido de ejemplo generado:', exampleContent);
       
@@ -99,6 +124,59 @@ export default function ContentIndexModal({
     } finally {
       setLoading(false);
     }
+  };
+
+  // Funciones auxiliares para procesar contenido real
+  const getBlockTitle = (block: any): string => {
+    if (block.type === 'title') return block.content || 'Título';
+    if (block.type === 'subtitle') return block.content || 'Subtítulo';
+    if (block.type === 'heading') return block.content || 'Encabezado';
+    if (block.type === 'subheading') return block.content || 'Subencabezado';
+    if (block.type === 'text') return block.content?.substring(0, 50) + '...' || 'Texto';
+    if (block.type === 'image') return 'Imagen';
+    if (block.type === 'video') return 'Video';
+    if (block.type === 'code') return 'Código';
+    if (block.type === 'quote') return 'Cita';
+    if (block.type === 'list') return 'Lista';
+    if (block.type === 'checklist') return 'Lista de verificación';
+    if (block.type === 'divider') return 'Separador';
+    if (block.type === 'link') return 'Enlace';
+    return 'Contenido';
+  };
+
+  const getBlockDescription = (block: any): string => {
+    if (block.type === 'title') return 'Título principal del módulo';
+    if (block.type === 'subtitle') return 'Descripción del módulo';
+    if (block.type === 'heading') return 'Encabezado de sección';
+    if (block.type === 'subheading') return 'Subencabezado de sección';
+    if (block.type === 'text') return block.content?.substring(0, 100) + '...' || 'Contenido de texto';
+    if (block.type === 'image') return 'Imagen explicativa';
+    if (block.type === 'video') return 'Video educativo';
+    if (block.type === 'code') return 'Código de ejemplo';
+    if (block.type === 'quote') return 'Cita importante';
+    if (block.type === 'list') return 'Lista de elementos';
+    if (block.type === 'checklist') return 'Lista de verificación';
+    if (block.type === 'divider') return 'Separador visual';
+    if (block.type === 'link') return 'Enlace externo';
+    return 'Contenido del módulo';
+  };
+
+  const getBlockType = (blockType: string): 'content' | 'video' | 'quiz' | 'exercise' | 'resource' => {
+    if (blockType === 'video') return 'video';
+    if (blockType === 'code') return 'exercise';
+    if (blockType === 'checklist') return 'quiz';
+    if (blockType === 'link') return 'resource';
+    return 'content';
+  };
+
+  const getBlockDuration = (block: any): number => {
+    if (block.type === 'video') return 15;
+    if (block.type === 'text') return 5;
+    if (block.type === 'code') return 10;
+    if (block.type === 'image') return 3;
+    if (block.type === 'list') return 5;
+    if (block.type === 'checklist') return 8;
+    return 5;
   };
 
   // Contenido de ejemplo para el modal

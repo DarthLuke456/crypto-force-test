@@ -144,6 +144,7 @@ export default function TribunalContentInjector({
               contentTitle={selectedContent.title}
               level={targetLevel}
               onSectionClick={handleSectionClick}
+              realContent={selectedContent.content}
             />
           )}
         </>
