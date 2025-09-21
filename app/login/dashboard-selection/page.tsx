@@ -683,7 +683,7 @@ export default function DashboardSelectionPage() {
   console.log('🔍 [DASHBOARD-SELECTION] User nickname:', userData?.nickname);
 
   // Bloquear solo datos de ejemplo específicos
-  if (userData.email === 'email@ejemplo.com' || userData.nickname === 'Usuario') {
+  if (userData?.email === 'email@ejemplo.com' || userData?.nickname === 'Usuario') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
