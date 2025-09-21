@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { useSafeAuth } from '@/context/AuthContext-offline';
 import { useAvatarStable as useAvatar } from '@/hooks/useAvatarStable';
-import { getUserProfilePath, getLevelDisplayName } from '@/utils/dashboardUtils';
+import { getUserProfilePath, getLevelDisplayName, MAESTRO_AUTHORIZED_EMAILS } from '@/utils/dashboardUtils';
 import FeedbackModalWithTabs from '@/components/feedback/FeedbackModalWithTabs';
 import { useFeedbackPersistence } from '@/hooks/useFeedbackPersistence';
 
@@ -438,11 +438,6 @@ export default function DashboardSelectionPage() {
     }
   ];
 
-  // Lista de emails autorizados para acceder a la dashboard de Maestro
-  const MAESTRO_AUTHORIZED_EMAILS = [
-    'infocryptoforce@gmail.com',
-    'coeurdeluke.js@gmail.com'
-  ];
 
   // Usar refs para estabilizar valores y evitar re-renders
   const userLevelRef = useRef<number>(1);
@@ -453,21 +448,28 @@ export default function DashboardSelectionPage() {
   // Función estable para calcular nivel de usuario
   const calculateUserLevel = useCallback(() => {
     if (!userData) {
+      console.log('🔍 calculateUserLevel: No userData, returning 1');
       return 1;
     }
     
+    console.log('🔍 calculateUserLevel: userData.email:', userData.email);
+    console.log('🔍 calculateUserLevel: MAESTRO_AUTHORIZED_EMAILS:', MAESTRO_AUTHORIZED_EMAILS);
+    console.log('🔍 calculateUserLevel: userData.user_level:', userData.user_level);
+    
     // Para usuarios fundadores, asignar nivel 6 (Maestro) pero permitir acceso total
     if (userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())) {
+      console.log('✅ calculateUserLevel: Usuario fundador detectado, retornando nivel 6');
       return 6; // Nivel de Maestro (pero se mostrará como "Fundador")
     }
     
+    console.log('🔍 calculateUserLevel: Usuario regular, retornando nivel:', userData.user_level || 1);
     return userData.user_level || 1;
-  }, []);
+  }, [userData]);
 
   // Función estable para calcular texto del rol
   const calculateRoleDisplayText = useCallback(() => {
     return getLevelDisplayName(userData);
-  }, []);
+  }, [userData]);
 
   // Función estable para calcular color del rol
   const calculateRoleColor = useCallback(() => {
@@ -489,21 +491,30 @@ export default function DashboardSelectionPage() {
     // Para otros niveles, usar el color de su nivel
     const option = dashboardOptions.find(o => o.level === currentLevel);
     return option?.color || '#8a8a8a';
-  }, []);
+  }, [userData]);
 
   // Actualizar refs solo cuando sea necesario
   useEffect(() => {
-    if (userData && isReady && !isInitializedRef.current) {
-      userLevelRef.current = calculateUserLevel();
-      roleDisplayTextRef.current = calculateRoleDisplayText();
-      roleColorRef.current = calculateRoleColor();
-      isInitializedRef.current = true;
-      setIsStable(true);
+    if (userData && isReady) {
+      const newUserLevel = calculateUserLevel();
+      const newRoleDisplayText = calculateRoleDisplayText();
+      const newRoleColor = calculateRoleColor();
+      
+      userLevelRef.current = newUserLevel;
+      roleDisplayTextRef.current = newRoleDisplayText;
+      roleColorRef.current = newRoleColor;
+      
+      if (!isInitializedRef.current) {
+        isInitializedRef.current = true;
+        setIsStable(true);
+      }
       
       console.log('✅ Valores estabilizados:', {
-        userLevel: userLevelRef.current,
-        roleDisplayText: roleDisplayTextRef.current,
-        roleColor: roleColorRef.current
+        userLevel: newUserLevel,
+        roleDisplayText: newRoleDisplayText,
+        roleColor: newRoleColor,
+        userEmail: userData.email,
+        isMaestroFundador: userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())
       });
     }
   }, [userData, isReady, calculateUserLevel, calculateRoleDisplayText, calculateRoleColor]);
