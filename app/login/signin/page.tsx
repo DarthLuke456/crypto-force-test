@@ -103,14 +103,16 @@ export default function SignInPage() {
     );
   }
 
-  // Si el usuario está autenticado, redirigir inmediatamente
-  if (user && userData) {
-    console.log('🔄 Usuario autenticado detectado en signin, redirigiendo...');
-    // Usar useEffect para redirección para evitar problemas de hidratación
-    React.useEffect(() => {
+  // useEffect para redirección (siempre se ejecuta, no condicionalmente)
+  React.useEffect(() => {
+    if (user && userData) {
+      console.log('🔄 Usuario autenticado detectado en signin, redirigiendo...');
       window.location.href = '/login/dashboard-selection';
-    }, []);
-    
+    }
+  }, [user, userData]);
+
+  // Si el usuario está autenticado, mostrar pantalla de redirección
+  if (user && userData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center p-4">
         <div className="text-center">
