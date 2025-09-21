@@ -72,17 +72,27 @@ export default function DashboardSelectionPage() {
     }
   }, []); // Solo ejecutar una vez al montar
 
-  // Timeout para evitar carga infinita - Solo una vez al montar
+  // Timeout para evitar carga infinita - Solo si no hay datos del usuario
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!userData || !userData.email) {
-        console.log('⏰ [TIMEOUT] No se cargaron datos del usuario en 5 segundos');
-        setLoadingTimeout(true);
-      }
-    }, 5000);
+    // Si ya hay datos del usuario, no necesitamos timeout
+    if (userData && userData.email) {
+      console.log('✅ Usuario ya cargado, saltando timeout');
+      setLoadingTimeout(false); // Asegurar que no hay timeout
+      return;
+    }
 
-    return () => clearTimeout(timer);
-  }, []); // Solo ejecutar una vez al montar
+    // Solo ejecutar timeout si no hay datos del usuario Y no está cargando
+    if (!loading) {
+      const timer = setTimeout(() => {
+        if (!userData || !userData.email) {
+          console.log('⏰ [TIMEOUT] No se cargaron datos del usuario en 5 segundos');
+          setLoadingTimeout(true);
+        }
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [userData?.email, loading]); // Depender del email y loading
 
   // Prevenir bucles de redirección
   useEffect(() => {
