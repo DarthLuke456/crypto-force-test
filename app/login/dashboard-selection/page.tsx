@@ -554,17 +554,30 @@ export default function DashboardSelectionPage() {
       
       // Limpiar localStorage y sessionStorage
       if (typeof window !== 'undefined') {
-        // Marcar que el usuario se ha deslogueado
+        // Marcar que el usuario se ha deslogueado ANTES de limpiar
         localStorage.setItem('crypto-force-logged-out', 'true');
+        console.log('🚪 Flag de logout establecido');
+        
+        // Limpiar todo excepto el flag de logout
+        const logoutFlag = localStorage.getItem('crypto-force-logged-out');
         localStorage.clear();
         sessionStorage.clear();
+        
+        // Restaurar solo el flag de logout
+        if (logoutFlag) {
+          localStorage.setItem('crypto-force-logged-out', logoutFlag);
+        }
+        
         // Limpiar cookies
         document.cookie.split(";").forEach(function(c) { 
           document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
         });
+        
+        console.log('🚪 Datos limpiados, flag de logout preservado');
       }
       
       // Redirigir al login
+      console.log('🚪 Redirigiendo a signin...');
       window.location.href = '/login/signin';
     } catch (error) {
       console.error('Error al cerrar sesión:', error);

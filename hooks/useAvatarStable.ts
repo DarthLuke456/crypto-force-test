@@ -12,27 +12,29 @@ export function useAvatarStable() {
 
   // Inicializar avatar una sola vez
   useEffect(() => {
-    if (typeof window !== 'undefined' && !cacheInitialized) {
+    if (typeof window !== 'undefined') {
       try {
         const storedAvatar = localStorage.getItem('user-avatar');
+        console.log('🔍 useAvatarStable: Avatar almacenado:', storedAvatar);
+        
         if (storedAvatar) {
           globalAvatarCache = storedAvatar;
           setAvatar(storedAvatar);
+          console.log('✅ useAvatarStable: Avatar restaurado desde localStorage');
         } else {
           const defaultAvatar = '/images/default-avatar.png';
           globalAvatarCache = defaultAvatar;
           setAvatar(defaultAvatar);
           localStorage.setItem('user-avatar', defaultAvatar);
+          console.log('✅ useAvatarStable: Avatar por defecto establecido');
         }
         cacheInitialized = true;
       } catch (error) {
-        console.error('Error initializing avatar:', error);
+        console.error('❌ useAvatarStable: Error initializing avatar:', error);
         globalAvatarCache = '/images/default-avatar.png';
         setAvatar('/images/default-avatar.png');
         cacheInitialized = true;
       }
-    } else if (cacheInitialized && globalAvatarCache) {
-      setAvatar(globalAvatarCache);
     }
   }, []);
 
@@ -40,6 +42,7 @@ export function useAvatarStable() {
     if (!newAvatar) return;
 
     try {
+      console.log('🔍 useAvatarStable: Cambiando avatar a:', newAvatar.substring(0, 50) + '...');
       setIsLoading(true);
       
       // Actualizar cache global
@@ -49,15 +52,17 @@ export function useAvatarStable() {
       // Guardar en localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem('user-avatar', newAvatar);
+        console.log('✅ useAvatarStable: Avatar guardado en localStorage');
       }
       
       // Simular éxito
       setTimeout(() => {
         setIsLoading(false);
+        console.log('✅ useAvatarStable: Avatar cambiado exitosamente');
       }, 500);
       
     } catch (error) {
-      console.error('Error changing avatar:', error);
+      console.error('❌ useAvatarStable: Error changing avatar:', error);
       setIsLoading(false);
       throw error;
     }
@@ -67,12 +72,18 @@ export function useAvatarStable() {
     if (typeof window !== 'undefined') {
       try {
         const storedAvatar = localStorage.getItem('user-avatar');
+        console.log('🔍 useAvatarStable: forceUpdate - Avatar almacenado:', storedAvatar?.substring(0, 50) + '...');
+        console.log('🔍 useAvatarStable: forceUpdate - Cache global:', globalAvatarCache?.substring(0, 50) + '...');
+        
         if (storedAvatar && storedAvatar !== globalAvatarCache) {
           globalAvatarCache = storedAvatar;
           setAvatar(storedAvatar);
+          console.log('✅ useAvatarStable: forceUpdate - Avatar actualizado desde localStorage');
+        } else if (storedAvatar) {
+          console.log('✅ useAvatarStable: forceUpdate - Avatar ya está actualizado');
         }
       } catch (error) {
-        console.error('Error in forceUpdate:', error);
+        console.error('❌ useAvatarStable: Error in forceUpdate:', error);
       }
     }
   }, []);
