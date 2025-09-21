@@ -1060,6 +1060,11 @@ export default function DashboardSelectionPage() {
                       setTimeout(() => {
                         window.location.href = option.path;
                       }, 100);
+                      
+                      // Reset isNavigating after a delay to allow for retry if needed
+                      setTimeout(() => {
+                        setIsNavigating(false);
+                      }, 2000);
                     } else if (!isAccessible) {
                       console.warn('⚠️ [NAVIGATION] Acceso denegado a:', option.path);
                     } else if (isNavigating) {
@@ -1167,6 +1172,11 @@ export default function DashboardSelectionPage() {
                             setTimeout(() => {
                               window.location.href = option.path;
                             }, 100);
+                            
+                            // Reset isNavigating after a delay to allow for retry if needed
+                            setTimeout(() => {
+                              setIsNavigating(false);
+                            }, 2000);
                           } else {
                             console.log('⏳ Ya navegando, ignorando click');
                           }
