@@ -85,14 +85,24 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setUserData(null);
     
+    // Preservar el avatar antes de limpiar localStorage
+    const savedAvatar = localStorage.getItem('user-avatar');
+    console.log('🔍 AuthContext: Avatar preservado:', savedAvatar?.substring(0, 50) + '...');
+    
     // Limpiar localStorage
     localStorage.clear();
     sessionStorage.clear();
     
+    // Restaurar el avatar después de limpiar
+    if (savedAvatar) {
+      localStorage.setItem('user-avatar', savedAvatar);
+      console.log('✅ AuthContext: Avatar restaurado después del logout');
+    }
+    
     // Establecer flag de logout
     localStorage.setItem('crypto-force-logged-out', 'true');
     
-    console.log('🚪 AuthContext: Usuario deslogueado');
+    console.log('🚪 AuthContext: Usuario deslogueado, avatar preservado');
   };
 
   // Función para crear datos de usuario
