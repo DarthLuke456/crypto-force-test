@@ -26,7 +26,7 @@ import {
   MessageSquare,
   Share2
 } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext-working';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { useAvatarStable as useAvatar } from '@/hooks/useAvatarStable';
 import { getUserProfilePath, getLevelDisplayName } from '@/utils/dashboardUtils';
 import FeedbackModalWithTabs from '@/components/feedback/FeedbackModalWithTabs';
@@ -68,14 +68,14 @@ export default function DashboardSelectionPage() {
     }
   }, []); // Solo ejecutar una vez al montar
 
-  // Timeout para evitar carga infinita
+  // Timeout para evitar carga infinita (simplificado para AuthContext offline)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!userData || !userData.email) {
-        console.log('⏰ [TIMEOUT] No se cargaron datos del usuario en 10 segundos');
+        console.log('⏰ [TIMEOUT] No se cargaron datos del usuario en 5 segundos');
         setLoadingTimeout(true);
       }
-    }, 10000); // 10 segundos
+    }, 5000); // Reducido a 5 segundos
 
     return () => clearTimeout(timer);
   }, [userData]);
@@ -654,8 +654,8 @@ export default function DashboardSelectionPage() {
     );
   }
 
-  // Mostrar loading mientras no esté listo o no haya datos del usuario
-  if (!isReady || !userData || !userData.email) {
+  // Mostrar loading solo si realmente no hay datos (simplificado para AuthContext offline)
+  if (loading || (!userData && !loadingTimeout)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
         <div className="text-center">
