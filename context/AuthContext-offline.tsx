@@ -1,10 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 
 // Tipos
-export interface UserData {
+interface UserData {
   id: string;
   email: string;
   nombre: string;
@@ -27,6 +27,7 @@ interface AuthContextType {
   isReady: boolean;
 }
 
+// Contexto
 const AuthContext = createContext<AuthContextType>({
   user: null,
   userData: null,
@@ -34,58 +35,47 @@ const AuthContext = createContext<AuthContextType>({
   isReady: false,
 });
 
+// Hook
 export const useAuth = () => useContext(AuthContext);
 
-// Hook simplificado para compatibilidad
+// Hook simplificado
 export const useSafeAuth = () => {
-  console.log('🔍 [OFFLINE-AUTH] useSafeAuth llamado');
   const { user, userData, loading, isReady } = useAuth();
-  console.log('🔍 [OFFLINE-AUTH] useSafeAuth retornando:', { user, userData, loading, isReady });
   return { user, userData, loading, isReady };
 };
 
-// Provider offline que funciona sin Supabase
+// Provider completamente offline
 function AuthProvider({ children }: { children: React.ReactNode }) {
-  console.log('🔍 [OFFLINE-AUTH] AuthProvider renderizando');
-  console.log('🔍 [OFFLINE-AUTH] AuthProvider renderizando - TIMESTAMP:', new Date().toISOString());
-  
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isReady, setReady] = useState(false);
-  
-  console.log('🔍 [OFFLINE-AUTH] AuthProvider estado inicial:', { user, userData, loading, isReady });
 
-  // Emails autorizados
-  const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
-
-  // Función para crear datos de usuario básicos
-  const createBasicUserData = (email: string): UserData => {
-    const isAuthorized = authorizedEmails.includes(email.toLowerCase().trim());
+  // Función para crear datos de usuario
+  const createUserData = (email: string): UserData => {
+    const isFounder = email === 'coeurdeluke.js@gmail.com' || email === 'infocryptoforce@gmail.com';
     
     return {
-      id: `offline-${Date.now()}`,
+      id: `user-${Date.now()}`,
       email: email,
-      nombre: '',
-      apellido: '',
-      nickname: email.split('@')[0] || 'Usuario',
+      nombre: 'Usuario',
+      apellido: 'Crypto Force',
+      nickname: email.split('@')[0],
       movil: '',
       exchange: '',
-      user_level: isAuthorized ? 6 : 1, // Nivel 6 para usuarios autorizados
-      referral_code: `OFFLINE-${Date.now().toString().slice(-8)}`,
-      uid: `offline-${Date.now()}`,
+      user_level: isFounder ? 6 : 1,
+      referral_code: `USER-${email.split('@')[0].toUpperCase()}`,
+      uid: `uid-${Date.now()}`,
       codigo_referido: null,
       referred_by: null,
       total_referrals: 0
     };
   };
 
-  // Función para simular login
-  const simulateLogin = (email: string) => {
-    console.log('🔍 [OFFLINE-AUTH] Simulando login para:', email);
-    
-    const mockUser: User = {
-      id: `offline-${Date.now()}`,
+  // Función para crear usuario mock
+  const createMockUser = (email: string): User => {
+    return {
+      id: `user-${Date.now()}`,
       email: email,
       created_at: new Date().toISOString(),
       aud: 'authenticated',
@@ -96,90 +86,54 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       identities: [],
       factors: []
     };
-
-    const userData = createBasicUserData(email);
-    
-    setUser(mockUser);
-    setUserData(userData);
-    setLoading(false);
-    setReady(true);
-    
-    // Guardar en localStorage para persistencia
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('crypto-force-user', JSON.stringify(mockUser));
-      localStorage.setItem('crypto-force-user-data', JSON.stringify(userData));
-    }
-    
-    console.log('✅ [OFFLINE-AUTH] Login simulado exitoso:', {
-      email: email,
-      userLevel: userData.user_level,
-      isAuthorized: authorizedEmails.includes(email.toLowerCase().trim())
-    });
   };
 
-  // Función para logout
-  const logout = () => {
-    console.log('🔍 [OFFLINE-AUTH] Logout');
-    setUser(null);
-    setUserData(null);
-    setLoading(false);
-    setReady(true);
-    
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('crypto-force-user');
-      localStorage.removeItem('crypto-force-user-data');
-    }
-  };
-
-  // Inicialización inmediata y robusta
+  // Inicialización offline
   useEffect(() => {
-    console.log('🔍 [OFFLINE-AUTH] Inicializando autenticación offline');
-    
-    const defaultEmail = 'coeurdeluke.js@gmail.com';
-    const userData = createBasicUserData(defaultEmail);
-    const mockUser: User = {
-      id: `offline-${Date.now()}`,
-      email: defaultEmail,
-      created_at: new Date().toISOString(),
-      aud: 'authenticated',
-      role: 'authenticated',
-      updated_at: new Date().toISOString(),
-      app_metadata: {},
-      user_metadata: {},
-      identities: [],
-      factors: []
+    const initializeAuth = () => {
+      try {
+        // Verificar si hay email guardado
+        const storedEmail = localStorage.getItem('crypto-force-user-email');
+        const authorizedEmails = ['coeurdeluke.js@gmail.com', 'infocryptoforce@gmail.com'];
+        
+        if (storedEmail && authorizedEmails.includes(storedEmail)) {
+          console.log('✅ AuthContext: Usando email guardado:', storedEmail);
+          
+          const mockUser = createMockUser(storedEmail);
+          const userData = createUserData(storedEmail);
+          
+          setUser(mockUser);
+          setUserData(userData);
+          
+          console.log('✅ AuthContext: Usuario autenticado offline:', userData);
+        } else {
+          console.log('⚠️ AuthContext: No hay email guardado, creando usuario por defecto');
+          
+          // Crear usuario por defecto para coeurdeluke.js@gmail.com
+          const defaultEmail = 'coeurdeluke.js@gmail.com';
+          const mockUser = createMockUser(defaultEmail);
+          const userData = createUserData(defaultEmail);
+          
+          setUser(mockUser);
+          setUserData(userData);
+          
+          // Guardar en localStorage
+          localStorage.setItem('crypto-force-user-email', defaultEmail);
+          
+          console.log('✅ AuthContext: Usuario por defecto creado:', userData);
+        }
+      } catch (error) {
+        console.error('❌ AuthContext: Error inicializando:', error);
+      } finally {
+        setLoading(false);
+        setReady(true);
+        console.log('✅ AuthContext: Inicialización completada');
+      }
     };
-    
-    console.log('✅ [OFFLINE-AUTH] Usuario simulado creado:', mockUser.email);
-    console.log('✅ [OFFLINE-AUTH] Datos del usuario:', userData);
-    
-    setUser(mockUser);
-    setUserData(userData);
-    setLoading(false);
-    setReady(true);
-    
-    // Guardar en localStorage si estamos en el cliente
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('crypto-force-user', JSON.stringify(mockUser));
-      localStorage.setItem('crypto-force-user-data', JSON.stringify(userData));
-      console.log('✅ [OFFLINE-AUTH] Usuario guardado en localStorage');
-    }
-  }, []);
 
-  // Exponer funciones de simulación para debugging
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      (window as any).simulateLogin = simulateLogin;
-      (window as any).logout = logout;
-    }
+    // Simular un pequeño delay para que parezca real
+    setTimeout(initializeAuth, 100);
   }, []);
-
-  console.log('🔍 [OFFLINE-AUTH] AuthProvider renderizando con estado:', { 
-    hasUser: !!user, 
-    hasUserData: !!userData, 
-    loading, 
-    isReady 
-  });
 
   return (
     <AuthContext.Provider value={{ user, userData, loading, isReady }}>
@@ -188,5 +142,5 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Exportar el AuthProvider
+// Exportar
 export { AuthProvider };

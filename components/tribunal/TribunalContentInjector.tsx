@@ -28,7 +28,8 @@ export default function TribunalContentInjector({
   // Filtrar contenido por categoría
   const filteredContent = injections.filter(content => content.category === category);
 
-  const handleContentClick = (content: TribunalContent) => {
+  const handleContentClick = (content: any) => {
+    console.log('🔍 TribunalContentInjector: Contenido clickeado:', content);
     setSelectedContent(content);
     setIsIndexModalOpen(true);
     
@@ -137,6 +138,13 @@ export default function TribunalContentInjector({
 
           {/* Modal de Índice para contenido real */}
           {selectedContent && (
+            console.log('🔍 TribunalContentInjector: Mostrando modal con contenido:', {
+              id: selectedContent.id,
+              title: selectedContent.title,
+              content: selectedContent.content,
+              hasContent: !!selectedContent.content,
+              contentLength: selectedContent.content?.length || 0
+            }),
             <ContentIndexModal
               isOpen={isIndexModalOpen}
               onClose={handleIndexModalClose}
