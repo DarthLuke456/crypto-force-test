@@ -48,7 +48,7 @@ interface DashboardOption {
 }
 
 export default function DashboardSelectionPage() {
-  const { userData, isReady } = useSafeAuth();
+  const { user, userData, loading, isReady } = useSafeAuth();
   const [hoveredRole, setHoveredRole] = useState<string | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
