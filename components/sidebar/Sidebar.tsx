@@ -7,7 +7,7 @@ import SidebarToggle from "./SidebarToggle";
 import { useSidebar } from "./SidebarContext";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight, Menu, LogOut, Compass, MessageSquare } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { useAvatarSync } from '@/hooks/useAvatarSync';
 import { useMyFeedback } from '@/hooks/useMyFeedback';
 import { supabase } from '@/lib/supabaseClient';

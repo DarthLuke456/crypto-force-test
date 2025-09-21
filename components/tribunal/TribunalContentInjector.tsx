@@ -159,7 +159,7 @@ export default function TribunalContentInjector({
       );
     }
 
-    // Solo mostrar contenido de ejemplo si no hay contenido real
+    // No mostrar contenido de ejemplo - solo mostrar mensaje de no disponible
     return (
       <div className={`w-full max-w-6xl mx-auto ${className}`}>
         <div className="text-center py-12">

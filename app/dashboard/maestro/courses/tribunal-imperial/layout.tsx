@@ -1,6 +1,6 @@
 'use client';
 
-import { useSafeAuth } from '@/context/AuthContext-working';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { canUserAccessTribunal } from '@/lib/tribunal/permissions';
@@ -24,13 +24,14 @@ export default function TribunalImperialLayout({
       pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown'
     });
 
-    // Verificación simplificada - Solo verificar si hay datos del usuario
-    if (userData) {
+    // Verificación simplificada para AuthContext offline
+    if (userData && userData.email) {
       console.log('✅ Tribunal Layout - Usuario detectado, permitiendo acceso');
-    } else {
-      console.log('⏳ Tribunal Layout - Esperando datos del usuario...');
+    } else if (!loading) {
+      console.log('🚫 Tribunal Layout - No hay usuario, redirigiendo');
+      router.replace('/login/dashboard-selection');
     }
-  }, [userData, loading, isReady]);
+  }, [userData, loading, router]);
 
   // Mostrar loading si no hay datos del usuario
   if (!userData) {
