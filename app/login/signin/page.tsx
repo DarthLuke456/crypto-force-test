@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function SignInPage() {
-  const { user, userData, loading, isReady } = useSafeAuth();
+  const { user, userData, loading, isReady, login } = useSafeAuth();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -71,34 +71,14 @@ export default function SignInPage() {
     try {
       console.log('🔐 Iniciando login para:', formData.email);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email.trim().toLowerCase(),
-        password: formData.password
-      });
+      // Usar la función de login del AuthContext
+      login(formData.email.trim().toLowerCase());
       
-      if (error) {
-        console.warn('⚠️ Error en login:', error.message);
-        
-        // Mejorar el mensaje de error para el usuario
-        let errorMessage = 'Error al iniciar sesión';
-        if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Email o contraseña incorrectos. Verifica tus credenciales.';
-        } else if (error.message.includes('Email not confirmed')) {
-          errorMessage = 'Por favor, confirma tu email antes de iniciar sesión.';
-        } else if (error.message.includes('Too many requests')) {
-          errorMessage = 'Demasiados intentos. Espera unos minutos antes de intentar nuevamente.';
-        } else {
-          errorMessage = error.message;
-        }
-        
-        setErrors({ general: errorMessage });
-      } else {
-        console.log('✅ Login exitoso, mostrando mensaje de éxito');
-        setErrors({ general: '¡Login exitoso! Redirigiendo al dashboard...' });
-        setTimeout(() => {
-          window.location.href = '/login/dashboard-selection';
-        }, 1500);
-      }
+      console.log('✅ Login exitoso, mostrando mensaje de éxito');
+      setErrors({ general: '¡Login exitoso! Redirigiendo al dashboard...' });
+      setTimeout(() => {
+        window.location.href = '/login/dashboard-selection';
+      }, 1000);
     } catch (error: any) {
       console.error('❌ Error inesperado en login:', error);
       setErrors({ general: 'Error inesperado. Por favor, intenta nuevamente.' });

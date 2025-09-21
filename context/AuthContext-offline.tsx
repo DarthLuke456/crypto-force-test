@@ -25,6 +25,8 @@ interface AuthContextType {
   userData: UserData | null;
   loading: boolean;
   isReady: boolean;
+  login: (email: string) => void;
+  logout: () => void;
 }
 
 // Contexto
@@ -33,6 +35,8 @@ const AuthContext = createContext<AuthContextType>({
   userData: null,
   loading: true,
   isReady: false,
+  login: () => {},
+  logout: () => {},
 });
 
 // Hook
@@ -40,8 +44,8 @@ export const useAuth = () => useContext(AuthContext);
 
 // Hook simplificado
 export const useSafeAuth = () => {
-  const { user, userData, loading, isReady } = useAuth();
-  return { user, userData, loading, isReady };
+  const { user, userData, loading, isReady, login, logout } = useAuth();
+  return { user, userData, loading, isReady, login, logout };
 };
 
 // Provider completamente offline
@@ -50,6 +54,46 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isReady, setReady] = useState(false);
+
+  // Función de login
+  const login = (email: string) => {
+    const authorizedEmails = ['coeurdeluke.js@gmail.com', 'infocryptoforce@gmail.com'];
+    
+    if (authorizedEmails.includes(email)) {
+      console.log('✅ AuthContext: Login exitoso para:', email);
+      
+      const mockUser = createMockUser(email);
+      const userData = createUserData(email);
+      
+      setUser(mockUser);
+      setUserData(userData);
+      
+      // Guardar en localStorage
+      localStorage.setItem('crypto-force-user-email', email);
+      localStorage.removeItem('crypto-force-logged-out');
+      
+      console.log('✅ AuthContext: Usuario autenticado:', userData);
+    } else {
+      console.log('❌ AuthContext: Email no autorizado:', email);
+    }
+  };
+
+  // Función de logout
+  const logout = () => {
+    console.log('🚪 AuthContext: Logout ejecutado');
+    
+    setUser(null);
+    setUserData(null);
+    
+    // Limpiar localStorage
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Establecer flag de logout
+    localStorage.setItem('crypto-force-logged-out', 'true');
+    
+    console.log('🚪 AuthContext: Usuario deslogueado');
+  };
 
   // Función para crear datos de usuario
   const createUserData = (email: string): UserData => {
@@ -118,20 +162,13 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           
           console.log('✅ AuthContext: Usuario autenticado offline:', userData);
         } else {
-          console.log('⚠️ AuthContext: No hay email guardado, creando usuario por defecto');
+          console.log('⚠️ AuthContext: No hay email guardado, usuario no autenticado');
           
-          // Crear usuario por defecto para coeurdeluke.js@gmail.com
-          const defaultEmail = 'coeurdeluke.js@gmail.com';
-          const mockUser = createMockUser(defaultEmail);
-          const userData = createUserData(defaultEmail);
+          // NO crear usuario por defecto - dejar sin autenticar
+          setUser(null);
+          setUserData(null);
           
-          setUser(mockUser);
-          setUserData(userData);
-          
-          // Guardar en localStorage
-          localStorage.setItem('crypto-force-user-email', defaultEmail);
-          
-          console.log('✅ AuthContext: Usuario por defecto creado:', userData);
+          console.log('🚫 AuthContext: Usuario no autenticado');
         }
       } catch (error) {
         console.error('❌ AuthContext: Error inicializando:', error);
@@ -147,7 +184,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, isReady }}>
+    <AuthContext.Provider value={{ user, userData, loading, isReady, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

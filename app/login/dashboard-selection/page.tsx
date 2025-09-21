@@ -50,7 +50,7 @@ interface DashboardOption {
 
 export default function DashboardSelectionPage() {
   const router = useRouter();
-  const { user, userData, loading, isReady } = useSafeAuth();
+  const { user, userData, loading, isReady, logout } = useSafeAuth();
   const [hoveredRole, setHoveredRole] = useState<string | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -552,29 +552,8 @@ export default function DashboardSelectionPage() {
     try {
       console.log('🚪 Cerrando sesión desde dashboard-selection...');
       
-      // Limpiar localStorage y sessionStorage
-      if (typeof window !== 'undefined') {
-        // Marcar que el usuario se ha deslogueado ANTES de limpiar
-        localStorage.setItem('crypto-force-logged-out', 'true');
-        console.log('🚪 Flag de logout establecido');
-        
-        // Limpiar todo excepto el flag de logout
-        const logoutFlag = localStorage.getItem('crypto-force-logged-out');
-        localStorage.clear();
-        sessionStorage.clear();
-        
-        // Restaurar solo el flag de logout
-        if (logoutFlag) {
-          localStorage.setItem('crypto-force-logged-out', logoutFlag);
-        }
-        
-        // Limpiar cookies
-        document.cookie.split(";").forEach(function(c) { 
-          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-        });
-        
-        console.log('🚪 Datos limpiados, flag de logout preservado');
-      }
+      // Usar la función de logout del AuthContext
+      logout();
       
       // Redirigir al login
       console.log('🚪 Redirigiendo a signin...');
