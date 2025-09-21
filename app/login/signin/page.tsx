@@ -17,6 +17,14 @@ export default function SignInPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // useEffect para redirección (debe estar al principio, antes de cualquier return)
+  React.useEffect(() => {
+    if (user && userData) {
+      console.log('🔄 Usuario autenticado detectado en signin, redirigiendo...');
+      window.location.href = '/login/dashboard-selection';
+    }
+  }, [user, userData]);
+
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -102,14 +110,6 @@ export default function SignInPage() {
       </div>
     );
   }
-
-  // useEffect para redirección (siempre se ejecuta, no condicionalmente)
-  React.useEffect(() => {
-    if (user && userData) {
-      console.log('🔄 Usuario autenticado detectado en signin, redirigiendo...');
-      window.location.href = '/login/dashboard-selection';
-    }
-  }, [user, userData]);
 
   // Si el usuario está autenticado, mostrar pantalla de redirección
   if (user && userData) {
