@@ -35,17 +35,35 @@ export default function ContentIndexModal({
   useEffect(() => {
     if (isOpen && contentId) {
       loadContentIndex();
+    } else if (!isOpen) {
+      // Limpiar estado cuando el modal se cierra
+      setIndex([]);
+      setSections({});
+      setError(null);
     }
   }, [isOpen, contentId]);
+
+  // Cleanup al desmontar el componente
+  useEffect(() => {
+    return () => {
+      setIndex([]);
+      setSections({});
+      setError(null);
+    };
+  }, []);
 
   const loadContentIndex = async () => {
     try {
       setLoading(true);
       setError(null);
 
+      console.log('🔍 ContentIndexModal: Cargando contenido para ID:', contentId);
+
       // Primero intentar cargar desde la base de datos
       try {
         const indexData = await fetchContentIndex(contentId);
+        console.log('🔍 ContentIndexModal: Datos de BD:', indexData);
+        
         if (indexData && indexData.length > 0) {
           setIndex(indexData);
 
@@ -56,22 +74,27 @@ export default function ContentIndexModal({
             sectionsData[indexItem.id] = sectionData;
           }
           setSections(sectionsData);
+          console.log('✅ ContentIndexModal: Contenido cargado desde BD');
           return;
         }
       } catch (dbError) {
-        console.log('No hay contenido en la base de datos, usando contenido de ejemplo');
+        console.log('⚠️ ContentIndexModal: No hay contenido en la base de datos, usando contenido de ejemplo');
       }
 
       // Si no hay contenido en la base de datos, usar contenido de ejemplo
       const exampleContent = getExampleContent(contentId);
+      console.log('🔍 ContentIndexModal: Contenido de ejemplo generado:', exampleContent);
+      
       if (exampleContent.length > 0) {
         setIndex(exampleContent);
         setSections({});
+        console.log('✅ ContentIndexModal: Contenido de ejemplo cargado');
       } else {
+        console.error('❌ ContentIndexModal: No se pudo generar contenido de ejemplo');
         setError('No hay contenido disponible para este módulo');
       }
     } catch (err) {
-      console.error('Error loading content index:', err);
+      console.error('❌ ContentIndexModal: Error loading content index:', err);
       setError(err instanceof Error ? err.message : 'Error cargando contenido');
     } finally {
       setLoading(false);
@@ -80,74 +103,49 @@ export default function ContentIndexModal({
 
   // Contenido de ejemplo para el modal
   const getExampleContent = (contentId: string): ContentIndex[] => {
-    const exampleContent = {
-      'lógica-avanzada': [
-        {
-          id: 'intro',
-          content_id: contentId,
-          section_title: 'Introducción a la Lógica Avanzada',
-          section_description: 'Fundamentos de la lógica económica avanzada',
-          section_type: 'video' as const,
-          section_order: 1,
-          estimated_duration: 15,
-          is_required: true
-        },
-        {
-          id: 'conceptos',
-          content_id: contentId,
-          section_title: 'Conceptos Clave',
-          section_description: 'Principios fundamentales de la lógica económica',
-          section_type: 'video' as const,
-          section_order: 2,
-          estimated_duration: 20,
-          is_required: true
-        },
-        {
-          id: 'ejercicios',
-          content_id: contentId,
-          section_title: 'Ejercicios Prácticos',
-          section_description: 'Aplicación práctica de los conceptos aprendidos',
-          section_type: 'exercise' as const,
-          section_order: 3,
-          estimated_duration: 10,
-          is_required: false
-        }
-      ],
-      'análisis-mercados': [
-        {
-          id: 'fundamentos',
-          content_id: contentId,
-          section_title: 'Fundamentos del Análisis',
-          section_description: 'Bases del análisis de mercados financieros',
-          section_type: 'video' as const,
-          section_order: 1,
-          estimated_duration: 25,
-          is_required: true
-        },
-        {
-          id: 'herramientas',
-          content_id: contentId,
-          section_title: 'Herramientas de Análisis',
-          section_description: 'Instrumentos y técnicas de análisis',
-          section_type: 'video' as const,
-          section_order: 2,
-          estimated_duration: 20,
-          is_required: true
-        },
-        {
-          id: 'casos',
-          content_id: contentId,
-          section_title: 'Casos de Estudio',
-          section_description: 'Análisis de casos reales del mercado',
-          section_type: 'quiz' as const,
-          section_order: 3,
-          estimated_duration: 15,
-          is_required: false
-        }
-      ]
-    };
-
-    return exampleContent[contentId as keyof typeof exampleContent] || [];
+    // Contenido de ejemplo genérico que funciona para cualquier módulo
+    return [
+      {
+        id: 'intro',
+        content_id: contentId,
+        section_title: 'Introducción al Módulo',
+        section_description: 'Fundamentos y conceptos básicos del módulo',
+        section_type: 'video' as const,
+        section_order: 1,
+        estimated_duration: 15,
+        is_required: true
+      },
+      {
+        id: 'conceptos',
+        content_id: contentId,
+        section_title: 'Conceptos Clave',
+        section_description: 'Principios fundamentales y teoría avanzada',
+        section_type: 'video' as const,
+        section_order: 2,
+        estimated_duration: 20,
+        is_required: true
+      },
+      {
+        id: 'ejercicios',
+        content_id: contentId,
+        section_title: 'Ejercicios Prácticos',
+        section_description: 'Aplicación práctica de los conceptos aprendidos',
+        section_type: 'exercise' as const,
+        section_order: 3,
+        estimated_duration: 10,
+        is_required: false
+      },
+      {
+        id: 'evaluacion',
+        content_id: contentId,
+        section_title: 'Evaluación Final',
+        section_description: 'Test de conocimientos y verificación de aprendizaje',
+        section_type: 'quiz' as const,
+        section_order: 4,
+        estimated_duration: 15,
+        is_required: true
+      }
+    ];
   };
 
   const handleSectionClick = (section: ContentIndex) => {
