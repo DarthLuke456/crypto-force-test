@@ -92,6 +92,17 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initializeAuth = () => {
       try {
+        // Verificar si el usuario se ha deslogueado
+        const isLoggedOut = localStorage.getItem('crypto-force-logged-out');
+        if (isLoggedOut === 'true') {
+          console.log('🚪 AuthContext: Usuario deslogueado, no creando sesión');
+          setUser(null);
+          setUserData(null);
+          setLoading(false);
+          setReady(true);
+          return;
+        }
+
         // Verificar si hay email guardado
         const storedEmail = localStorage.getItem('crypto-force-user-email');
         const authorizedEmails = ['coeurdeluke.js@gmail.com', 'infocryptoforce@gmail.com'];

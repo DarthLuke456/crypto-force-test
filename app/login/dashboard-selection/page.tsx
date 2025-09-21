@@ -554,6 +554,8 @@ export default function DashboardSelectionPage() {
       
       // Limpiar localStorage y sessionStorage
       if (typeof window !== 'undefined') {
+        // Marcar que el usuario se ha deslogueado
+        localStorage.setItem('crypto-force-logged-out', 'true');
         localStorage.clear();
         sessionStorage.clear();
         // Limpiar cookies

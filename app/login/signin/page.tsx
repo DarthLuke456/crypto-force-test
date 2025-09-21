@@ -17,6 +17,14 @@ export default function SignInPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Limpiar flag de logout al cargar la página de signin
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('crypto-force-logged-out');
+      console.log('🧹 Flag de logout limpiado');
+    }
+  }, []);
+
   // useEffect para redirección (debe estar al principio, antes de cualquier return)
   React.useEffect(() => {
     if (user && userData) {
