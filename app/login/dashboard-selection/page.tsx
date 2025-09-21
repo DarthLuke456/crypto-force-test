@@ -719,7 +719,7 @@ export default function DashboardSelectionPage() {
             No tienes acceso a esta página. Debes estar autenticado correctamente.
           </p>
           <p className="text-gray-500 text-sm mb-4">
-            Email detectado: {userData.email}
+            Email detectado: {userData?.email || 'No disponible'}
           </p>
           <button
             onClick={() => {
