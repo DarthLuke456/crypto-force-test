@@ -19,6 +19,7 @@ export interface TribunalContent {
   sort_order?: number;
   created_at?: string;
   updated_at?: string;
+  content?: any[];
 }
 
 export interface ContentIndex {
