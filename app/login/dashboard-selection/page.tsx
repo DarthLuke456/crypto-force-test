@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { 
   Crown,
   Shield,
@@ -48,6 +49,7 @@ interface DashboardOption {
 }
 
 export default function DashboardSelectionPage() {
+  const router = useRouter();
   const { user, userData, loading, isReady } = useSafeAuth();
   const [hoveredRole, setHoveredRole] = useState<string | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -56,8 +58,10 @@ export default function DashboardSelectionPage() {
   const { hasSavedData } = useFeedbackPersistence();
   const [redirectAttempts, setRedirectAttempts] = useState(0);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [isStable, setIsStable] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  // Debug del estado de la página (simplificado) - Solo una vez
+  // Debug del estado de la página - Solo una vez al montar
   useEffect(() => {
     if (userData && isReady) {
       console.log('✅ Dashboard Selection - Usuario listo:', {
@@ -68,17 +72,17 @@ export default function DashboardSelectionPage() {
     }
   }, []); // Solo ejecutar una vez al montar
 
-  // Timeout para evitar carga infinita (simplificado para AuthContext offline)
+  // Timeout para evitar carga infinita - Solo una vez al montar
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!userData || !userData.email) {
         console.log('⏰ [TIMEOUT] No se cargaron datos del usuario en 5 segundos');
         setLoadingTimeout(true);
       }
-    }, 5000); // Reducido a 5 segundos
+    }, 5000);
 
     return () => clearTimeout(timer);
-  }, []); // Removido userData de las dependencias
+  }, []); // Solo ejecutar una vez al montar
 
   // Prevenir bucles de redirección
   useEffect(() => {
@@ -231,6 +235,9 @@ export default function DashboardSelectionPage() {
     console.log('✅ Archivo válido, comprimiendo imagen...');
     
     try {
+      // Cerrar el menú inmediatamente para evitar interferencias
+      setIsProfileMenuOpen(false);
+      
       // Comprimir la imagen
       console.log('🔍 handleAvatarChange - Iniciando compresión...');
       const compressedBase64 = await compressImage(file, 150, 0.6);
@@ -437,37 +444,33 @@ export default function DashboardSelectionPage() {
     'coeurdeluke.js@gmail.com'
   ];
 
-  // Determinar el nivel del usuario basado en userData
-  const getUserLevel = () => {
+  // Usar refs para estabilizar valores y evitar re-renders
+  const userLevelRef = useRef<number>(1);
+  const roleDisplayTextRef = useRef<string>('Iniciado');
+  const roleColorRef = useRef<string>('#8a8a8a');
+  const isInitializedRef = useRef<boolean>(false);
+
+  // Función estable para calcular nivel de usuario
+  const calculateUserLevel = useCallback(() => {
     if (!userData) {
-      console.log('⚠️ getUserLevel: No hay userData, retornando nivel 1');
       return 1;
     }
     
-    console.log('🔍 getUserLevel: userData recibido:', {
-      email: userData.email,
-      user_level: userData.user_level,
-      isFundador: userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())
-    });
-    
     // Para usuarios fundadores, asignar nivel 6 (Maestro) pero permitir acceso total
     if (userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())) {
-      console.log('👑 getUserLevel: Usuario fundador detectado, asignando nivel 6');
       return 6; // Nivel de Maestro (pero se mostrará como "Fundador")
     }
     
-    const level = userData.user_level || 1;
-    console.log('📊 getUserLevel: Usuario normal, nivel:', level);
-    return level;
-  };
+    return userData.user_level || 1;
+  }, []);
 
-  // Función para obtener el texto del rol a mostrar
-  const getRoleDisplayText = () => {
+  // Función estable para calcular texto del rol
+  const calculateRoleDisplayText = useCallback(() => {
     return getLevelDisplayName(userData);
-  };
+  }, []);
 
-  // Función para obtener el color del rol basado en si es Maestro Fundador o no
-  const getRoleColor = () => {
+  // Función estable para calcular color del rol
+  const calculateRoleColor = useCallback(() => {
     if (!userData) return '#8a8a8a';
     
     // Verificar si es Maestro Fundador
@@ -478,19 +481,39 @@ export default function DashboardSelectionPage() {
     }
     
     // Para otros maestros (nivel 6) que no sean fundadores
-    if (userLevel === 6) {
+    const currentLevel = userLevelRef.current;
+    if (currentLevel === 6) {
       return '#8a8a8a'; // Color gris para otros maestros
     }
     
     // Para otros niveles, usar el color de su nivel
-    const option = dashboardOptions.find(o => o.level === userLevel);
+    const option = dashboardOptions.find(o => o.level === currentLevel);
     return option?.color || '#8a8a8a';
-  };
+  }, []);
 
-  const userLevel = getUserLevel();
-  const roleDisplayText = getRoleDisplayText();
+  // Actualizar refs solo cuando sea necesario
+  useEffect(() => {
+    if (userData && isReady && !isInitializedRef.current) {
+      userLevelRef.current = calculateUserLevel();
+      roleDisplayTextRef.current = calculateRoleDisplayText();
+      roleColorRef.current = calculateRoleColor();
+      isInitializedRef.current = true;
+      setIsStable(true);
+      
+      console.log('✅ Valores estabilizados:', {
+        userLevel: userLevelRef.current,
+        roleDisplayText: roleDisplayTextRef.current,
+        roleColor: roleColorRef.current
+      });
+    }
+  }, [userData, isReady, calculateUserLevel, calculateRoleDisplayText, calculateRoleColor]);
 
-  // Debug simplificado del usuario - Solo una vez
+  // Valores estables que no causan re-renders
+  const userLevel = userLevelRef.current;
+  const roleDisplayText = roleDisplayTextRef.current;
+  const getRoleColor = roleColorRef.current;
+
+  // Debug simplificado del usuario - Solo una vez al montar
   useEffect(() => {
     if (userData && isReady) {
       console.log('🔍 Dashboard Selection - Usuario cargado:', {
@@ -587,36 +610,27 @@ export default function DashboardSelectionPage() {
 
 
 
-  // Verificar si el usuario puede acceder a cada rol
-  const canAccessRole = (roleLevel: number) => {
-    console.log('🔍 canAccessRole: Verificando acceso para nivel', roleLevel, {
-      userLevel,
-      userEmail: userData?.email,
-      userDataUserLevel: userData?.user_level,
-      isFundadorByEmail: userData?.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim()),
-      authorizedEmails: MAESTRO_AUTHORIZED_EMAILS
-    });
+  // Función estable para verificar acceso a roles
+  const canAccessRole = useCallback((roleLevel: number) => {
+    const currentUserLevel = userLevelRef.current;
+    const currentUserEmail = userData?.email;
     
     // Verificar si es usuario fundador por email
-    const isFundadorByEmail = userData?.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
+    const isFundadorByEmail = currentUserEmail && MAESTRO_AUTHORIZED_EMAILS.includes(currentUserEmail.toLowerCase().trim());
     
     // Fundadores tienen acceso a TODOS los dashboards
     if (isFundadorByEmail) {
-      console.log('✅ canAccessRole: Usuario fundador, acceso permitido');
       return true;
     }
     
     // También verificar por nivel 6
-    if (userLevel === 6) {
-      console.log('✅ canAccessRole: Usuario nivel 6, acceso permitido');
+    if (currentUserLevel === 6) {
       return true;
     }
     
     // Otros usuarios solo pueden acceder a su nivel y niveles inferiores
-    const hasAccess = roleLevel <= userLevel;
-    console.log(`🔍 canAccessRole: Usuario nivel ${userLevel}, acceso a nivel ${roleLevel}: ${hasAccess}`);
-    return hasAccess;
-  };
+    return roleLevel <= currentUserLevel;
+  }, []);
 
   // Mostrar error si hay bucle de redirección
   if (redirectAttempts > 3) {
@@ -654,8 +668,8 @@ export default function DashboardSelectionPage() {
     );
   }
 
-  // Mostrar loading solo si realmente no hay datos (simplificado para AuthContext offline)
-  if (loading || (!userData && !loadingTimeout)) {
+  // Mostrar loading si no hay datos o si el componente no está estable
+  if (loading || (!userData && !loadingTimeout) || !isStable) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
         <div className="text-center">
@@ -943,7 +957,7 @@ export default function DashboardSelectionPage() {
                 <div className="text-center">
                   <h3 className="text-white text-xl font-semibold">{userData.nickname}</h3>
                   <p className="text-[#8a8a8a]">
-                    Tu rol: <span className="font-semibold" style={{ color: getRoleColor() }}>{roleDisplayText}</span>
+                    Tu rol: <span className="font-semibold" style={{ color: getRoleColor }}>{roleDisplayText}</span>
                   </p>
                 </div>
               </div>
@@ -967,7 +981,7 @@ export default function DashboardSelectionPage() {
               const getOptionColor = () => {
                 // Si es el nivel actual del usuario, usar el color dinámico
                 if (isCurrentLevel) {
-                  return getRoleColor();
+                  return getRoleColor;
                 }
                 // Si es maestro (nivel 6), verificar si es fundador
                 if (option.level === 6) {
@@ -999,8 +1013,13 @@ export default function DashboardSelectionPage() {
                     borderColor: isCurrentLevel ? optionColor : undefined,
                     boxShadow: isCurrentLevel ? `0 0 20px ${optionColor}20` : undefined
                   }}
-                                    onClick={() => {
-                    if (isAccessible) {
+                                    onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (isAccessible && !isNavigating) {
+                      setIsNavigating(true);
+                      
                       // Incrementar contador de intentos de redirección
                       const currentAttempts = parseInt(sessionStorage.getItem('redirectAttempts') || '0');
                       sessionStorage.setItem('redirectAttempts', (currentAttempts + 1).toString());
@@ -1022,9 +1041,14 @@ export default function DashboardSelectionPage() {
                       }
                       
                       console.log('🔄 [NAVIGATION] Redirigiendo...');
-                      window.location.href = option.path;
-                    } else {
+                      // Usar window.location.href para evitar problemas con router
+                      setTimeout(() => {
+                        window.location.href = option.path;
+                      }, 100);
+                    } else if (!isAccessible) {
                       console.warn('⚠️ [NAVIGATION] Acceso denegado a:', option.path);
+                    } else if (isNavigating) {
+                      console.log('⏳ [NAVIGATION] Ya navegando, ignorando click');
                     }
                   }}
                   onMouseEnter={() => setHoveredRole(option.id)}
@@ -1118,9 +1142,19 @@ export default function DashboardSelectionPage() {
                     {isAccessible ? (
                       <button
                         onClick={(e) => {
+                          e.preventDefault();
                           e.stopPropagation();
-                          console.log(`🚀 Navegando a: ${option.path}`);
-                          window.location.href = option.path;
+                          
+                          if (!isNavigating) {
+                            setIsNavigating(true);
+                            console.log(`🚀 Navegando a: ${option.path}`);
+                            
+                            setTimeout(() => {
+                              window.location.href = option.path;
+                            }, 100);
+                          } else {
+                            console.log('⏳ Ya navegando, ignorando click');
+                          }
                         }}
                         className={`w-full py-2 px-4 rounded-lg font-medium text-sm transition-all duration-300 ${
                           isCurrentLevel
