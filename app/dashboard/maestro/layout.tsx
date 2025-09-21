@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSafeAuth } from '@/context/AuthContext-working';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { useRouter } from 'next/navigation';
 import MaestroSidebar from '@/components/layout/MaestroSidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -86,11 +86,7 @@ function MaestroLayoutContent({
         return;
       }
 
-      // Si no está listo, esperar
-      if (!isReady) {
-        console.log('🔍 MAESTRO LAYOUT: Aún no está listo, esperando...');
-        return;
-      }
+      // Simplificado para AuthContext offline - no esperar isReady
 
       // Si no hay datos del usuario, redirigir a login
       if (!userData) {
