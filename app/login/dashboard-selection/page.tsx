@@ -78,7 +78,7 @@ export default function DashboardSelectionPage() {
     }, 5000); // Reducido a 5 segundos
 
     return () => clearTimeout(timer);
-  }, [userData]);
+  }, []); // Removido userData de las dependencias
 
   // Prevenir bucles de redirección
   useEffect(() => {

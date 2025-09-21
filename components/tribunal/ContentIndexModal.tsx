@@ -106,18 +106,11 @@ export default function ContentIndexModal({
         console.log('⚠️ ContentIndexModal: No hay contenido en la base de datos, usando contenido de ejemplo');
       }
 
-      // Si no hay contenido real ni en BD, usar contenido de ejemplo
-      const exampleContent = getExampleContent(contentId);
-      console.log('🔍 ContentIndexModal: Contenido de ejemplo generado:', exampleContent);
-      
-      if (exampleContent.length > 0) {
-        setIndex(exampleContent);
-        setSections({});
-        console.log('✅ ContentIndexModal: Contenido de ejemplo cargado');
-      } else {
-        console.error('❌ ContentIndexModal: No se pudo generar contenido de ejemplo');
-        setError('No hay contenido disponible para este módulo');
-      }
+      // Si no hay contenido real ni en BD, mostrar error
+      console.log('❌ ContentIndexModal: No hay contenido disponible');
+      setError('No hay contenido disponible para este módulo');
+      setIndex([]);
+      setSections({});
     } catch (err) {
       console.error('❌ ContentIndexModal: Error loading content index:', err);
       setError(err instanceof Error ? err.message : 'Error cargando contenido');
@@ -179,52 +172,6 @@ export default function ContentIndexModal({
     return 5;
   };
 
-  // Contenido de ejemplo para el modal
-  const getExampleContent = (contentId: string): ContentIndex[] => {
-    // Contenido de ejemplo genérico que funciona para cualquier módulo
-    return [
-      {
-        id: 'intro',
-        content_id: contentId,
-        section_title: 'Introducción al Módulo',
-        section_description: 'Fundamentos y conceptos básicos del módulo',
-        section_type: 'video' as const,
-        section_order: 1,
-        estimated_duration: 15,
-        is_required: true
-      },
-      {
-        id: 'conceptos',
-        content_id: contentId,
-        section_title: 'Conceptos Clave',
-        section_description: 'Principios fundamentales y teoría avanzada',
-        section_type: 'video' as const,
-        section_order: 2,
-        estimated_duration: 20,
-        is_required: true
-      },
-      {
-        id: 'ejercicios',
-        content_id: contentId,
-        section_title: 'Ejercicios Prácticos',
-        section_description: 'Aplicación práctica de los conceptos aprendidos',
-        section_type: 'exercise' as const,
-        section_order: 3,
-        estimated_duration: 10,
-        is_required: false
-      },
-      {
-        id: 'evaluacion',
-        content_id: contentId,
-        section_title: 'Evaluación Final',
-        section_description: 'Test de conocimientos y verificación de aprendizaje',
-        section_type: 'quiz' as const,
-        section_order: 4,
-        estimated_duration: 15,
-        is_required: true
-      }
-    ];
-  };
 
   const handleSectionClick = (section: ContentIndex) => {
     if (onSectionClick) {

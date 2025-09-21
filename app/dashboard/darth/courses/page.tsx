@@ -151,22 +151,10 @@ export default function DarthCoursesPage() {
   // Asignar módulos de Iniciados al nivel correspondiente
   levels[0].modules = iniciadosModules;
   
-  // Para otros niveles, crear módulos básicos
+  // Para otros niveles, no mostrar contenido placeholder
   levels.forEach((level, index) => {
     if (index > 0) {
-      level.modules = [
-        {
-          id: 'placeholder',
-          title: 'Contenido en desarrollo',
-          type: 'theoretical' as const,
-          description: 'Este nivel está en desarrollo',
-          duration: '',
-          checkpoints: 0,
-          status: 'draft' as const,
-          icon: BookOpen,
-          level: level.id
-        }
-      ];
+      level.modules = [];
     }
   });
 

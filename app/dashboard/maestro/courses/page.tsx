@@ -394,48 +394,42 @@ export default function CoursesPage() {
   // Combinar módulos reales con módulos de ejemplo (solo si no hay contenido real)
   const currentLevel = levels.find(level => level.id === selectedLevel);
   
-  // Si hay contenido real del Tribunal Imperial, usarlo; si no, usar contenido de ejemplo
-  const theoreticalModules = hasRealContent && realTheoreticalModules.length > 0 
-    ? realTheoreticalModules.map(module => ({
-        id: module.id,
-        title: module.title,
-        type: module.type,
-        description: module.description,
-        duration: module.duration,
-        checkpoints: module.checkpoints,
-        status: module.status,
-        icon: getIconComponent(module.icon),
-        level: module.level
-      }))
-    : currentLevel?.modules.filter(m => m.type === 'theoretical') || [];
+  // Solo usar contenido real del Tribunal Imperial, NO mostrar contenido de ejemplo
+  const theoreticalModules = realTheoreticalModules.map(module => ({
+    id: module.id,
+    title: module.title,
+    type: module.type,
+    description: module.description,
+    duration: module.duration,
+    checkpoints: module.checkpoints,
+    status: module.status,
+    icon: getIconComponent(module.icon),
+    level: module.level
+  }));
 
-  const practicalModules = hasRealContent && realPracticalModules.length > 0
-    ? realPracticalModules.map(module => ({
-        id: module.id,
-        title: module.title,
-        type: module.type,
-        description: module.description,
-        duration: module.duration,
-        checkpoints: module.checkpoints,
-        status: module.status,
-        icon: getIconComponent(module.icon),
-        level: module.level
-      }))
-    : currentLevel?.modules.filter(m => m.type === 'practical') || [];
+  const practicalModules = realPracticalModules.map(module => ({
+    id: module.id,
+    title: module.title,
+    type: module.type,
+    description: module.description,
+    duration: module.duration,
+    checkpoints: module.checkpoints,
+    status: module.status,
+    icon: getIconComponent(module.icon),
+    level: module.level
+  }));
 
-  const checkpointModules = hasRealContent && realCheckpointModules.length > 0
-    ? realCheckpointModules.map(module => ({
-        id: module.id,
-        title: module.title,
-        type: module.type,
-        description: module.description,
-        duration: module.duration,
-        checkpoints: module.checkpoints,
-        status: module.status,
-        icon: getIconComponent(module.icon),
-        level: module.level
-      }))
-    : currentLevel?.modules.filter(m => m.id.startsWith('pc')) || [];
+  const checkpointModules = realCheckpointModules.map(module => ({
+    id: module.id,
+    title: module.title,
+    type: module.type,
+    description: module.description,
+    duration: module.duration,
+    checkpoints: module.checkpoints,
+    status: module.status,
+    icon: getIconComponent(module.icon),
+    level: module.level
+  }));
 
   // Función para obtener el componente de icono
   function getIconComponent(iconString: string) {
@@ -759,21 +753,21 @@ export default function CoursesPage() {
         
         <div className="p-3 sm:p-4 lg:p-6">
           {/* Mensaje informativo sobre contenido del Tribunal Imperial */}
-          {!hasRealContent && (
+          {theoreticalModules.length === 0 && practicalModules.length === 0 && checkpointModules.length === 0 && (
             <div className="mb-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
               <div className="flex items-start gap-3">
                 <Crown className="w-5 h-5 text-[#FFD700] mt-0.5 flex-shrink-0" />
                 <div>
                   <h4 className="text-blue-400 font-medium mb-1">Contenido del Tribunal Imperial</h4>
                   <p className="text-blue-300 text-sm mb-2">
-                    Los módulos mostrados son de ejemplo. Una vez que se creen y aprueben módulos a través del Tribunal Imperial, 
-                    aparecerán aquí automáticamente con datos reales.
+                    No hay contenido disponible para este nivel. Crea y aprueba módulos a través del Tribunal Imperial 
+                    para que aparezcan aquí automáticamente.
                   </p>
                   <button
-                    onClick={() => window.location.href = '/dashboard/maestro/courses/tribunal-imperial'}
+                    onClick={() => window.location.href = '/dashboard/maestro/tribunal-creator'}
                     className="text-[#FFD700] hover:text-[#FFA500] text-sm font-medium transition-colors"
                   >
-                    Ir al Tribunal Imperial →
+                    Crear Contenido →
                   </button>
                 </div>
               </div>
