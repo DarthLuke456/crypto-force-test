@@ -126,9 +126,16 @@ function MaestroLayoutContent({
 
       if (!hasAccess) {
         console.log('🚫 MAESTRO LAYOUT: Acceso denegado - Email no autorizado para maestro');
+        console.log('🚫 MAESTRO LAYOUT: Redirigiendo a dashboard-selection en 2 segundos...');
         setIsAuthorized(false);
         setIsLoading(false);
         setAccessChecked(true);
+        
+        // Redirect after showing the error
+        setTimeout(() => {
+          console.log('🚫 MAESTRO LAYOUT: Ejecutando redirección a dashboard-selection');
+          window.location.href = '/login/dashboard-selection';
+        }, 2000);
         return;
       }
 
