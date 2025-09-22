@@ -87,7 +87,7 @@ const menuItems: MenuItem[] = [
 export default function MaestroSidebar() {
   const { isExpanded, toggleSidebar } = useMaestroSidebar();
   const pathname = usePathname();
-  const { userData } = useSafeAuth();
+  const { userData, logout } = useSafeAuth();
   const { avatar: userAvatar } = useAvatar();
   const [mounted, setMounted] = useState(false);
 
@@ -106,9 +106,6 @@ export default function MaestroSidebar() {
       </aside>
     );
   }
-
-
-  const { logout } = useSafeAuth();
   
   const handleSignOut = async () => {
     try {
