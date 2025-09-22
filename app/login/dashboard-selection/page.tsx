@@ -135,9 +135,10 @@ export default function DashboardSelectionPage() {
       document.addEventListener('click', (e) => {
         console.log('🔍 [GLOBAL CLICK] Click detected on:', e.target);
         console.log('🔍 [GLOBAL CLICK] Click coordinates:', e.clientX, e.clientY);
-        console.log('🔍 [GLOBAL CLICK] Target tagName:', e.target?.tagName);
-        console.log('🔍 [GLOBAL CLICK] Target id:', e.target?.id);
-        console.log('🔍 [GLOBAL CLICK] Target className:', e.target?.className);
+        const target = e.target as HTMLElement;
+        console.log('🔍 [GLOBAL CLICK] Target tagName:', target?.tagName);
+        console.log('🔍 [GLOBAL CLICK] Target id:', target?.id);
+        console.log('🔍 [GLOBAL CLICK] Target className:', target?.className);
       });
       
     }, 100); // Wait 100ms for DOM to be ready
