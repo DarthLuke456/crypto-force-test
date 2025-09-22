@@ -62,6 +62,11 @@ export default function DashboardSelectionPage() {
 
   // Debug del estado de la página - Solo una vez al montar
   useEffect(() => {
+    console.log('🔍 [PAGE LOAD] Componente montado');
+    console.log('🔍 [PAGE LOAD] userData:', userData);
+    console.log('🔍 [PAGE LOAD] isReady:', isReady);
+    console.log('🔍 [PAGE LOAD] loading:', loading);
+    
     if (userData && isReady) {
       console.log('✅ Dashboard Selection - Usuario listo:', {
         nickname: userData.nickname,
@@ -77,6 +82,25 @@ export default function DashboardSelectionPage() {
     console.log('🔍 [BUTTON DEBUG] userData disponible:', !!userData);
     console.log('🔍 [BUTTON DEBUG] isReady:', isReady);
   }, [userData, isReady]);
+
+  // Debug para rastrear redirecciones
+  useEffect(() => {
+    console.log('🔍 [REDIRECT DEBUG] Página cargada:', window.location.href);
+    console.log('🔍 [REDIRECT DEBUG] Referrer:', document.referrer);
+    console.log('🔍 [REDIRECT DEBUG] Timestamp:', new Date().toISOString());
+    
+    // Verificar si hay intentos de redirección previos
+    const redirectAttempts = sessionStorage.getItem('redirectAttempts');
+    console.log('🔍 [REDIRECT DEBUG] Intentos de redirección previos:', redirectAttempts);
+    
+    // Verificar si hay datos de usuario en localStorage
+    const userEmail = localStorage.getItem('crypto-force-user-email');
+    console.log('🔍 [REDIRECT DEBUG] Email en localStorage:', userEmail);
+    
+    // Verificar si hay flag de logout
+    const loggedOut = localStorage.getItem('crypto-force-logged-out');
+    console.log('🔍 [REDIRECT DEBUG] Flag de logout:', loggedOut);
+  }, []);
 
   // Reset isNavigating state when component mounts
   useEffect(() => {
@@ -982,6 +1006,8 @@ export default function DashboardSelectionPage() {
       {/* Test Buttons - Always Visible */}
       {(() => {
         console.log('🔍 [BUTTON RENDER] Renderizando botones de prueba');
+        console.log('🔍 [BUTTON RENDER] userData disponible:', !!userData);
+        console.log('🔍 [BUTTON RENDER] isReady:', isReady);
         return null;
       })()}
       <div className="fixed top-4 left-4 z-[9999] flex flex-col gap-2">
@@ -996,11 +1022,14 @@ export default function DashboardSelectionPage() {
         </button>
         
         <button
-          onClick={() => {
+          onClick={(e) => {
             console.log('🖱️ [DIRECT PROFILE] Click en Editar Perfil directo');
+            console.log('🖱️ [DIRECT PROFILE] Event:', e);
+            console.log('🖱️ [DIRECT PROFILE] userData:', userData);
             const profilePath = getUserProfilePath(userData);
             console.log('🖱️ [DIRECT PROFILE] ProfilePath calculado:', profilePath);
             console.log('🖱️ [DIRECT PROFILE] Redirigiendo a perfil:', profilePath);
+            console.log('🖱️ [DIRECT PROFILE] Ejecutando redirección...');
             window.location.href = profilePath;
           }}
           className="px-4 py-2 bg-[#ec4d58] hover:bg-[#d43d48] text-white rounded-lg font-bold"
@@ -1015,9 +1044,12 @@ export default function DashboardSelectionPage() {
         </button>
         
         <button
-          onClick={() => {
+          onClick={(e) => {
             console.log('🖱️ [DIRECT MAESTRO] Click en Maestro Dashboard directo');
+            console.log('🖱️ [DIRECT MAESTRO] Event:', e);
+            console.log('🖱️ [DIRECT MAESTRO] userData:', userData);
             console.log('🖱️ [DIRECT MAESTRO] Redirigiendo a /dashboard/maestro');
+            console.log('🖱️ [DIRECT MAESTRO] Ejecutando redirección...');
             window.location.href = '/dashboard/maestro';
           }}
           className="px-4 py-2 bg-[#8a8a8a] hover:bg-[#6a6a6a] text-white rounded-lg font-bold"

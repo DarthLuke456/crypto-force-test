@@ -86,15 +86,22 @@ export function getProfilePathByLevel(userLevel: number): string {
  * @returns Ruta completa del perfil
  */
 export function getUserProfilePath(userData: UserData | null): string {
+  console.log('🔍 [getUserProfilePath] Iniciando función');
+  console.log('🔍 [getUserProfilePath] userData recibido:', userData);
+  
   if (!userData) {
+    console.log('🔍 [getUserProfilePath] No hay userData, retornando iniciado/perfil');
     return '/dashboard/iniciado/perfil';
   }
 
   // Verificar si es usuario fundador por email
   const isFundadorByEmail = userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
+  console.log('🔍 [getUserProfilePath] isFundadorByEmail:', isFundadorByEmail);
+  console.log('🔍 [getUserProfilePath] userData.email:', userData.email);
+  console.log('🔍 [getUserProfilePath] MAESTRO_AUTHORIZED_EMAILS:', MAESTRO_AUTHORIZED_EMAILS);
   
   if (isFundadorByEmail) {
-    console.log('👑 getUserProfilePath - Usuario fundador, retornando maestro/perfil');
+    console.log('👑 [getUserProfilePath] Usuario fundador, retornando maestro/perfil');
     return '/dashboard/maestro/perfil';
   }
 
@@ -102,7 +109,7 @@ export function getUserProfilePath(userData: UserData | null): string {
   const userLevel = userData.user_level || 1;
   const profilePath = getProfilePathByLevel(userLevel);
   
-  console.log('🔍 getUserProfilePath - Usuario:', userData.nickname, 'Nivel:', userLevel, 'Perfil:', profilePath);
+  console.log('🔍 [getUserProfilePath] Usuario:', userData.nickname, 'Nivel:', userLevel, 'Perfil:', profilePath);
   return profilePath;
 }
 
