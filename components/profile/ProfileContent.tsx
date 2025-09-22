@@ -40,7 +40,7 @@ const getLevelColor = (level: number) => {
 };
 
 export default function ProfileContent() {
-  const { user, userData } = useSafeAuth();
+  const { userData } = useSafeAuth();
   const { avatar: userAvatar, changeAvatar } = useAvatar();
   const { stats: referralStats } = useReferralDataSimple();
   const { emitUserDataUpdate } = useUserDataSync();
@@ -224,14 +224,13 @@ export default function ProfileContent() {
     }
   };
 
-  if (!user) {
+  if (!userData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
         <div className="text-center">
           <div className="bg-[#1a1a1a] border border-[#3a3a3a] rounded-lg p-8 max-w-md">
-            <h2 className="text-xl font-bold text-white mb-4">Sesión Expirada</h2>
-            <p className="text-gray-400 mb-6">Tu sesión ha expirado. Por favor, inicia sesión nuevamente.</p>
-            <button onClick={() => window.location.href = '/login/signin'} className="bg-[#8a8a8a] hover:bg-[#6a6a6a] text-white px-6 py-2 rounded-lg transition-colors">Ir al Login</button>
+            <h2 className="text-xl font-bold text-white mb-4">Cargando Perfil...</h2>
+            <p className="text-gray-400 mb-6">Cargando datos del perfil...</p>
           </div>
         </div>
       </div>

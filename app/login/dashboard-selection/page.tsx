@@ -1056,7 +1056,17 @@ export default function DashboardSelectionPage() {
                     e.preventDefault();
                     e.stopPropagation();
                     
+                    console.log('🖱️ [CARD CLICK] Click en card:', {
+                      title: option.title,
+                      path: option.path,
+                      isAccessible: isAccessible,
+                      isNavigating: isNavigating,
+                      userLevel: userLevel,
+                      userEmail: userData?.email
+                    });
+                    
                     if (isAccessible && !isNavigating) {
+                      console.log('✅ [CARD CLICK] Condiciones cumplidas, iniciando navegación');
                       setIsNavigating(true);
                       
                       // Incrementar contador de intentos de redirección
@@ -1082,11 +1092,13 @@ export default function DashboardSelectionPage() {
                       console.log('🔄 [NAVIGATION] Redirigiendo...');
                       // Usar window.location.href para evitar problemas con router
                       setTimeout(() => {
-                      window.location.href = option.path;
+                        console.log('🔄 [NAVIGATION] Ejecutando redirección a:', option.path);
+                        window.location.href = option.path;
                       }, 100);
                       
                       // Reset isNavigating after a delay to allow for retry if needed
                       setTimeout(() => {
+                        console.log('🔄 [NAVIGATION] Reseteando estado de navegación');
                         setIsNavigating(false);
                       }, 2000);
                     } else if (!isAccessible) {
