@@ -18,6 +18,8 @@ interface UserData {
   codigo_referido: string | null;
   referred_by: string | null;
   total_referrals: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface AuthContextType {
