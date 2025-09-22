@@ -841,9 +841,10 @@ export default function DashboardSelectionPage() {
                 </button>
 
                 {/* Menú desplegable */}
-                {isProfileMenuOpen && (
+                {isProfileMenuOpen && (() => {
+                  console.log('🖱️ [PROFILE MENU] Rendering profile menu');
+                  return (
                   <div className="absolute right-0 top-full mt-2 w-64 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-xl z-50 overflow-hidden">
-                    {console.log('🖱️ [PROFILE MENU] Rendering profile menu')}
                     {/* Header del menú */}
                     <div className="px-4 py-3 border-b border-[#2a2a2a]">
                       <div className="flex items-center gap-3">
@@ -962,7 +963,8 @@ export default function DashboardSelectionPage() {
                       </button>
                     </div>
                   </div>
-                )}
+                  );
+                })()}
               </div>
             </div>
           </div>
