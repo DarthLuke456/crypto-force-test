@@ -120,76 +120,15 @@ export default function DashboardSelectionPage() {
       console.log('🔍 [NATIVE BUTTONS] maestroButton found:', !!maestroButton);
       
       if (testButton) {
-        console.log('🔍 [NATIVE BUTTONS] Setting up test button listener');
-        testButton.addEventListener('click', (e) => {
-          console.log('🧪 [NATIVE TEST] Click en botón de prueba');
-          console.log('🧪 [NATIVE TEST] Event details:', e);
-          console.log('🧪 [NATIVE TEST] Target:', e.target);
-          alert('Native test button clicked! Check console for logs.');
-        });
-        
-        // Also add mousedown and mouseup for debugging
-        testButton.addEventListener('mousedown', (e) => {
-          console.log('🧪 [NATIVE TEST] Mouse down on test button');
-        });
-        
-        testButton.addEventListener('mouseup', (e) => {
-          console.log('🧪 [NATIVE TEST] Mouse up on test button');
-        });
+        console.log('🔍 [NATIVE BUTTONS] Test button found - using React handler only');
       }
       
       if (profileButton) {
-        console.log('🔍 [NATIVE BUTTONS] Setting up profile button listener');
-        
-        const handleProfileClick = (e: Event) => {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('🖱️ [NATIVE PROFILE] Click en Editar Perfil directo');
-          console.log('🖱️ [NATIVE PROFILE] Event:', e);
-          console.log('🖱️ [NATIVE PROFILE] userData:', userData);
-          const profilePath = getUserProfilePath(userData);
-          console.log('🖱️ [NATIVE PROFILE] ProfilePath calculado:', profilePath);
-          console.log('🖱️ [NATIVE PROFILE] Redirigiendo a perfil:', profilePath);
-          console.log('🖱️ [NATIVE PROFILE] Ejecutando redirección...');
-          window.location.href = profilePath;
-        };
-        
-        profileButton.addEventListener('click', handleProfileClick, { capture: true });
-        
-        // Also add mousedown and mouseup for debugging
-        profileButton.addEventListener('mousedown', (e) => {
-          console.log('🖱️ [NATIVE PROFILE] Mouse down on profile button');
-        });
-        
-        profileButton.addEventListener('mouseup', (e) => {
-          console.log('🖱️ [NATIVE PROFILE] Mouse up on profile button');
-        });
+        console.log('🔍 [NATIVE BUTTONS] Profile button found - using React handler only');
       }
       
       if (maestroButton) {
-        console.log('🔍 [NATIVE BUTTONS] Setting up maestro button listener');
-        
-        const handleMaestroClick = (e: Event) => {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('🖱️ [NATIVE MAESTRO] Click en Maestro Dashboard directo');
-          console.log('🖱️ [NATIVE MAESTRO] Event:', e);
-          console.log('🖱️ [NATIVE MAESTRO] userData:', userData);
-          console.log('🖱️ [NATIVE MAESTRO] Redirigiendo a /dashboard/maestro');
-          console.log('🖱️ [NATIVE MAESTRO] Ejecutando redirección...');
-          window.location.href = '/dashboard/maestro';
-        };
-        
-        maestroButton.addEventListener('click', handleMaestroClick, { capture: true });
-        
-        // Also add mousedown and mouseup for debugging
-        maestroButton.addEventListener('mousedown', (e) => {
-          console.log('🖱️ [NATIVE MAESTRO] Mouse down on maestro button');
-        });
-        
-        maestroButton.addEventListener('mouseup', (e) => {
-          console.log('🖱️ [NATIVE MAESTRO] Mouse up on maestro button');
-        });
+        console.log('🔍 [NATIVE BUTTONS] Maestro button found - using React handler only');
       }
       
       // Add global click listener to see if clicks are being intercepted
@@ -618,7 +557,7 @@ export default function DashboardSelectionPage() {
     const isMaestroFundador = userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
     
     if (isMaestroFundador) {
-      return '#fafafa'; // Color blanco para Maestros Fundadores
+      return '#FF8C42'; // Color naranja para Maestros Fundadores
     }
     
     // Para otros maestros (nivel 6) que no sean fundadores
@@ -1147,6 +1086,16 @@ export default function DashboardSelectionPage() {
       >
         <button
           id="test-button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🧪 [REACT TEST] Click en botón de prueba');
+            console.log('🧪 [REACT TEST] Event:', e);
+            console.log('🧪 [REACT TEST] Target:', e.target);
+            console.log('🧪 [REACT TEST] CurrentTarget:', e.currentTarget);
+            console.log('🧪 [REACT TEST] Button ID:', e.currentTarget.id);
+            alert('React test button clicked! Check console for logs.');
+          }}
           style={{
             padding: '15px 25px',
             backgroundColor: '#10B981',
@@ -1178,6 +1127,9 @@ export default function DashboardSelectionPage() {
             e.stopPropagation();
             console.log('🖱️ [REACT PROFILE] Click en Editar Perfil directo');
             console.log('🖱️ [REACT PROFILE] Event:', e);
+            console.log('🖱️ [REACT PROFILE] Target:', e.target);
+            console.log('🖱️ [REACT PROFILE] CurrentTarget:', e.currentTarget);
+            console.log('🖱️ [REACT PROFILE] Button ID:', e.currentTarget.id);
             console.log('🖱️ [REACT PROFILE] userData:', userData);
             const profilePath = getUserProfilePath(userData);
             console.log('🖱️ [REACT PROFILE] ProfilePath calculado:', profilePath);
@@ -1216,6 +1168,9 @@ export default function DashboardSelectionPage() {
             e.stopPropagation();
             console.log('🖱️ [REACT MAESTRO] Click en Maestro Dashboard directo');
             console.log('🖱️ [REACT MAESTRO] Event:', e);
+            console.log('🖱️ [REACT MAESTRO] Target:', e.target);
+            console.log('🖱️ [REACT MAESTRO] CurrentTarget:', e.currentTarget);
+            console.log('🖱️ [REACT MAESTRO] Button ID:', e.currentTarget.id);
             console.log('🖱️ [REACT MAESTRO] userData:', userData);
             console.log('🖱️ [REACT MAESTRO] Redirigiendo a /dashboard/maestro');
             console.log('🖱️ [REACT MAESTRO] Ejecutando redirección...');
@@ -1311,7 +1266,7 @@ export default function DashboardSelectionPage() {
                 // Si es maestro (nivel 6), verificar si es fundador
                 if (option.level === 6) {
                   const isMaestroFundador = userData?.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
-                  return isMaestroFundador ? '#fafafa' : '#8a8a8a';
+                  return isMaestroFundador ? '#FF8C42' : '#8a8a8a';
                 }
                 // Para otros niveles, usar su color estándar
                 return option.color;
