@@ -71,6 +71,13 @@ export default function DashboardSelectionPage() {
     }
   }, []); // Solo ejecutar una vez al montar
 
+  // Debug para verificar si los botones se están renderizando
+  useEffect(() => {
+    console.log('🔍 [BUTTON DEBUG] Componente montado, botones deberían estar visibles');
+    console.log('🔍 [BUTTON DEBUG] userData disponible:', !!userData);
+    console.log('🔍 [BUTTON DEBUG] isReady:', isReady);
+  }, [userData, isReady]);
+
   // Reset isNavigating state when component mounts
   useEffect(() => {
     console.log('🔄 Dashboard Selection - Reseteando estado de navegación');
@@ -973,6 +980,10 @@ export default function DashboardSelectionPage() {
       </div>
 
       {/* Test Buttons - Always Visible */}
+      {(() => {
+        console.log('🔍 [BUTTON RENDER] Renderizando botones de prueba');
+        return null;
+      })()}
       <div className="fixed top-4 left-4 z-[9999] flex flex-col gap-2">
         <button
           onClick={() => {
@@ -993,6 +1004,12 @@ export default function DashboardSelectionPage() {
             window.location.href = profilePath;
           }}
           className="px-4 py-2 bg-[#ec4d58] hover:bg-[#d43d48] text-white rounded-lg font-bold"
+          style={{ 
+            zIndex: 9999, 
+            position: 'relative',
+            pointerEvents: 'auto',
+            cursor: 'pointer'
+          }}
         >
           PROFILE
         </button>
@@ -1004,6 +1021,12 @@ export default function DashboardSelectionPage() {
             window.location.href = '/dashboard/maestro';
           }}
           className="px-4 py-2 bg-[#8a8a8a] hover:bg-[#6a6a6a] text-white rounded-lg font-bold"
+          style={{ 
+            zIndex: 9999, 
+            position: 'relative',
+            pointerEvents: 'auto',
+            cursor: 'pointer'
+          }}
         >
           MAESTRO
         </button>
