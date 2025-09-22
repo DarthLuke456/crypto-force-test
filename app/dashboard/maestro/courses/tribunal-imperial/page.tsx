@@ -562,9 +562,10 @@ export default function TribunalImperialPage() {
       timestamp: new Date().toISOString()
     });
     
-    // Solo bloquear si no es autorizado Y no es nivel 6
+    // Solo bloquear si no es autorizado Y no es nivel 6 O nivel 0 (fundador)
     const isLevel6 = userData.user_level === 6 || String(userData.user_level) === '6' || userData.user_level === 6.0;
-    const hasAccess = isAuthorized || isLevel6;
+    const isLevel0 = userData.user_level === 0 || String(userData.user_level) === '0' || userData.user_level === 0.0;
+    const hasAccess = isAuthorized || isLevel6 || isLevel0;
     
     if (!hasAccess) {
       console.log('🚫 TRIBUNAL IMPERIAL: Acceso denegado');

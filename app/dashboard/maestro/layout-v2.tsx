@@ -73,6 +73,7 @@ function MaestroLayoutContent({ children }: MaestroLayoutContentProps) {
       const userEmail = userData.email?.toLowerCase().trim();
       const clientAuthorized = userEmail && MAESTRO_AUTHORIZED_EMAILS.includes(userEmail);
       const isLevel6 = userData.user_level === 6;
+      const isLevel0 = userData.user_level === 0;
 
       const debugData = {
         userEmail: userData.email,
@@ -81,14 +82,15 @@ function MaestroLayoutContent({ children }: MaestroLayoutContentProps) {
         isAuthorizedByEmail: clientAuthorized,
         userLevel: userData.user_level,
         isLevel6,
-        hasAccess: clientAuthorized || isLevel6,
+        isLevel0,
+        hasAccess: clientAuthorized || isLevel6 || isLevel0,
         timestamp: new Date().toISOString()
       };
 
       setDebugInfo(debugData);
       layoutLog.info('Access check completed', debugData);
 
-      if (!clientAuthorized && !isLevel6) {
+      if (!clientAuthorized && !isLevel6 && !isLevel0) {
         layoutLog.warn('Access denied - user not authorized', debugData);
         setIsAuthorized(false);
         setAccessCheckComplete(true);

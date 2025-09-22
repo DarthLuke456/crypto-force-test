@@ -112,14 +112,16 @@ function MaestroLayoutContent({
         userDataStringified: JSON.stringify(userData, null, 2)
       });
 
-      // Permitir acceso si es autorizado O si es nivel 6 (maestro)
+      // Permitir acceso si es autorizado O si es nivel 6 (maestro) O nivel 0 (fundador)
       // Verificar tanto número como string para mayor compatibilidad
       const isLevel6 = userData.user_level === 6 || String(userData.user_level) === '6' || userData.user_level === 6.0;
-      const hasAccess = clientAuthorized || isLevel6;
+      const isLevel0 = userData.user_level === 0 || String(userData.user_level) === '0' || userData.user_level === 0.0;
+      const hasAccess = clientAuthorized || isLevel6 || isLevel0;
       
       console.log('🔍 MAESTRO LAYOUT: Verificación de nivel:', {
         userLevel: userData.user_level,
         isLevel6: isLevel6,
+        isLevel0: isLevel0,
         clientAuthorized: clientAuthorized,
         hasAccess: hasAccess
       });
