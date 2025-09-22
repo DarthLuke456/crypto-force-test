@@ -167,7 +167,7 @@ export default function ProfileContent() {
           // Emitir evento de actualización de perfil (avatar)
           emitUserDataUpdate({
             type: 'profile_updated',
-            userId: user?.id || '',
+            userId: userData?.id || '',
             userData: updatedProfile,
             timestamp: new Date().toISOString()
           });
