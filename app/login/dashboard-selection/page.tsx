@@ -811,7 +811,10 @@ export default function DashboardSelectionPage() {
               {/* Botón de perfil con menú desplegable */}
               <div className="relative profile-menu-container">
                 <button
-                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  onClick={() => {
+                    console.log('🖱️ [PROFILE MENU] Toggle profile menu, current state:', isProfileMenuOpen);
+                    setIsProfileMenuOpen(!isProfileMenuOpen);
+                  }}
                   className="px-3 py-2 bg-[#2a2a2a] hover:bg-[#3a3a3a] text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium hover:scale-105 active:scale-95 border border-[#3a3a3a]"
                   title="Menú de perfil"
                 >
@@ -840,6 +843,7 @@ export default function DashboardSelectionPage() {
                 {/* Menú desplegable */}
                 {isProfileMenuOpen && (
                   <div className="absolute right-0 top-full mt-2 w-64 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-xl z-50 overflow-hidden">
+                    {console.log('🖱️ [PROFILE MENU] Rendering profile menu')}
                     {/* Header del menú */}
                     <div className="px-4 py-3 border-b border-[#2a2a2a]">
                       <div className="flex items-center gap-3">
@@ -933,7 +937,10 @@ export default function DashboardSelectionPage() {
                     {/* Botón de Editar Perfil */}
                     <div className="p-2">
                       <button
-                        onClick={() => handleProfileAction('profile')}
+                        onClick={() => {
+                          console.log('🖱️ [PROFILE BUTTON] Click en Editar Perfil');
+                          handleProfileAction('profile');
+                        }}
                         className="w-full px-4 py-3 text-left text-white hover:bg-[#2a2a2a] transition-colors duration-200 flex items-center gap-3 rounded-lg"
                       >
                         <Edit size={16} className="text-[#8a8a8a]" />
