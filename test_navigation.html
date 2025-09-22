@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Navigation - Crypto Force Dashboard</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .test-button {
+            padding: 15px 25px;
+            margin: 10px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .test-button:active {
+            transform: translateY(0);
+        }
+        
+        .profile-btn {
+            background-color: #EC4D58;
+            color: white;
+            border: 3px solid #DC2626;
+        }
+        
+        .maestro-btn {
+            background-color: #8A8A8A;
+            color: white;
+            border: 3px solid #6B7280;
+        }
+        
+        .test-btn {
+            background-color: #10B981;
+            color: white;
+            border: 3px solid #059669;
+        }
+        
+        .log-container {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .log-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid #10B981;
+        }
+        
+        .log-error {
+            background-color: rgba(236, 77, 88, 0.1);
+            border-left: 3px solid #EC4D58;
+        }
+        
+        .log-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3B82F6;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Test Navigation - Crypto Force Dashboard</h1>
+        <p>Esta página simula los botones de navegación para probar la funcionalidad.</p>
+        
+        <div>
+            <button id="test-button" class="test-button test-btn">
+                TEST BUTTON
+            </button>
+            
+            <button id="profile-button" class="test-button profile-btn">
+                PROFILE
+            </button>
+            
+            <button id="maestro-button" class="test-button maestro-btn">
+                MAESTRO
+            </button>
+        </div>
+        
+        <div class="log-container" id="log-container">
+            <div class="log-entry log-info">🚀 Página de prueba cargada</div>
+        </div>
+    </div>
+
+    <script>
+        // Simular datos de usuario para las pruebas
+        const mockUserData = {
+            id: 'user-1758575206557',
+            email: 'coeurdeluke.js@gmail.com',
+            nombre: 'Usuario',
+            apellido: 'Crypto Force',
+            nickname: 'coeurdeluke.js',
+            user_level: 6
+        };
+
+        // Función para agregar logs
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Función para simular getUserProfilePath
+        function getUserProfilePath(userData) {
+            if (!userData) {
+                return '/dashboard/iniciado/perfil';
+            }
+
+            // Verificar si es usuario fundador por email
+            const MAESTRO_AUTHORIZED_EMAILS = [
+                'infocryptoforce@gmail.com',
+                'coeurdeluke.js@gmail.com'
+            ];
+            
+            const isFundadorByEmail = userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
+            
+            if (isFundadorByEmail) {
+                return '/dashboard/maestro/perfil';
+            }
+
+            // Usar el nivel del usuario o 1 por defecto
+            const userLevel = userData.user_level || 1;
+            const levelToDashboard = {
+                1: '/dashboard/iniciado',
+                2: '/dashboard/acolito', 
+                3: '/dashboard/warrior',
+                4: '/dashboard/lord',
+                5: '/dashboard/darth',
+                6: '/dashboard/maestro'
+            };
+            
+            const dashboard = levelToDashboard[userLevel] || '/dashboard/iniciado';
+            return `${dashboard}/perfil`;
+        }
+
+        // Configurar event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('✅ DOM cargado, configurando event listeners');
+
+            // Test Button
+            const testButton = document.getElementById('test-button');
+            if (testButton) {
+                testButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addLog('🧪 Test button clicked!', 'success');
+                    alert('Test button funcionando correctamente!');
+                });
+                addLog('✅ Test button listener configurado');
+            }
+
+            // Profile Button
+            const profileButton = document.getElementById('profile-button');
+            if (profileButton) {
+                profileButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addLog('🖱️ Profile button clicked!', 'success');
+                    
+                    const profilePath = getUserProfilePath(mockUserData);
+                    addLog(`📍 Profile path calculado: ${profilePath}`, 'info');
+                    
+                    // Simular redirección
+                    addLog('🔄 Simulando redirección a perfil...', 'info');
+                    setTimeout(() => {
+                        addLog(`✅ Redirección exitosa a: ${profilePath}`, 'success');
+                    }, 1000);
+                });
+                addLog('✅ Profile button listener configurado');
+            }
+
+            // Maestro Button
+            const maestroButton = document.getElementById('maestro-button');
+            if (maestroButton) {
+                maestroButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addLog('🖱️ Maestro button clicked!', 'success');
+                    
+                    const maestroPath = '/dashboard/maestro';
+                    addLog(`📍 Maestro path: ${maestroPath}`, 'info');
+                    
+                    // Simular redirección
+                    addLog('🔄 Simulando redirección a maestro...', 'info');
+                    setTimeout(() => {
+                        addLog(`✅ Redirección exitosa a: ${maestroPath}`, 'success');
+                    }, 1000);
+                });
+                addLog('✅ Maestro button listener configurado');
+            }
+
+            // Global click listener para debugging
+            document.addEventListener('click', function(e) {
+                addLog(`🔍 Click detectado en: ${e.target.tagName}#${e.target.id}`, 'info');
+            });
+
+            addLog('🎉 Todos los event listeners configurados correctamente');
+        });
+
+        // Función para probar la lógica de getUserProfilePath
+        function testProfilePathLogic() {
+            addLog('🧪 Probando lógica de getUserProfilePath...', 'info');
+            
+            const testCases = [
+                { userData: null, expected: '/dashboard/iniciado/perfil' },
+                { userData: { email: 'coeurdeluke.js@gmail.com', user_level: 6 }, expected: '/dashboard/maestro/perfil' },
+                { userData: { email: 'test@example.com', user_level: 1 }, expected: '/dashboard/iniciado/perfil' },
+                { userData: { email: 'test@example.com', user_level: 3 }, expected: '/dashboard/warrior/perfil' },
+                { userData: { email: 'infocryptoforce@gmail.com', user_level: 1 }, expected: '/dashboard/maestro/perfil' }
+            ];
+
+            testCases.forEach((testCase, index) => {
+                const result = getUserProfilePath(testCase.userData);
+                const passed = result === testCase.expected;
+                addLog(`Test ${index + 1}: ${passed ? '✅' : '❌'} ${result} ${passed ? '' : `(esperado: ${testCase.expected})`}`, passed ? 'success' : 'error');
+            });
+        }
+
+        // Ejecutar tests automáticamente
+        setTimeout(testProfilePathLogic, 2000);
+    </script>
+</body>
+</html>

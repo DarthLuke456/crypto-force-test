@@ -16,6 +16,7 @@ export const MAESTRO_AUTHORIZED_EMAILS = [
 
 // Mapeo de niveles a dashboards
 export const LEVEL_TO_DASHBOARD = {
+  0: '/dashboard/maestro', // Fundador tiene acceso a Maestro
   1: '/dashboard/iniciado',
   2: '/dashboard/acolito', 
   3: '/dashboard/warrior',
@@ -107,6 +108,14 @@ export function getUserProfilePath(userData: UserData | null): string {
 
   // Usar el nivel del usuario o 1 por defecto
   const userLevel = userData.user_level || 1;
+  console.log('🔍 [getUserProfilePath] userLevel:', userLevel);
+  
+  // Verificar si es nivel 0 (Fundador) - acceso directo a Maestro
+  if (userLevel === 0) {
+    console.log('👑 [getUserProfilePath] Usuario nivel 0 (Fundador), retornando maestro/perfil');
+    return '/dashboard/maestro/perfil';
+  }
+  
   const profilePath = getProfilePathByLevel(userLevel);
   
   console.log('🔍 [getUserProfilePath] Usuario:', userData.nickname, 'Nivel:', userLevel, 'Perfil:', profilePath);

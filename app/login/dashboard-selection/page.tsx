@@ -140,7 +140,10 @@ export default function DashboardSelectionPage() {
       
       if (profileButton) {
         console.log('🔍 [NATIVE BUTTONS] Setting up profile button listener');
-        profileButton.addEventListener('click', (e) => {
+        
+        const handleProfileClick = (e: Event) => {
+          e.preventDefault();
+          e.stopPropagation();
           console.log('🖱️ [NATIVE PROFILE] Click en Editar Perfil directo');
           console.log('🖱️ [NATIVE PROFILE] Event:', e);
           console.log('🖱️ [NATIVE PROFILE] userData:', userData);
@@ -149,7 +152,9 @@ export default function DashboardSelectionPage() {
           console.log('🖱️ [NATIVE PROFILE] Redirigiendo a perfil:', profilePath);
           console.log('🖱️ [NATIVE PROFILE] Ejecutando redirección...');
           window.location.href = profilePath;
-        });
+        };
+        
+        profileButton.addEventListener('click', handleProfileClick, { capture: true });
         
         // Also add mousedown and mouseup for debugging
         profileButton.addEventListener('mousedown', (e) => {
@@ -163,14 +168,19 @@ export default function DashboardSelectionPage() {
       
       if (maestroButton) {
         console.log('🔍 [NATIVE BUTTONS] Setting up maestro button listener');
-        maestroButton.addEventListener('click', (e) => {
+        
+        const handleMaestroClick = (e: Event) => {
+          e.preventDefault();
+          e.stopPropagation();
           console.log('🖱️ [NATIVE MAESTRO] Click en Maestro Dashboard directo');
           console.log('🖱️ [NATIVE MAESTRO] Event:', e);
           console.log('🖱️ [NATIVE MAESTRO] userData:', userData);
           console.log('🖱️ [NATIVE MAESTRO] Redirigiendo a /dashboard/maestro');
           console.log('🖱️ [NATIVE MAESTRO] Ejecutando redirección...');
           window.location.href = '/dashboard/maestro';
-        });
+        };
+        
+        maestroButton.addEventListener('click', handleMaestroClick, { capture: true });
         
         // Also add mousedown and mouseup for debugging
         maestroButton.addEventListener('mousedown', (e) => {
@@ -1152,12 +1162,15 @@ export default function DashboardSelectionPage() {
             fontWeight: 'bold',
             cursor: 'pointer',
             zIndex: 999999,
-            position: 'relative',
+            position: 'fixed',
+            top: '60px',
+            left: '20px',
             pointerEvents: 'auto',
             userSelect: 'none',
             WebkitUserSelect: 'none',
             MozUserSelect: 'none',
-            msUserSelect: 'none'
+            msUserSelect: 'none',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
           }}
         >
           TEST BUTTON
@@ -1165,6 +1178,18 @@ export default function DashboardSelectionPage() {
         
         <button
           id="profile-button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🖱️ [REACT PROFILE] Click en Editar Perfil directo');
+            console.log('🖱️ [REACT PROFILE] Event:', e);
+            console.log('🖱️ [REACT PROFILE] userData:', userData);
+            const profilePath = getUserProfilePath(userData);
+            console.log('🖱️ [REACT PROFILE] ProfilePath calculado:', profilePath);
+            console.log('🖱️ [REACT PROFILE] Redirigiendo a perfil:', profilePath);
+            console.log('🖱️ [REACT PROFILE] Ejecutando redirección...');
+            window.location.href = profilePath;
+          }}
           style={{
             padding: '15px 25px',
             backgroundColor: '#EC4D58',
@@ -1175,12 +1200,15 @@ export default function DashboardSelectionPage() {
             fontWeight: 'bold',
             cursor: 'pointer',
             zIndex: 999999,
-            position: 'relative',
+            position: 'fixed',
+            top: '120px',
+            left: '20px',
             pointerEvents: 'auto',
             userSelect: 'none',
             WebkitUserSelect: 'none',
             MozUserSelect: 'none',
-            msUserSelect: 'none'
+            msUserSelect: 'none',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
           }}
         >
           PROFILE
@@ -1188,6 +1216,16 @@ export default function DashboardSelectionPage() {
         
         <button
           id="maestro-button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🖱️ [REACT MAESTRO] Click en Maestro Dashboard directo');
+            console.log('🖱️ [REACT MAESTRO] Event:', e);
+            console.log('🖱️ [REACT MAESTRO] userData:', userData);
+            console.log('🖱️ [REACT MAESTRO] Redirigiendo a /dashboard/maestro');
+            console.log('🖱️ [REACT MAESTRO] Ejecutando redirección...');
+            window.location.href = '/dashboard/maestro';
+          }}
           style={{
             padding: '15px 25px',
             backgroundColor: '#8A8A8A',
@@ -1198,12 +1236,15 @@ export default function DashboardSelectionPage() {
             fontWeight: 'bold',
             cursor: 'pointer',
             zIndex: 999999,
-            position: 'relative',
+            position: 'fixed',
+            top: '180px',
+            left: '20px',
             pointerEvents: 'auto',
             userSelect: 'none',
             WebkitUserSelect: 'none',
             MozUserSelect: 'none',
-            msUserSelect: 'none'
+            msUserSelect: 'none',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
           }}
         >
           MAESTRO
