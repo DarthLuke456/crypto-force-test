@@ -66,109 +66,16 @@ export default function DashboardSelectionPage() {
     console.log('🔍 [PAGE LOAD] userData:', userData);
     console.log('🔍 [PAGE LOAD] isReady:', isReady);
     console.log('🔍 [PAGE LOAD] loading:', loading);
-    
-    if (userData && isReady) {
-      console.log('✅ Dashboard Selection - Usuario listo:', {
-        nickname: userData.nickname,
-        email: userData.email,
-        user_level: userData.user_level
-      });
-    }
   }, []); // Solo ejecutar una vez al montar
 
-  // Debug para verificar si los botones se están renderizando
-  useEffect(() => {
-    console.log('🔍 [BUTTON DEBUG] Componente montado, botones deberían estar visibles');
-    console.log('🔍 [BUTTON DEBUG] userData disponible:', !!userData);
-    console.log('🔍 [BUTTON DEBUG] isReady:', isReady);
-  }, [userData, isReady]);
-
-  // Debug para rastrear redirecciones
+  // Debug para rastrear redirecciones - SIMPLIFICADO
   useEffect(() => {
     console.log('🔍 [REDIRECT DEBUG] Página cargada:', window.location.href);
     console.log('🔍 [REDIRECT DEBUG] Referrer:', document.referrer);
     console.log('🔍 [REDIRECT DEBUG] Timestamp:', new Date().toISOString());
-    
-    // Verificar si hay intentos de redirección previos
-    const redirectAttempts = sessionStorage.getItem('redirectAttempts');
-    console.log('🔍 [REDIRECT DEBUG] Intentos de redirección previos:', redirectAttempts);
-    
-    // Verificar si hay datos de usuario en localStorage
-    const userEmail = localStorage.getItem('crypto-force-user-email');
-    console.log('🔍 [REDIRECT DEBUG] Email en localStorage:', userEmail);
-    
-    // Verificar si hay flag de logout
-    const loggedOut = localStorage.getItem('crypto-force-logged-out');
-    console.log('🔍 [REDIRECT DEBUG] Flag de logout:', loggedOut);
   }, []);
 
-  // Native DOM event listeners for buttons with EXTREME DEBUGGING
-  useEffect(() => {
-    console.log('🔍 [NATIVE BUTTONS] Setting up native DOM event listeners');
-    console.log('🔍 [NATIVE BUTTONS] Timestamp:', new Date().toISOString());
-    
-    // Wait for DOM to be ready
-    setTimeout(() => {
-      console.log('🔍 [NATIVE BUTTONS] DOM ready, looking for buttons...');
-      
-      const testButton = document.getElementById('test-button');
-      const profileButton = document.getElementById('profile-button');
-      const maestroButton = document.getElementById('maestro-button');
-      
-      console.log('🔍 [NATIVE BUTTONS] testButton found:', !!testButton);
-      console.log('🔍 [NATIVE BUTTONS] profileButton found:', !!profileButton);
-      console.log('🔍 [NATIVE BUTTONS] maestroButton found:', !!maestroButton);
-      
-      if (testButton) {
-        console.log('🔍 [NATIVE BUTTONS] Test button found - adding FORCED click handler');
-        // FORCE CLICK TEST
-        testButton.addEventListener('click', (e) => {
-          console.log('🧪 [FORCED NATIVE TEST] Click detected!');
-          e.preventDefault();
-          e.stopPropagation();
-          alert('FORCED NATIVE TEST CLICK!');
-        });
-      }
-      
-      if (profileButton) {
-        console.log('🔍 [NATIVE BUTTONS] Profile button found - adding FORCED click handler');
-        // FORCE CLICK TEST
-        profileButton.addEventListener('click', (e) => {
-          console.log('🖱️ [FORCED NATIVE PROFILE] Click detected!');
-          e.preventDefault();
-          e.stopPropagation();
-          alert('FORCED NATIVE PROFILE CLICK!');
-        });
-      }
-      
-      if (maestroButton) {
-        console.log('🔍 [NATIVE BUTTONS] Maestro button found - adding FORCED click handler');
-        // FORCE CLICK TEST
-        maestroButton.addEventListener('click', (e) => {
-          console.log('🖱️ [FORCED NATIVE MAESTRO] Click detected!');
-          e.preventDefault();
-          e.stopPropagation();
-          alert('FORCED NATIVE MAESTRO CLICK!');
-        });
-      }
-      
-      // Add global click listener to see if clicks are being intercepted
-      document.addEventListener('click', (e) => {
-        console.log('🔍 [GLOBAL CLICK] Click detected on:', e.target);
-        console.log('🔍 [GLOBAL CLICK] Click coordinates:', e.clientX, e.clientY);
-        const target = e.target as HTMLElement;
-        console.log('🔍 [GLOBAL CLICK] Target tagName:', target?.tagName);
-        console.log('🔍 [GLOBAL CLICK] Target id:', target?.id);
-        console.log('🔍 [GLOBAL CLICK] Target className:', target?.className);
-      });
-      
-    }, 1000); // INCREASE TO 1000ms for DOM to be ready
-    
-    // Cleanup function
-    return () => {
-      console.log('🔍 [NATIVE BUTTONS] Cleaning up event listeners');
-    };
-  }, [userData]); // Re-run when userData changes
+  // ELIMINADO: Native DOM event listeners que causaban conflictos
 
   // Reset isNavigating state when component mounts
   useEffect(() => {
@@ -176,40 +83,7 @@ export default function DashboardSelectionPage() {
     setIsNavigating(false);
   }, []);
 
-  // Timeout para evitar carga infinita - Solo si no hay datos del usuario
-  useEffect(() => {
-    // Solo ejecutar timeout si no hay datos del usuario
-    if (!userData || !userData.email) {
-      const timer = setTimeout(() => {
-        console.log('⏰ [TIMEOUT] No se cargaron datos del usuario en 5 segundos');
-        setLoadingTimeout(true);
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    } else {
-      console.log('✅ Usuario ya cargado, saltando timeout');
-      setLoadingTimeout(false);
-    }
-  }, [userData?.email]); // Depender del email del usuario
-
-  // Prevenir bucles de redirección
-  useEffect(() => {
-    const currentAttempts = parseInt(sessionStorage.getItem('redirectAttempts') || '0');
-    if (currentAttempts > 3) {
-      console.error('🚫 Bucle de redirección detectado, deteniendo...');
-      sessionStorage.removeItem('redirectAttempts');
-      return;
-    }
-    setRedirectAttempts(currentAttempts);
-  }, []);
-
-  // Verificar si hay datos de feedback guardados y abrir modal automáticamente
-  useEffect(() => {
-    if (isReady && userData && hasSavedData()) {
-      console.log('📝 Dashboard Selection - Datos de feedback encontrados, abriendo modal automáticamente');
-      setIsFeedbackModalOpen(true);
-    }
-  }, []); // Solo ejecutar una vez al montar
+  // ELIMINADO: useEffect de feedback que causaba re-renders
 
   // Función para comprimir imagen con compresión más agresiva
   const compressImage = (file: File, maxWidth: number = 150, quality: number = 0.6): Promise<string> => {
@@ -414,7 +288,9 @@ export default function DashboardSelectionPage() {
                   // Determinar a qué dashboard redirigir
                   let targetDashboard = '/dashboard/maestro'; // Por defecto
                   
-                  if (userData.user_level === 1) targetDashboard = '/dashboard/iniciado';
+                  // Usuarios fundadores (nivel 0) van a Maestro
+                  if (userData.user_level === 0) targetDashboard = '/dashboard/maestro';
+                  else if (userData.user_level === 1) targetDashboard = '/dashboard/iniciado';
                   else if (userData.user_level === 2) targetDashboard = '/dashboard/acolito';
                   else if (userData.user_level === 3) targetDashboard = '/dashboard/warrior';
                   else if (userData.user_level === 4) targetDashboard = '/dashboard/lord';
@@ -555,24 +431,26 @@ export default function DashboardSelectionPage() {
 
   // Función estable para calcular nivel de usuario
   const calculateUserLevel = useCallback(() => {
-    if (!userData) {
-      console.log('🔍 calculateUserLevel: No userData, returning 1');
-      return 1;
+    if (!userData) return 1;
+    
+    // Usuarios fundadores (nivel 0) tienen acceso a Maestro
+    if (userData.user_level === 0) {
+      return 0; // Mantener nivel 0 para fundadores
     }
     
-    console.log('🔍 calculateUserLevel: userData.email:', userData.email);
-    console.log('🔍 calculateUserLevel: MAESTRO_AUTHORIZED_EMAILS:', MAESTRO_AUTHORIZED_EMAILS);
-    console.log('🔍 calculateUserLevel: userData.user_level:', userData.user_level);
-    
-    // Usar el nivel real del usuario (0 para fundadores, 6 para maestros, etc.)
-    console.log('🔍 calculateUserLevel: Usuario nivel real:', userData.user_level);
     return userData.user_level || 1;
-  }, [userData]);
+  }, [userData?.user_level]);
 
   // Función estable para calcular texto del rol
   const calculateRoleDisplayText = useCallback(() => {
+    if (!userData) return 'Iniciado';
+    
+    if (userData.user_level === 0) {
+      return 'Fundador';
+    }
+    
     return getLevelDisplayName(userData);
-  }, [userData]);
+  }, [userData?.user_level]);
 
   // Función estable para calcular color del rol
   const calculateRoleColor = useCallback(() => {
@@ -586,55 +464,42 @@ export default function DashboardSelectionPage() {
     }
     
     // Para otros maestros (nivel 6) que no sean fundadores
-    const currentLevel = userLevelRef.current;
-    if (currentLevel === 6) {
+    if (userData.user_level === 6) {
       return '#8a8a8a'; // Color gris para otros maestros
     }
     
     // Para otros niveles, usar el color de su nivel
-    const option = dashboardOptions.find(o => o.level === currentLevel);
+    const option = dashboardOptions.find(o => o.level === userData.user_level);
     return option?.color || '#8a8a8a';
-  }, [userData]);
+  }, [userData?.email, userData?.user_level, dashboardOptions]);
 
-  // Actualizar refs solo cuando sea necesario
+  // Inicializar valores UNA SOLA VEZ - SIN BUCLE INFINITO
   useEffect(() => {
-    if (userData && isReady) {
-      const newUserLevel = calculateUserLevel();
-      const newRoleDisplayText = calculateRoleDisplayText();
-      const newRoleColor = calculateRoleColor();
+    if (userData && isReady && !isInitializedRef.current) {
+      userLevelRef.current = calculateUserLevel();
+      roleDisplayTextRef.current = calculateRoleDisplayText();
+      roleColorRef.current = calculateRoleColor();
       
-      // Solo actualizar si los valores han cambiado
-      if (newUserLevel !== userLevelRef.current || 
-          newRoleDisplayText !== roleDisplayTextRef.current || 
-          newRoleColor !== roleColorRef.current) {
-        
-        userLevelRef.current = newUserLevel;
-        roleDisplayTextRef.current = newRoleDisplayText;
-        roleColorRef.current = newRoleColor;
-        
-        console.log('✅ Valores estabilizados:', {
-          userLevel: newUserLevel,
-          roleDisplayText: newRoleDisplayText,
-          roleColor: newRoleColor,
-          userEmail: userData.email,
-          isMaestroFundador: userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())
-        });
-      }
+      isInitializedRef.current = true;
       
-      if (!isInitializedRef.current) {
-        isInitializedRef.current = true;
-      }
+      console.log('✅ Valores inicializados:', {
+        userLevel: userLevelRef.current,
+        roleDisplayText: roleDisplayTextRef.current,
+        roleColor: roleColorRef.current,
+        userEmail: userData.email,
+        isMaestroFundador: userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())
+      });
     }
-  }, [userData, isReady, calculateUserLevel, calculateRoleDisplayText, calculateRoleColor]); // Depender de las funciones también
+  }, [userData?.email, userData?.user_level, isReady, calculateUserLevel, calculateRoleDisplayText, calculateRoleColor]);
 
-  // Valores estables que no causan re-renders
-  const userLevel = userData ? calculateUserLevel() : 1;
-  const roleDisplayText = userData ? calculateRoleDisplayText() : 'Iniciado';
-  const getRoleColor = userData ? calculateRoleColor() : '#8a8a8a';
+  // Valores estables que no causan re-renders - USAR REFS
+  const userLevel = userLevelRef.current;
+  const roleDisplayText = roleDisplayTextRef.current;
+  const getRoleColor = roleColorRef.current;
 
   // Debug simplificado del usuario - Solo una vez al montar
   useEffect(() => {
-    if (userData && isReady) {
+    if (userData && isReady && isInitializedRef.current) {
       console.log('🔍 Dashboard Selection - Usuario cargado:', {
         nickname: userData.nickname,
         email: userData.email,
@@ -643,7 +508,7 @@ export default function DashboardSelectionPage() {
         roleDisplayText: roleDisplayText
       });
     }
-  }, [userData, isReady, userLevel, roleDisplayText]); // Depender de los valores relevantes
+  }, [userData?.email, userData?.user_level, isReady, isInitializedRef.current]);
 
   // Función para cerrar sesión
   const handleLogout = async () => {
@@ -659,6 +524,34 @@ export default function DashboardSelectionPage() {
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
+  };
+
+  // Función para navegar a perfil
+  const handleProfileNavigation = () => {
+    if (!userData) return;
+    
+    console.log('🖱️ [PROFILE] Navegando a perfil...');
+    const profilePath = getUserProfilePath(userData);
+    console.log('🖱️ [PROFILE] ProfilePath calculado:', profilePath);
+    
+    setIsNavigating(true);
+    window.location.href = profilePath;
+  };
+
+  // Función para navegar a Maestro
+  const handleMaestroNavigation = () => {
+    console.log('🖱️ [MAESTRO] Navegando a Maestro...');
+    setIsNavigating(true);
+    window.location.href = '/dashboard/maestro';
+  };
+
+  // Función para navegar a dashboard específico
+  const handleDashboardNavigation = (option: DashboardOption) => {
+    if (isNavigating) return;
+    
+    console.log('🚀 Navegando a:', option.path);
+    setIsNavigating(true);
+    window.location.href = option.path;
   };
 
   // Función para manejar el menú de perfil
@@ -1111,22 +1004,11 @@ export default function DashboardSelectionPage() {
       >
         <button
           id="test-button"
-          onMouseDown={(e) => {
-            console.log('🧪 [REACT TEST] Mouse down detected');
-          }}
-          onMouseUp={(e) => {
-            console.log('🧪 [REACT TEST] Mouse up detected');
-          }}
           onClick={(e) => {
             console.log('🧪 [REACT TEST] Click event fired!');
             e.preventDefault();
             e.stopPropagation();
-            console.log('🧪 [REACT TEST] Click en botón de prueba');
-            console.log('🧪 [REACT TEST] Event:', e);
-            console.log('🧪 [REACT TEST] Target:', e.target);
-            console.log('🧪 [REACT TEST] CurrentTarget:', e.currentTarget);
-            console.log('🧪 [REACT TEST] Button ID:', e.currentTarget.id);
-            alert('React test button clicked! Check console for logs.');
+            alert('TEST BUTTON CLICKED!');
           }}
           style={{
             padding: '15px 25px',
@@ -1154,27 +1036,11 @@ export default function DashboardSelectionPage() {
         
         <button
           id="profile-button"
-          onMouseDown={(e) => {
-            console.log('🖱️ [REACT PROFILE] Mouse down detected');
-          }}
-          onMouseUp={(e) => {
-            console.log('🖱️ [REACT PROFILE] Mouse up detected');
-          }}
           onClick={(e) => {
             console.log('🖱️ [REACT PROFILE] Click event fired!');
             e.preventDefault();
             e.stopPropagation();
-            console.log('🖱️ [REACT PROFILE] Click en Editar Perfil directo');
-            console.log('🖱️ [REACT PROFILE] Event:', e);
-            console.log('🖱️ [REACT PROFILE] Target:', e.target);
-            console.log('🖱️ [REACT PROFILE] CurrentTarget:', e.currentTarget);
-            console.log('🖱️ [REACT PROFILE] Button ID:', e.currentTarget.id);
-            console.log('🖱️ [REACT PROFILE] userData:', userData);
-            const profilePath = getUserProfilePath(userData);
-            console.log('🖱️ [REACT PROFILE] ProfilePath calculado:', profilePath);
-            console.log('🖱️ [REACT PROFILE] Redirigiendo a perfil:', profilePath);
-            console.log('🖱️ [REACT PROFILE] Ejecutando redirección...');
-            window.location.href = profilePath;
+            handleProfileNavigation();
           }}
           style={{
             padding: '15px 25px',
@@ -1202,31 +1068,17 @@ export default function DashboardSelectionPage() {
         
         <button
           id="maestro-button"
-          onMouseDown={(e) => {
-            console.log('🖱️ [REACT MAESTRO] Mouse down detected');
-          }}
-          onMouseUp={(e) => {
-            console.log('🖱️ [REACT MAESTRO] Mouse up detected');
-          }}
           onClick={(e) => {
             console.log('🖱️ [REACT MAESTRO] Click event fired!');
             e.preventDefault();
             e.stopPropagation();
-            console.log('🖱️ [REACT MAESTRO] Click en Maestro Dashboard directo');
-            console.log('🖱️ [REACT MAESTRO] Event:', e);
-            console.log('🖱️ [REACT MAESTRO] Target:', e.target);
-            console.log('🖱️ [REACT MAESTRO] CurrentTarget:', e.currentTarget);
-            console.log('🖱️ [REACT MAESTRO] Button ID:', e.currentTarget.id);
-            console.log('🖱️ [REACT MAESTRO] userData:', userData);
-            console.log('🖱️ [REACT MAESTRO] Redirigiendo a /dashboard/maestro');
-            console.log('🖱️ [REACT MAESTRO] Ejecutando redirección...');
-            window.location.href = '/dashboard/maestro';
+            handleMaestroNavigation();
           }}
           style={{
             padding: '15px 25px',
-            backgroundColor: '#8A8A8A',
+            backgroundColor: '#FF8C42',
             color: 'white',
-            border: '3px solid #6B7280',
+            border: '3px solid #E67E22',
             borderRadius: '12px',
             fontSize: '18px',
             fontWeight: 'bold',
@@ -1353,55 +1205,8 @@ export default function DashboardSelectionPage() {
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    console.log('🖱️ [CARD CLICK] Click en card:', {
-                      title: option.title,
-                      path: option.path,
-                      isAccessible: isAccessible,
-                      isNavigating: isNavigating,
-                      userLevel: userLevel,
-                      userEmail: userData?.email
-                    });
-                    
                     if (isAccessible && !isNavigating) {
-                      console.log('✅ [CARD CLICK] Condiciones cumplidas, iniciando navegación');
-                      setIsNavigating(true);
-                      
-                      // Incrementar contador de intentos de redirección
-                      const currentAttempts = parseInt(sessionStorage.getItem('redirectAttempts') || '0');
-                      sessionStorage.setItem('redirectAttempts', (currentAttempts + 1).toString());
-                      
-                      console.log('🚀 [NAVIGATION] Iniciando navegación a dashboard:', {
-                        path: option.path,
-                        title: option.title,
-                        level: option.level,
-                        userLevel: userLevel,
-                        userEmail: userData?.email,
-                        redirectAttempts: currentAttempts + 1
-                      });
-                      
-                      // Guardar el dashboard actual en localStorage
-                      if (typeof window !== 'undefined') {
-                        const dashboardName = option.path.split('/').pop();
-                        localStorage.setItem('currentDashboard', dashboardName || 'iniciado');
-                        console.log('💾 [NAVIGATION] Dashboard guardado en localStorage:', dashboardName);
-                      }
-                      
-                      console.log('🔄 [NAVIGATION] Redirigiendo...');
-                      // Usar window.location.href para evitar problemas con router
-                      setTimeout(() => {
-                        console.log('🔄 [NAVIGATION] Ejecutando redirección a:', option.path);
-                        window.location.href = option.path;
-                      }, 100);
-                      
-                      // Reset isNavigating after a delay to allow for retry if needed
-                      setTimeout(() => {
-                        console.log('🔄 [NAVIGATION] Reseteando estado de navegación');
-                        setIsNavigating(false);
-                      }, 2000);
-                    } else if (!isAccessible) {
-                      console.warn('⚠️ [NAVIGATION] Acceso denegado a:', option.path);
-                    } else if (isNavigating) {
-                      console.log('⏳ [NAVIGATION] Ya navegando, ignorando click');
+                      handleDashboardNavigation(option);
                     }
                   }}
                   onMouseEnter={() => setHoveredRole(option.id)}
