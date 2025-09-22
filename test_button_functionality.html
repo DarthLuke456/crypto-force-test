@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Button Functionality</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .test-button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            transform: scale(1.05);
+        }
+        
+        .test-button:active {
+            transform: scale(0.95);
+        }
+        
+        .test-button.test {
+            background-color: #10B981;
+            color: white;
+        }
+        
+        .test-button.profile {
+            background-color: #EC4D58;
+            color: white;
+        }
+        
+        .test-button.maestro {
+            background-color: #8a8a8a;
+            color: white;
+        }
+        
+        .log-container {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .log-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid #10B981;
+        }
+        
+        .log-error {
+            background-color: rgba(236, 77, 88, 0.1);
+            border-left: 3px solid #EC4D58;
+        }
+        
+        .log-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3B82F6;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Test Button Functionality</h1>
+        <p>Testing button click handlers and event propagation.</p>
+        
+        <div class="button-container">
+            <button id="testButton" class="test-button test">TEST BUTTON</button>
+            <button id="profileButton" class="test-button profile">PROFILE</button>
+            <button id="maestroButton" class="test-button maestro">MAESTRO</button>
+        </div>
+        
+        <div class="log-container" id="log-container">
+            <div class="log-entry log-info">🚀 Test iniciado</div>
+        </div>
+    </div>
+
+    <script>
+        // Función para agregar logs
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Simular datos de usuario
+        const userData = {
+            email: 'coeurdeluke.js@gmail.com',
+            user_level: 0,
+            nickname: 'coeurdeluke.js'
+        };
+
+        // Simular función getUserProfilePath
+        function getUserProfilePath(userData) {
+            if (!userData) {
+                return '/dashboard/iniciado/perfil';
+            }
+            
+            // Verificar si es usuario fundador por email
+            const MAESTRO_AUTHORIZED_EMAILS = [
+                'infocryptoforce@gmail.com',
+                'coeurdeluke.js@gmail.com'
+            ];
+            
+            const isFundadorByEmail = userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
+            
+            if (isFundadorByEmail) {
+                return '/dashboard/maestro/perfil';
+            }
+            
+            // Usar el nivel del usuario o 1 por defecto
+            const userLevel = userData.user_level || 1;
+            
+            // Verificar si es nivel 0 (Fundador) - acceso directo a Maestro
+            if (userLevel === 0) {
+                return '/dashboard/maestro/perfil';
+            }
+            
+            // Para otros niveles, usar la lógica normal
+            const levelPaths = {
+                1: '/dashboard/iniciado/perfil',
+                2: '/dashboard/acolito/perfil',
+                3: '/dashboard/warrior/perfil',
+                4: '/dashboard/lord/perfil',
+                5: '/dashboard/darth/perfil',
+                6: '/dashboard/maestro/perfil'
+            };
+            
+            return levelPaths[userLevel] || '/dashboard/iniciado/perfil';
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            addLog('🔧 Configurando event listeners...', 'info');
+            
+            const testButton = document.getElementById('testButton');
+            const profileButton = document.getElementById('profileButton');
+            const maestroButton = document.getElementById('maestroButton');
+            
+            if (testButton) {
+                addLog('✅ Test button encontrado', 'success');
+                
+                testButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addLog('🧪 [TEST] Click en botón de prueba', 'success');
+                    addLog('🧪 [TEST] Event details: ' + JSON.stringify({
+                        type: e.type,
+                        target: e.target.tagName,
+                        currentTarget: e.currentTarget.tagName
+                    }), 'info');
+                    alert('Test button clicked! Check console for logs.');
+                });
+                
+                testButton.addEventListener('mousedown', (e) => {
+                    addLog('🧪 [TEST] Mouse down', 'info');
+                });
+                
+                testButton.addEventListener('mouseup', (e) => {
+                    addLog('🧪 [TEST] Mouse up', 'info');
+                });
+            } else {
+                addLog('❌ Test button NO encontrado', 'error');
+            }
+            
+            if (profileButton) {
+                addLog('✅ Profile button encontrado', 'success');
+                
+                profileButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addLog('🖱️ [PROFILE] Click en Editar Perfil', 'success');
+                    addLog('🖱️ [PROFILE] UserData: ' + JSON.stringify(userData), 'info');
+                    
+                    const profilePath = getUserProfilePath(userData);
+                    addLog('🖱️ [PROFILE] ProfilePath calculado: ' + profilePath, 'info');
+                    addLog('🖱️ [PROFILE] Redirigiendo a perfil: ' + profilePath, 'success');
+                    
+                    // Simular redirección
+                    setTimeout(() => {
+                        addLog('🖱️ [PROFILE] Redirección simulada completada', 'success');
+                    }, 1000);
+                });
+                
+                profileButton.addEventListener('mousedown', (e) => {
+                    addLog('🖱️ [PROFILE] Mouse down', 'info');
+                });
+                
+                profileButton.addEventListener('mouseup', (e) => {
+                    addLog('🖱️ [PROFILE] Mouse up', 'info');
+                });
+            } else {
+                addLog('❌ Profile button NO encontrado', 'error');
+            }
+            
+            if (maestroButton) {
+                addLog('✅ Maestro button encontrado', 'success');
+                
+                maestroButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addLog('🖱️ [MAESTRO] Click en Maestro Dashboard', 'success');
+                    addLog('🖱️ [MAESTRO] UserData: ' + JSON.stringify(userData), 'info');
+                    addLog('🖱️ [MAESTRO] Redirigiendo a /dashboard/maestro', 'success');
+                    
+                    // Simular redirección
+                    setTimeout(() => {
+                        addLog('🖱️ [MAESTRO] Redirección simulada completada', 'success');
+                    }, 1000);
+                });
+                
+                maestroButton.addEventListener('mousedown', (e) => {
+                    addLog('🖱️ [MAESTRO] Mouse down', 'info');
+                });
+                
+                maestroButton.addEventListener('mouseup', (e) => {
+                    addLog('🖱️ [MAESTRO] Mouse up', 'info');
+                });
+            } else {
+                addLog('❌ Maestro button NO encontrado', 'error');
+            }
+            
+            addLog('✅ Event listeners configurados', 'success');
+        }
+
+        // Ejecutar configuración
+        document.addEventListener('DOMContentLoaded', () => {
+            addLog('📄 DOM cargado', 'info');
+            setupEventListeners();
+        });
+
+        // También ejecutar después de un pequeño delay para simular el comportamiento real
+        setTimeout(() => {
+            addLog('⏰ Configuración adicional después de delay', 'info');
+            setupEventListeners();
+        }, 1000);
+    </script>
+</body>
+</html>

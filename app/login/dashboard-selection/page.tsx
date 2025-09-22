@@ -618,7 +618,7 @@ export default function DashboardSelectionPage() {
     const isMaestroFundador = userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
     
     if (isMaestroFundador) {
-      return '#FF8C42'; // Color naranja para Maestros Fundadores
+      return '#fafafa'; // Color blanco para Maestros Fundadores
     }
     
     // Para otros maestros (nivel 6) que no sean fundadores
@@ -1298,7 +1298,9 @@ export default function DashboardSelectionPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {dashboardOptions.map((option) => {
               const isAccessible = canAccessRole(option.level);
-              const isCurrentLevel = option.level === userLevel;
+              // Para usuarios fundadores (nivel 0), mostrar MAESTRO como nivel actual
+              // Para otros usuarios, usar su nivel real
+              const isCurrentLevel = userLevel === 0 ? option.level === 6 : option.level === userLevel;
               
               // Determinar el color correcto para este rol
               const getOptionColor = () => {
@@ -1309,7 +1311,7 @@ export default function DashboardSelectionPage() {
                 // Si es maestro (nivel 6), verificar si es fundador
                 if (option.level === 6) {
                   const isMaestroFundador = userData?.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
-                  return isMaestroFundador ? '#FF8C42' : '#8a8a8a';
+                  return isMaestroFundador ? '#fafafa' : '#8a8a8a';
                 }
                 // Para otros niveles, usar su color estándar
                 return option.color;
