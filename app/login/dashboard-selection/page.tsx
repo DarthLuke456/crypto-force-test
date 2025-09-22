@@ -120,15 +120,36 @@ export default function DashboardSelectionPage() {
       console.log('🔍 [NATIVE BUTTONS] maestroButton found:', !!maestroButton);
       
       if (testButton) {
-        console.log('🔍 [NATIVE BUTTONS] Test button found - using React handler only');
+        console.log('🔍 [NATIVE BUTTONS] Test button found - adding FORCED click handler');
+        // FORCE CLICK TEST
+        testButton.addEventListener('click', (e) => {
+          console.log('🧪 [FORCED NATIVE TEST] Click detected!');
+          e.preventDefault();
+          e.stopPropagation();
+          alert('FORCED NATIVE TEST CLICK!');
+        });
       }
       
       if (profileButton) {
-        console.log('🔍 [NATIVE BUTTONS] Profile button found - using React handler only');
+        console.log('🔍 [NATIVE BUTTONS] Profile button found - adding FORCED click handler');
+        // FORCE CLICK TEST
+        profileButton.addEventListener('click', (e) => {
+          console.log('🖱️ [FORCED NATIVE PROFILE] Click detected!');
+          e.preventDefault();
+          e.stopPropagation();
+          alert('FORCED NATIVE PROFILE CLICK!');
+        });
       }
       
       if (maestroButton) {
-        console.log('🔍 [NATIVE BUTTONS] Maestro button found - using React handler only');
+        console.log('🔍 [NATIVE BUTTONS] Maestro button found - adding FORCED click handler');
+        // FORCE CLICK TEST
+        maestroButton.addEventListener('click', (e) => {
+          console.log('🖱️ [FORCED NATIVE MAESTRO] Click detected!');
+          e.preventDefault();
+          e.stopPropagation();
+          alert('FORCED NATIVE MAESTRO CLICK!');
+        });
       }
       
       // Add global click listener to see if clicks are being intercepted
@@ -141,7 +162,7 @@ export default function DashboardSelectionPage() {
         console.log('🔍 [GLOBAL CLICK] Target className:', target?.className);
       });
       
-    }, 100); // Wait 100ms for DOM to be ready
+    }, 1000); // INCREASE TO 1000ms for DOM to be ready
     
     // Cleanup function
     return () => {
@@ -1281,6 +1302,16 @@ export default function DashboardSelectionPage() {
               // Para usuarios fundadores (nivel 0), mostrar MAESTRO como nivel actual
               // Para otros usuarios, usar su nivel real
               const isCurrentLevel = userData?.user_level === 0 ? option.level === 6 : option.level === userLevel;
+              
+              // DEBUG: Log para verificar la lógica
+              if (userData?.user_level === 0) {
+                console.log('🔍 [CURRENT LEVEL DEBUG] Usuario fundador detectado:', {
+                  userLevel: userData.user_level,
+                  optionLevel: option.level,
+                  optionTitle: option.title,
+                  isCurrentLevel: isCurrentLevel
+                });
+              }
               
               // Determinar el color correcto para este rol
               const getOptionColor = () => {
