@@ -46,6 +46,7 @@ function MaestroLayoutContent({
         isReady,
         hasUserData: !!userData,
         userEmail: userData?.email,
+        userLevel: userData?.user_level,
         accessChecked,
         timeoutReached,
         timestamp: new Date().toISOString()

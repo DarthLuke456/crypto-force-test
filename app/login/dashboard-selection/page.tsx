@@ -569,10 +569,18 @@ export default function DashboardSelectionPage() {
       case 'profile':
         // Redirigir al perfil del dashboard de nivel más alto
         console.log('🔍 handleProfileAction - userData recibido:', userData);
+        console.log('🔍 handleProfileAction - userData.email:', userData?.email);
+        console.log('🔍 handleProfileAction - userData.user_level:', userData?.user_level);
+        console.log('🔍 handleProfileAction - MAESTRO_AUTHORIZED_EMAILS:', MAESTRO_AUTHORIZED_EMAILS);
+        
         const profilePath = getUserProfilePath(userData);
         console.log('🔍 handleProfileAction - ProfilePath calculado:', profilePath);
         console.log('🔍 handleProfileAction - Redirigiendo a perfil:', profilePath);
-        window.location.href = profilePath;
+        
+        // Usar setTimeout para asegurar que la redirección se ejecute
+        setTimeout(() => {
+          window.location.href = profilePath;
+        }, 100);
         break;
       case 'feedback':
         // Abrir modal de feedback
