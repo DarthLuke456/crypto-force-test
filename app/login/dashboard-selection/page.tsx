@@ -600,13 +600,8 @@ export default function DashboardSelectionPage() {
     console.log('🔍 calculateUserLevel: MAESTRO_AUTHORIZED_EMAILS:', MAESTRO_AUTHORIZED_EMAILS);
     console.log('🔍 calculateUserLevel: userData.user_level:', userData.user_level);
     
-    // Para usuarios fundadores, asignar nivel 6 (Maestro) pero permitir acceso total
-    if (userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())) {
-      console.log('✅ calculateUserLevel: Usuario fundador detectado, retornando nivel 6');
-      return 6; // Nivel de Maestro (pero se mostrará como "Fundador")
-    }
-    
-    console.log('🔍 calculateUserLevel: Usuario regular, retornando nivel:', userData.user_level || 1);
+    // Usar el nivel real del usuario (0 para fundadores, 6 para maestros, etc.)
+    console.log('🔍 calculateUserLevel: Usuario nivel real:', userData.user_level);
     return userData.user_level || 1;
   }, [userData]);
 

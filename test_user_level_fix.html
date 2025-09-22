@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test User Level Fix</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .log-container {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .log-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left: 3px solid #10B981;
+        }
+        
+        .log-error {
+            background-color: rgba(236, 77, 88, 0.1);
+            border-left: 3px solid #EC4D58;
+        }
+        
+        .log-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3B82F6;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Test User Level Fix</h1>
+        <p>Testing the user level calculation fix for level 0 (Fundador) users.</p>
+        
+        <div class="log-container" id="log-container">
+            <div class="log-entry log-info">🚀 Test iniciado</div>
+        </div>
+    </div>
+
+    <script>
+        // Simular la función calculateUserLevel corregida
+        function calculateUserLevel(userData) {
+            if (!userData) {
+                return 1;
+            }
+            
+            // Usar el nivel real del usuario (0 para fundadores, 6 para maestros, etc.)
+            return userData.user_level || 1;
+        }
+
+        // Simular la función getLevelDisplayName
+        function getLevelDisplayName(userData) {
+            if (!userData) return 'Iniciado';
+            
+            const MAESTRO_AUTHORIZED_EMAILS = [
+                'infocryptoforce@gmail.com',
+                'coeurdeluke.js@gmail.com'
+            ];
+            
+            // Para usuarios fundadores específicos, mostrar "Fundador"
+            if (userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())) {
+                return 'Fundador';
+            }
+            
+            // Para otros usuarios, usar el nivel normal
+            const level = userData.user_level || 1;
+            const levelNames = {
+                0: 'Fundador', // Nivel 0 para fundadores
+                1: 'Iniciado',
+                2: 'Acólito', 
+                3: 'Warrior',
+                4: 'Lord',
+                5: 'Darth',
+                6: 'Maestro'
+            };
+            
+            return levelNames[level] || 'Iniciado';
+        }
+
+        // Función para agregar logs
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Test cases
+        const testCases = [
+            {
+                name: 'Usuario Fundador (Level 0)',
+                userData: {
+                    email: 'coeurdeluke.js@gmail.com',
+                    user_level: 0
+                },
+                expectedLevel: 0,
+                expectedDisplay: 'Fundador'
+            },
+            {
+                name: 'Usuario Maestro (Level 6)',
+                userData: {
+                    email: 'test@example.com',
+                    user_level: 6
+                },
+                expectedLevel: 6,
+                expectedDisplay: 'Maestro'
+            },
+            {
+                name: 'Usuario Regular (Level 1)',
+                userData: {
+                    email: 'user@example.com',
+                    user_level: 1
+                },
+                expectedLevel: 1,
+                expectedDisplay: 'Iniciado'
+            }
+        ];
+
+        // Ejecutar tests
+        function runTests() {
+            addLog('🧪 Iniciando tests de user level...', 'info');
+            
+            testCases.forEach((testCase, index) => {
+                addLog(`\n📋 Test ${index + 1}: ${testCase.name}`, 'info');
+                
+                const calculatedLevel = calculateUserLevel(testCase.userData);
+                const displayName = getLevelDisplayName(testCase.userData);
+                
+                const levelCorrect = calculatedLevel === testCase.expectedLevel;
+                const displayCorrect = displayName === testCase.expectedDisplay;
+                
+                addLog(`  📊 Calculated Level: ${calculatedLevel} (Expected: ${testCase.expectedLevel})`, 
+                       levelCorrect ? 'success' : 'error');
+                addLog(`  🏷️ Display Name: "${displayName}" (Expected: "${testCase.expectedDisplay}")`, 
+                       displayCorrect ? 'success' : 'error');
+                
+                if (levelCorrect && displayCorrect) {
+                    addLog(`  ✅ Test ${index + 1} PASSED`, 'success');
+                } else {
+                    addLog(`  ❌ Test ${index + 1} FAILED`, 'error');
+                }
+            });
+            
+            addLog('\n🎯 Tests completados', 'info');
+        }
+
+        // Ejecutar tests automáticamente
+        setTimeout(runTests, 1000);
+    </script>
+</body>
+</html>
