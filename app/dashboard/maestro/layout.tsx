@@ -7,12 +7,7 @@ import MaestroSidebar from '@/components/layout/MaestroSidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { MaestroSidebarProvider, useMaestroSidebar } from './MaestroSidebarContext';
 import { layoutLog } from '@/lib/logger';
-
-// Lista de emails autorizados para acceder a la dashboard de Maestro
-const MAESTRO_AUTHORIZED_EMAILS = [
-  'infocryptoforce@gmail.com',
-  'coeurdeluke.js@gmail.com'
-];
+import { MAESTRO_AUTHORIZED_EMAILS } from '@/utils/dashboardUtils';
 
 function MaestroLayoutContent({
   children,
@@ -72,7 +67,7 @@ function MaestroLayoutContent({
         // Verificar si el email está en la lista de autorizados
         const userEmail = userData.email.toLowerCase().trim();
         const clientAuthorized = MAESTRO_AUTHORIZED_EMAILS.includes(userEmail);
-        
+
         if (clientAuthorized) {
           console.log('✅ MAESTRO LAYOUT: Acceso autorizado por timeout (email autorizado)');
           setIsAuthorized(true);

@@ -578,7 +578,9 @@ export default function DashboardSelectionPage() {
         console.log('🔍 handleProfileAction - Redirigiendo a perfil:', profilePath);
         
         // Usar setTimeout para asegurar que la redirección se ejecute
+        console.log('🔍 handleProfileAction - Ejecutando redirección en 100ms...');
         setTimeout(() => {
+          console.log('🔍 handleProfileAction - Redirigiendo ahora a:', profilePath);
           window.location.href = profilePath;
         }, 100);
         break;
