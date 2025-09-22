@@ -26,7 +26,6 @@ import {
   Compass,
   MessageSquare
 } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext-working';
 import { useMaestroSidebar } from '@/app/dashboard/maestro/MaestroSidebarContext';
 import { useAvatarSimple as useAvatar } from '@/hooks/useAvatarSimple';
 
