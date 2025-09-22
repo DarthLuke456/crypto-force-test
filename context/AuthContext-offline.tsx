@@ -119,7 +119,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       nickname: email.split('@')[0],
       movil: '',
       exchange: '',
-      user_level: isFounder ? 6 : 1,
+      user_level: isFounder ? 0 : 1, // Level 0 for founders (Fundador)
       referral_code: `USER-${email.split('@')[0].toUpperCase()}`,
       uid: `uid-${Date.now()}`,
       codigo_referido: null,
