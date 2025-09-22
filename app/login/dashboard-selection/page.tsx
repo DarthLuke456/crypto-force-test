@@ -808,37 +808,6 @@ export default function DashboardSelectionPage() {
                 <span className="text-[#8a8a8a] text-xs">{userData?.email || 'Cargando...'}</span>
               </div>
               
-              {/* Botón directo de Editar Perfil */}
-              <button
-                onClick={() => {
-                  console.log('🖱️ [DIRECT PROFILE] Click en Editar Perfil directo');
-                  const profilePath = getUserProfilePath(userData);
-                  console.log('🖱️ [DIRECT PROFILE] ProfilePath calculado:', profilePath);
-                  console.log('🖱️ [DIRECT PROFILE] Redirigiendo a perfil:', profilePath);
-                  window.location.href = profilePath;
-                }}
-                className="px-4 py-2 bg-[#ec4d58] hover:bg-[#d43d48] text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium hover:scale-105 active:scale-95 z-50 relative"
-                title="Editar Perfil"
-                style={{ zIndex: 9999, position: 'relative' }}
-              >
-                <Edit size={16} />
-                <span>Editar Perfil</span>
-              </button>
-              
-              {/* Botón directo de Maestro Dashboard */}
-              <button
-                onClick={() => {
-                  console.log('🖱️ [DIRECT MAESTRO] Click en Maestro Dashboard directo');
-                  console.log('🖱️ [DIRECT MAESTRO] Redirigiendo a /dashboard/maestro');
-                  window.location.href = '/dashboard/maestro';
-                }}
-                className="px-4 py-2 bg-[#8a8a8a] hover:bg-[#6a6a6a] text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium hover:scale-105 active:scale-95 z-50 relative"
-                title="Ir a Maestro Dashboard"
-                style={{ zIndex: 9999, position: 'relative' }}
-              >
-                <User size={16} />
-                <span>Maestro</span>
-              </button>
               
               {/* Botón de perfil con menú desplegable */}
               <div className="relative profile-menu-container">
@@ -1003,8 +972,8 @@ export default function DashboardSelectionPage() {
         </div>
       </div>
 
-      {/* Test Button - Always Visible */}
-      <div className="fixed top-4 left-4 z-[9999]">
+      {/* Test Buttons - Always Visible */}
+      <div className="fixed top-4 left-4 z-[9999] flex flex-col gap-2">
         <button
           onClick={() => {
             console.log('🧪 [TEST BUTTON] Click en botón de prueba');
@@ -1013,6 +982,30 @@ export default function DashboardSelectionPage() {
           className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold"
         >
           TEST BUTTON
+        </button>
+        
+        <button
+          onClick={() => {
+            console.log('🖱️ [DIRECT PROFILE] Click en Editar Perfil directo');
+            const profilePath = getUserProfilePath(userData);
+            console.log('🖱️ [DIRECT PROFILE] ProfilePath calculado:', profilePath);
+            console.log('🖱️ [DIRECT PROFILE] Redirigiendo a perfil:', profilePath);
+            window.location.href = profilePath;
+          }}
+          className="px-4 py-2 bg-[#ec4d58] hover:bg-[#d43d48] text-white rounded-lg font-bold"
+        >
+          PROFILE
+        </button>
+        
+        <button
+          onClick={() => {
+            console.log('🖱️ [DIRECT MAESTRO] Click en Maestro Dashboard directo');
+            console.log('🖱️ [DIRECT MAESTRO] Redirigiendo a /dashboard/maestro');
+            window.location.href = '/dashboard/maestro';
+          }}
+          className="px-4 py-2 bg-[#8a8a8a] hover:bg-[#6a6a6a] text-white rounded-lg font-bold"
+        >
+          MAESTRO
         </button>
       </div>
 
