@@ -503,23 +503,29 @@ export default function DashboardSelectionPage() {
       const newRoleDisplayText = calculateRoleDisplayText();
       const newRoleColor = calculateRoleColor();
       
-      userLevelRef.current = newUserLevel;
-      roleDisplayTextRef.current = newRoleDisplayText;
-      roleColorRef.current = newRoleColor;
+      // Solo actualizar si los valores han cambiado
+      if (newUserLevel !== userLevelRef.current || 
+          newRoleDisplayText !== roleDisplayTextRef.current || 
+          newRoleColor !== roleColorRef.current) {
+        
+        userLevelRef.current = newUserLevel;
+        roleDisplayTextRef.current = newRoleDisplayText;
+        roleColorRef.current = newRoleColor;
+        
+        console.log('✅ Valores estabilizados:', {
+          userLevel: newUserLevel,
+          roleDisplayText: newRoleDisplayText,
+          roleColor: newRoleColor,
+          userEmail: userData.email,
+          isMaestroFundador: userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())
+        });
+      }
       
       if (!isInitializedRef.current) {
         isInitializedRef.current = true;
       }
-      
-      console.log('✅ Valores estabilizados:', {
-        userLevel: newUserLevel,
-        roleDisplayText: newRoleDisplayText,
-        roleColor: newRoleColor,
-        userEmail: userData.email,
-        isMaestroFundador: userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())
-      });
     }
-  }, []); // Solo ejecutar una vez al montar
+  }, [userData, isReady, calculateUserLevel, calculateRoleDisplayText, calculateRoleColor]); // Depender de las funciones también
 
   // Valores estables que no causan re-renders
   const userLevel = userLevelRef.current;
@@ -537,7 +543,7 @@ export default function DashboardSelectionPage() {
         roleDisplayText: roleDisplayText
       });
     }
-  }, []); // Solo ejecutar una vez al montar
+  }, [userData, isReady, userLevel, roleDisplayText]); // Depender de los valores relevantes
 
   // Función para cerrar sesión
   const handleLogout = async () => {
@@ -619,25 +625,35 @@ export default function DashboardSelectionPage() {
 
   // Función estable para verificar acceso a roles
   const canAccessRole = useCallback((roleLevel: number) => {
-    const currentUserLevel = userLevelRef.current;
-    const currentUserEmail = userData?.email;
+    if (!userData) return false;
+    
+    const currentUserEmail = userData.email;
     
     // Verificar si es usuario fundador por email
     const isFundadorByEmail = currentUserEmail && MAESTRO_AUTHORIZED_EMAILS.includes(currentUserEmail.toLowerCase().trim());
     
     // Fundadores tienen acceso a TODOS los dashboards
     if (isFundadorByEmail) {
+      console.log(`✅ ${getLevelDisplayName(userData)} accesible para usuario`);
       return true;
     }
     
+    // Calcular nivel actual del usuario
+    const currentUserLevel = userData.user_level || 1;
+    
     // También verificar por nivel 6
     if (currentUserLevel === 6) {
+      console.log(`✅ ${getLevelDisplayName(userData)} accesible para usuario`);
       return true;
     }
     
     // Otros usuarios solo pueden acceder a su nivel y niveles inferiores
-    return roleLevel <= currentUserLevel;
-  }, []);
+    const hasAccess = roleLevel <= currentUserLevel;
+    if (hasAccess) {
+      console.log(`✅ ${getLevelDisplayName(userData)} accesible para usuario`);
+    }
+    return hasAccess;
+  }, [userData]);
 
   // Mostrar error si hay bucle de redirección
   if (redirectAttempts > 3) {
