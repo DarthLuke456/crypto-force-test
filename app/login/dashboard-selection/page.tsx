@@ -808,6 +808,36 @@ export default function DashboardSelectionPage() {
                 <span className="text-[#8a8a8a] text-xs">{userData?.email || 'Cargando...'}</span>
               </div>
               
+              {/* Botón directo de Editar Perfil */}
+              <button
+                onClick={() => {
+                  console.log('🖱️ [DIRECT PROFILE] Click en Editar Perfil directo');
+                  const profilePath = getUserProfilePath(userData);
+                  console.log('🖱️ [DIRECT PROFILE] ProfilePath calculado:', profilePath);
+                  console.log('🖱️ [DIRECT PROFILE] Redirigiendo a perfil:', profilePath);
+                  window.location.href = profilePath;
+                }}
+                className="px-4 py-2 bg-[#ec4d58] hover:bg-[#d43d48] text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium hover:scale-105 active:scale-95"
+                title="Editar Perfil"
+              >
+                <Edit size={16} />
+                <span>Editar Perfil</span>
+              </button>
+              
+              {/* Botón directo de Maestro Dashboard */}
+              <button
+                onClick={() => {
+                  console.log('🖱️ [DIRECT MAESTRO] Click en Maestro Dashboard directo');
+                  console.log('🖱️ [DIRECT MAESTRO] Redirigiendo a /dashboard/maestro');
+                  window.location.href = '/dashboard/maestro';
+                }}
+                className="px-4 py-2 bg-[#8a8a8a] hover:bg-[#6a6a6a] text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium hover:scale-105 active:scale-95"
+                title="Ir a Maestro Dashboard"
+              >
+                <User size={16} />
+                <span>Maestro</span>
+              </button>
+              
               {/* Botón de perfil con menú desplegable */}
               <div className="relative profile-menu-container">
                 <button
