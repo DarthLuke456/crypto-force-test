@@ -102,56 +102,97 @@ export default function DashboardSelectionPage() {
     console.log('🔍 [REDIRECT DEBUG] Flag de logout:', loggedOut);
   }, []);
 
-  // Native DOM event listeners for buttons
+  // Native DOM event listeners for buttons with EXTREME DEBUGGING
   useEffect(() => {
     console.log('🔍 [NATIVE BUTTONS] Setting up native DOM event listeners');
+    console.log('🔍 [NATIVE BUTTONS] Timestamp:', new Date().toISOString());
     
-    const testButton = document.getElementById('test-button');
-    const profileButton = document.getElementById('profile-button');
-    const maestroButton = document.getElementById('maestro-button');
-    
-    if (testButton) {
-      testButton.addEventListener('click', (e) => {
-        console.log('🧪 [NATIVE TEST] Click en botón de prueba');
-        alert('Native test button clicked! Check console for logs.');
+    // Wait for DOM to be ready
+    setTimeout(() => {
+      console.log('🔍 [NATIVE BUTTONS] DOM ready, looking for buttons...');
+      
+      const testButton = document.getElementById('test-button');
+      const profileButton = document.getElementById('profile-button');
+      const maestroButton = document.getElementById('maestro-button');
+      
+      console.log('🔍 [NATIVE BUTTONS] testButton found:', !!testButton);
+      console.log('🔍 [NATIVE BUTTONS] profileButton found:', !!profileButton);
+      console.log('🔍 [NATIVE BUTTONS] maestroButton found:', !!maestroButton);
+      
+      if (testButton) {
+        console.log('🔍 [NATIVE BUTTONS] Setting up test button listener');
+        testButton.addEventListener('click', (e) => {
+          console.log('🧪 [NATIVE TEST] Click en botón de prueba');
+          console.log('🧪 [NATIVE TEST] Event details:', e);
+          console.log('🧪 [NATIVE TEST] Target:', e.target);
+          alert('Native test button clicked! Check console for logs.');
+        });
+        
+        // Also add mousedown and mouseup for debugging
+        testButton.addEventListener('mousedown', (e) => {
+          console.log('🧪 [NATIVE TEST] Mouse down on test button');
+        });
+        
+        testButton.addEventListener('mouseup', (e) => {
+          console.log('🧪 [NATIVE TEST] Mouse up on test button');
+        });
+      }
+      
+      if (profileButton) {
+        console.log('🔍 [NATIVE BUTTONS] Setting up profile button listener');
+        profileButton.addEventListener('click', (e) => {
+          console.log('🖱️ [NATIVE PROFILE] Click en Editar Perfil directo');
+          console.log('🖱️ [NATIVE PROFILE] Event:', e);
+          console.log('🖱️ [NATIVE PROFILE] userData:', userData);
+          const profilePath = getUserProfilePath(userData);
+          console.log('🖱️ [NATIVE PROFILE] ProfilePath calculado:', profilePath);
+          console.log('🖱️ [NATIVE PROFILE] Redirigiendo a perfil:', profilePath);
+          console.log('🖱️ [NATIVE PROFILE] Ejecutando redirección...');
+          window.location.href = profilePath;
+        });
+        
+        // Also add mousedown and mouseup for debugging
+        profileButton.addEventListener('mousedown', (e) => {
+          console.log('🖱️ [NATIVE PROFILE] Mouse down on profile button');
+        });
+        
+        profileButton.addEventListener('mouseup', (e) => {
+          console.log('🖱️ [NATIVE PROFILE] Mouse up on profile button');
+        });
+      }
+      
+      if (maestroButton) {
+        console.log('🔍 [NATIVE BUTTONS] Setting up maestro button listener');
+        maestroButton.addEventListener('click', (e) => {
+          console.log('🖱️ [NATIVE MAESTRO] Click en Maestro Dashboard directo');
+          console.log('🖱️ [NATIVE MAESTRO] Event:', e);
+          console.log('🖱️ [NATIVE MAESTRO] userData:', userData);
+          console.log('🖱️ [NATIVE MAESTRO] Redirigiendo a /dashboard/maestro');
+          console.log('🖱️ [NATIVE MAESTRO] Ejecutando redirección...');
+          window.location.href = '/dashboard/maestro';
+        });
+        
+        // Also add mousedown and mouseup for debugging
+        maestroButton.addEventListener('mousedown', (e) => {
+          console.log('🖱️ [NATIVE MAESTRO] Mouse down on maestro button');
+        });
+        
+        maestroButton.addEventListener('mouseup', (e) => {
+          console.log('🖱️ [NATIVE MAESTRO] Mouse up on maestro button');
+        });
+      }
+      
+      // Add global click listener to see if clicks are being intercepted
+      document.addEventListener('click', (e) => {
+        console.log('🔍 [GLOBAL CLICK] Click detected on:', e.target);
+        console.log('🔍 [GLOBAL CLICK] Click coordinates:', e.clientX, e.clientY);
       });
-    }
-    
-    if (profileButton) {
-      profileButton.addEventListener('click', (e) => {
-        console.log('🖱️ [NATIVE PROFILE] Click en Editar Perfil directo');
-        console.log('🖱️ [NATIVE PROFILE] Event:', e);
-        console.log('🖱️ [NATIVE PROFILE] userData:', userData);
-        const profilePath = getUserProfilePath(userData);
-        console.log('🖱️ [NATIVE PROFILE] ProfilePath calculado:', profilePath);
-        console.log('🖱️ [NATIVE PROFILE] Redirigiendo a perfil:', profilePath);
-        console.log('🖱️ [NATIVE PROFILE] Ejecutando redirección...');
-        window.location.href = profilePath;
-      });
-    }
-    
-    if (maestroButton) {
-      maestroButton.addEventListener('click', (e) => {
-        console.log('🖱️ [NATIVE MAESTRO] Click en Maestro Dashboard directo');
-        console.log('🖱️ [NATIVE MAESTRO] Event:', e);
-        console.log('🖱️ [NATIVE MAESTRO] userData:', userData);
-        console.log('🖱️ [NATIVE MAESTRO] Redirigiendo a /dashboard/maestro');
-        console.log('🖱️ [NATIVE MAESTRO] Ejecutando redirección...');
-        window.location.href = '/dashboard/maestro';
-      });
-    }
+      
+    }, 100); // Wait 100ms for DOM to be ready
     
     // Cleanup function
     return () => {
-      if (testButton) {
-        testButton.removeEventListener('click', () => {});
-      }
-      if (profileButton) {
-        profileButton.removeEventListener('click', () => {});
-      }
-      if (maestroButton) {
-        maestroButton.removeEventListener('click', () => {});
-      }
+      console.log('🔍 [NATIVE BUTTONS] Cleaning up event listeners');
     };
   }, [userData]); // Re-run when userData changes
 
@@ -1085,32 +1126,38 @@ export default function DashboardSelectionPage() {
         <div>Time: {new Date().toLocaleTimeString()}</div>
       </div>
       
-      {/* NATIVE DOM BUTTONS - COMPLETELY INDEPENDENT */}
+      {/* ULTRA INDEPENDENT BUTTONS - MAXIMUM DEBUGGING */}
       <div 
         id="debug-buttons-container"
         style={{
           position: 'fixed',
           top: '10px',
           left: '10px',
-          zIndex: 99999,
+          zIndex: 999999,
           display: 'flex',
           flexDirection: 'column',
-          gap: '10px'
+          gap: '10px',
+          pointerEvents: 'auto'
         }}
       >
         <button
           id="test-button"
           style={{
-            padding: '10px 20px',
+            padding: '15px 25px',
             backgroundColor: '#10B981',
             color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '16px',
+            border: '3px solid #059669',
+            borderRadius: '12px',
+            fontSize: '18px',
             fontWeight: 'bold',
             cursor: 'pointer',
-            zIndex: 99999,
-            position: 'relative'
+            zIndex: 999999,
+            position: 'relative',
+            pointerEvents: 'auto',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            MozUserSelect: 'none',
+            msUserSelect: 'none'
           }}
         >
           TEST BUTTON
@@ -1119,16 +1166,21 @@ export default function DashboardSelectionPage() {
         <button
           id="profile-button"
           style={{
-            padding: '10px 20px',
+            padding: '15px 25px',
             backgroundColor: '#EC4D58',
             color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '16px',
+            border: '3px solid #DC2626',
+            borderRadius: '12px',
+            fontSize: '18px',
             fontWeight: 'bold',
             cursor: 'pointer',
-            zIndex: 99999,
-            position: 'relative'
+            zIndex: 999999,
+            position: 'relative',
+            pointerEvents: 'auto',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            MozUserSelect: 'none',
+            msUserSelect: 'none'
           }}
         >
           PROFILE
@@ -1137,16 +1189,21 @@ export default function DashboardSelectionPage() {
         <button
           id="maestro-button"
           style={{
-            padding: '10px 20px',
+            padding: '15px 25px',
             backgroundColor: '#8A8A8A',
             color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '16px',
+            border: '3px solid #6B7280',
+            borderRadius: '12px',
+            fontSize: '18px',
             fontWeight: 'bold',
             cursor: 'pointer',
-            zIndex: 99999,
-            position: 'relative'
+            zIndex: 999999,
+            position: 'relative',
+            pointerEvents: 'auto',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            MozUserSelect: 'none',
+            msUserSelect: 'none'
           }}
         >
           MAESTRO
