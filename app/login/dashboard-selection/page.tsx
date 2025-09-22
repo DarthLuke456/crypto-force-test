@@ -1003,20 +1003,64 @@ export default function DashboardSelectionPage() {
         </div>
       </div>
 
-      {/* Test Buttons - Always Visible */}
+      {/* Test Buttons - Always Visible - SIMPLIFIED VERSION */}
       {(() => {
         console.log('🔍 [BUTTON RENDER] Renderizando botones de prueba');
         console.log('🔍 [BUTTON RENDER] userData disponible:', !!userData);
         console.log('🔍 [BUTTON RENDER] isReady:', isReady);
+        console.log('🔍 [BUTTON RENDER] Timestamp:', new Date().toISOString());
         return null;
       })()}
-      <div className="fixed top-4 left-4 z-[9999] flex flex-col gap-2">
+      
+      {/* VISUAL INDICATOR */}
+      <div 
+        style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          zIndex: 99999,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          color: 'white',
+          padding: '10px',
+          borderRadius: '8px',
+          fontSize: '12px'
+        }}
+      >
+        <div>🔍 DEBUG: Buttons should be visible</div>
+        <div>UserData: {userData ? '✅' : '❌'}</div>
+        <div>Ready: {isReady ? '✅' : '❌'}</div>
+        <div>Time: {new Date().toLocaleTimeString()}</div>
+      </div>
+      
+      {/* SIMPLE TEST BUTTON */}
+      <div 
+        style={{
+          position: 'fixed',
+          top: '10px',
+          left: '10px',
+          zIndex: 99999,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px'
+        }}
+      >
         <button
           onClick={() => {
             console.log('🧪 [TEST BUTTON] Click en botón de prueba');
             alert('Test button clicked! Check console for logs.');
           }}
-          className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold"
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#10B981',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            zIndex: 99999,
+            position: 'relative'
+          }}
         >
           TEST BUTTON
         </button>
@@ -1032,12 +1076,17 @@ export default function DashboardSelectionPage() {
             console.log('🖱️ [DIRECT PROFILE] Ejecutando redirección...');
             window.location.href = profilePath;
           }}
-          className="px-4 py-2 bg-[#ec4d58] hover:bg-[#d43d48] text-white rounded-lg font-bold"
-          style={{ 
-            zIndex: 9999, 
-            position: 'relative',
-            pointerEvents: 'auto',
-            cursor: 'pointer'
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#EC4D58',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            zIndex: 99999,
+            position: 'relative'
           }}
         >
           PROFILE
@@ -1052,12 +1101,17 @@ export default function DashboardSelectionPage() {
             console.log('🖱️ [DIRECT MAESTRO] Ejecutando redirección...');
             window.location.href = '/dashboard/maestro';
           }}
-          className="px-4 py-2 bg-[#8a8a8a] hover:bg-[#6a6a6a] text-white rounded-lg font-bold"
-          style={{ 
-            zIndex: 9999, 
-            position: 'relative',
-            pointerEvents: 'auto',
-            cursor: 'pointer'
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#8A8A8A',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            zIndex: 99999,
+            position: 'relative'
           }}
         >
           MAESTRO
