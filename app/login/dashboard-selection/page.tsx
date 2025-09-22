@@ -102,6 +102,59 @@ export default function DashboardSelectionPage() {
     console.log('🔍 [REDIRECT DEBUG] Flag de logout:', loggedOut);
   }, []);
 
+  // Native DOM event listeners for buttons
+  useEffect(() => {
+    console.log('🔍 [NATIVE BUTTONS] Setting up native DOM event listeners');
+    
+    const testButton = document.getElementById('test-button');
+    const profileButton = document.getElementById('profile-button');
+    const maestroButton = document.getElementById('maestro-button');
+    
+    if (testButton) {
+      testButton.addEventListener('click', (e) => {
+        console.log('🧪 [NATIVE TEST] Click en botón de prueba');
+        alert('Native test button clicked! Check console for logs.');
+      });
+    }
+    
+    if (profileButton) {
+      profileButton.addEventListener('click', (e) => {
+        console.log('🖱️ [NATIVE PROFILE] Click en Editar Perfil directo');
+        console.log('🖱️ [NATIVE PROFILE] Event:', e);
+        console.log('🖱️ [NATIVE PROFILE] userData:', userData);
+        const profilePath = getUserProfilePath(userData);
+        console.log('🖱️ [NATIVE PROFILE] ProfilePath calculado:', profilePath);
+        console.log('🖱️ [NATIVE PROFILE] Redirigiendo a perfil:', profilePath);
+        console.log('🖱️ [NATIVE PROFILE] Ejecutando redirección...');
+        window.location.href = profilePath;
+      });
+    }
+    
+    if (maestroButton) {
+      maestroButton.addEventListener('click', (e) => {
+        console.log('🖱️ [NATIVE MAESTRO] Click en Maestro Dashboard directo');
+        console.log('🖱️ [NATIVE MAESTRO] Event:', e);
+        console.log('🖱️ [NATIVE MAESTRO] userData:', userData);
+        console.log('🖱️ [NATIVE MAESTRO] Redirigiendo a /dashboard/maestro');
+        console.log('🖱️ [NATIVE MAESTRO] Ejecutando redirección...');
+        window.location.href = '/dashboard/maestro';
+      });
+    }
+    
+    // Cleanup function
+    return () => {
+      if (testButton) {
+        testButton.removeEventListener('click', () => {});
+      }
+      if (profileButton) {
+        profileButton.removeEventListener('click', () => {});
+      }
+      if (maestroButton) {
+        maestroButton.removeEventListener('click', () => {});
+      }
+    };
+  }, [userData]); // Re-run when userData changes
+
   // Reset isNavigating state when component mounts
   useEffect(() => {
     console.log('🔄 Dashboard Selection - Reseteando estado de navegación');
@@ -1032,8 +1085,9 @@ export default function DashboardSelectionPage() {
         <div>Time: {new Date().toLocaleTimeString()}</div>
       </div>
       
-      {/* SIMPLE TEST BUTTON */}
+      {/* NATIVE DOM BUTTONS - COMPLETELY INDEPENDENT */}
       <div 
+        id="debug-buttons-container"
         style={{
           position: 'fixed',
           top: '10px',
@@ -1045,10 +1099,7 @@ export default function DashboardSelectionPage() {
         }}
       >
         <button
-          onClick={() => {
-            console.log('🧪 [TEST BUTTON] Click en botón de prueba');
-            alert('Test button clicked! Check console for logs.');
-          }}
+          id="test-button"
           style={{
             padding: '10px 20px',
             backgroundColor: '#10B981',
@@ -1066,16 +1117,7 @@ export default function DashboardSelectionPage() {
         </button>
         
         <button
-          onClick={(e) => {
-            console.log('🖱️ [DIRECT PROFILE] Click en Editar Perfil directo');
-            console.log('🖱️ [DIRECT PROFILE] Event:', e);
-            console.log('🖱️ [DIRECT PROFILE] userData:', userData);
-            const profilePath = getUserProfilePath(userData);
-            console.log('🖱️ [DIRECT PROFILE] ProfilePath calculado:', profilePath);
-            console.log('🖱️ [DIRECT PROFILE] Redirigiendo a perfil:', profilePath);
-            console.log('🖱️ [DIRECT PROFILE] Ejecutando redirección...');
-            window.location.href = profilePath;
-          }}
+          id="profile-button"
           style={{
             padding: '10px 20px',
             backgroundColor: '#EC4D58',
@@ -1093,14 +1135,7 @@ export default function DashboardSelectionPage() {
         </button>
         
         <button
-          onClick={(e) => {
-            console.log('🖱️ [DIRECT MAESTRO] Click en Maestro Dashboard directo');
-            console.log('🖱️ [DIRECT MAESTRO] Event:', e);
-            console.log('🖱️ [DIRECT MAESTRO] userData:', userData);
-            console.log('🖱️ [DIRECT MAESTRO] Redirigiendo a /dashboard/maestro');
-            console.log('🖱️ [DIRECT MAESTRO] Ejecutando redirección...');
-            window.location.href = '/dashboard/maestro';
-          }}
+          id="maestro-button"
           style={{
             padding: '10px 20px',
             backgroundColor: '#8A8A8A',
