@@ -135,6 +135,9 @@ export default function DashboardSelectionPage() {
       document.addEventListener('click', (e) => {
         console.log('🔍 [GLOBAL CLICK] Click detected on:', e.target);
         console.log('🔍 [GLOBAL CLICK] Click coordinates:', e.clientX, e.clientY);
+        console.log('🔍 [GLOBAL CLICK] Target tagName:', e.target?.tagName);
+        console.log('🔍 [GLOBAL CLICK] Target id:', e.target?.id);
+        console.log('🔍 [GLOBAL CLICK] Target className:', e.target?.className);
       });
       
     }, 100); // Wait 100ms for DOM to be ready
@@ -1086,7 +1089,14 @@ export default function DashboardSelectionPage() {
       >
         <button
           id="test-button"
+          onMouseDown={(e) => {
+            console.log('🧪 [REACT TEST] Mouse down detected');
+          }}
+          onMouseUp={(e) => {
+            console.log('🧪 [REACT TEST] Mouse up detected');
+          }}
           onClick={(e) => {
+            console.log('🧪 [REACT TEST] Click event fired!');
             e.preventDefault();
             e.stopPropagation();
             console.log('🧪 [REACT TEST] Click en botón de prueba');
@@ -1122,7 +1132,14 @@ export default function DashboardSelectionPage() {
         
         <button
           id="profile-button"
+          onMouseDown={(e) => {
+            console.log('🖱️ [REACT PROFILE] Mouse down detected');
+          }}
+          onMouseUp={(e) => {
+            console.log('🖱️ [REACT PROFILE] Mouse up detected');
+          }}
           onClick={(e) => {
+            console.log('🖱️ [REACT PROFILE] Click event fired!');
             e.preventDefault();
             e.stopPropagation();
             console.log('🖱️ [REACT PROFILE] Click en Editar Perfil directo');
@@ -1163,7 +1180,14 @@ export default function DashboardSelectionPage() {
         
         <button
           id="maestro-button"
+          onMouseDown={(e) => {
+            console.log('🖱️ [REACT MAESTRO] Mouse down detected');
+          }}
+          onMouseUp={(e) => {
+            console.log('🖱️ [REACT MAESTRO] Mouse up detected');
+          }}
           onClick={(e) => {
+            console.log('🖱️ [REACT MAESTRO] Click event fired!');
             e.preventDefault();
             e.stopPropagation();
             console.log('🖱️ [REACT MAESTRO] Click en Maestro Dashboard directo');
@@ -1255,7 +1279,7 @@ export default function DashboardSelectionPage() {
               const isAccessible = canAccessRole(option.level);
               // Para usuarios fundadores (nivel 0), mostrar MAESTRO como nivel actual
               // Para otros usuarios, usar su nivel real
-              const isCurrentLevel = userLevel === 0 ? option.level === 6 : option.level === userLevel;
+              const isCurrentLevel = userData?.user_level === 0 ? option.level === 6 : option.level === userLevel;
               
               // Determinar el color correcto para este rol
               const getOptionColor = () => {
