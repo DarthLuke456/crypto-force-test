@@ -58,7 +58,6 @@ export default function DashboardSelectionPage() {
   const { hasSavedData } = useFeedbackPersistence();
   const [redirectAttempts, setRedirectAttempts] = useState(0);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
-  const [isStable, setIsStable] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
 
   // Debug del estado de la página - Solo una vez al montar
@@ -74,25 +73,19 @@ export default function DashboardSelectionPage() {
 
   // Timeout para evitar carga infinita - Solo si no hay datos del usuario
   useEffect(() => {
-    // Si ya hay datos del usuario, no necesitamos timeout
-    if (userData && userData.email) {
-      console.log('✅ Usuario ya cargado, saltando timeout');
-      setLoadingTimeout(false); // Asegurar que no hay timeout
-      return;
-    }
-
-    // Solo ejecutar timeout si no hay datos del usuario Y no está cargando
-    if (!loading) {
+    // Solo ejecutar timeout si no hay datos del usuario
+    if (!userData || !userData.email) {
       const timer = setTimeout(() => {
-        if (!userData || !userData.email) {
-          console.log('⏰ [TIMEOUT] No se cargaron datos del usuario en 5 segundos');
-          setLoadingTimeout(true);
-        }
+        console.log('⏰ [TIMEOUT] No se cargaron datos del usuario en 5 segundos');
+        setLoadingTimeout(true);
       }, 5000);
 
       return () => clearTimeout(timer);
+    } else {
+      console.log('✅ Usuario ya cargado, saltando timeout');
+      setLoadingTimeout(false);
     }
-  }, []); // Solo ejecutar una vez al montar
+  }, [userData?.email]); // Depender del email del usuario
 
   // Prevenir bucles de redirección
   useEffect(() => {
@@ -516,7 +509,6 @@ export default function DashboardSelectionPage() {
       
       if (!isInitializedRef.current) {
         isInitializedRef.current = true;
-        setIsStable(true);
       }
       
       console.log('✅ Valores estabilizados:', {
@@ -683,8 +675,8 @@ export default function DashboardSelectionPage() {
     );
   }
 
-  // Mostrar loading si no hay datos o si el componente no está estable
-  if (loading || (!userData && !loadingTimeout) || !isStable) {
+  // Mostrar loading si no hay datos del usuario
+  if (loading || !userData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
         <div className="text-center">
