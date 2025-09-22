@@ -92,7 +92,7 @@ export default function DashboardSelectionPage() {
 
       return () => clearTimeout(timer);
     }
-  }, [userData?.email, loading]); // Depender del email y loading
+  }, []); // Solo ejecutar una vez al montar
 
   // Prevenir bucles de redirección
   useEffect(() => {
@@ -111,7 +111,7 @@ export default function DashboardSelectionPage() {
       console.log('📝 Dashboard Selection - Datos de feedback encontrados, abriendo modal automáticamente');
       setIsFeedbackModalOpen(true);
     }
-  }, [isReady, userData, hasSavedData]);
+  }, []); // Solo ejecutar una vez al montar
 
   // Función para comprimir imagen con compresión más agresiva
   const compressImage = (file: File, maxWidth: number = 150, quality: number = 0.6): Promise<string> => {
@@ -255,20 +255,20 @@ export default function DashboardSelectionPage() {
       
       console.log('🔍 handleAvatarChange - Llamando a changeAvatar...');
       await changeAvatar(compressedBase64);
-      console.log('✅ handleAvatarChange - Avatar actualizado correctamente');
+        console.log('✅ handleAvatarChange - Avatar actualizado correctamente');
       
       // Forzar actualización inmediata sin esperar
       forceUpdate();
       console.log('🔄 Avatar sincronizado inmediatamente');
       
       // Recargar desde base de datos después de un breve delay para confirmar
-      setTimeout(async () => {
-        await reloadAvatar();
-        forceUpdate();
+        setTimeout(async () => {
+          await reloadAvatar();
+          forceUpdate();
         console.log('🔄 Avatar recargado desde base de datos y sincronizado');
       }, 1000);
       
-      alert('Avatar actualizado correctamente');
+        alert('Avatar actualizado correctamente');
     } catch (error) {
       console.error('❌ handleAvatarChange - Error completo:', error);
       console.error('❌ handleAvatarChange - Error message:', error instanceof Error ? error.message : 'Error desconocido');
@@ -527,7 +527,7 @@ export default function DashboardSelectionPage() {
         isMaestroFundador: userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())
       });
     }
-  }, [userData, isReady, calculateUserLevel, calculateRoleDisplayText, calculateRoleColor]);
+  }, []); // Solo ejecutar una vez al montar
 
   // Valores estables que no causan re-renders
   const userLevel = userLevelRef.current;
@@ -1058,7 +1058,7 @@ export default function DashboardSelectionPage() {
                       console.log('🔄 [NAVIGATION] Redirigiendo...');
                       // Usar window.location.href para evitar problemas con router
                       setTimeout(() => {
-                        window.location.href = option.path;
+                      window.location.href = option.path;
                       }, 100);
                       
                       // Reset isNavigating after a delay to allow for retry if needed
@@ -1167,10 +1167,10 @@ export default function DashboardSelectionPage() {
                           
                           if (!isNavigating) {
                             setIsNavigating(true);
-                            console.log(`🚀 Navegando a: ${option.path}`);
+                          console.log(`🚀 Navegando a: ${option.path}`);
                             
                             setTimeout(() => {
-                              window.location.href = option.path;
+                          window.location.href = option.path;
                             }, 100);
                             
                             // Reset isNavigating after a delay to allow for retry if needed

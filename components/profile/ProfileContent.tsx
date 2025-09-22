@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Edit3, Save, Camera, CheckCircle, Phone, Mail, User as UserIcon, Calendar, Globe, Lock, Eye, EyeOff, AlertCircle, Loader2, Users } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { supabase } from '@/lib/supabaseClient';
 import { useAvatarSimple as useAvatar } from '@/hooks/useAvatarSimple';
 import { useReferralDataSimple } from '@/hooks/useReferralDataSimple';
