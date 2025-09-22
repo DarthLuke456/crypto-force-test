@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { supabase } from '@/lib/supabaseClient';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { 
   Home, 
   BarChart3, 
@@ -109,11 +109,15 @@ export default function MaestroSidebar() {
   }
 
 
+  const { logout } = useSafeAuth();
+  
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
+      console.log('🚪 MaestroSidebar: Iniciando logout...');
+      logout();
+      console.log('✅ MaestroSidebar: Logout completado');
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error('❌ MaestroSidebar: Error en logout:', error);
     }
   };
 

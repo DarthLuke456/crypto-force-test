@@ -71,6 +71,12 @@ export default function DashboardSelectionPage() {
     }
   }, []); // Solo ejecutar una vez al montar
 
+  // Reset isNavigating state when component mounts
+  useEffect(() => {
+    console.log('🔄 Dashboard Selection - Reseteando estado de navegación');
+    setIsNavigating(false);
+  }, []);
+
   // Timeout para evitar carga infinita - Solo si no hay datos del usuario
   useEffect(() => {
     // Solo ejecutar timeout si no hay datos del usuario
