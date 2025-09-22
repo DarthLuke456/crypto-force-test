@@ -528,9 +528,9 @@ export default function DashboardSelectionPage() {
   }, [userData, isReady, calculateUserLevel, calculateRoleDisplayText, calculateRoleColor]); // Depender de las funciones también
 
   // Valores estables que no causan re-renders
-  const userLevel = userLevelRef.current;
-  const roleDisplayText = roleDisplayTextRef.current;
-  const getRoleColor = roleColorRef.current;
+  const userLevel = userData ? calculateUserLevel() : 1;
+  const roleDisplayText = userData ? calculateRoleDisplayText() : 'Iniciado';
+  const getRoleColor = userData ? calculateRoleColor() : '#8a8a8a';
 
   // Debug simplificado del usuario - Solo una vez al montar
   useEffect(() => {

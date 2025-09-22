@@ -88,8 +88,8 @@ export default function ProfileContent() {
           referral_code: userData.referral_code || '', 
           referred_by: userData.referred_by || '',
           total_referrals: userData.total_referrals || 0, 
-          created_at: userData.created_at || '',
-          updated_at: userData.updated_at || ''
+          created_at: userData.created_at || new Date().toISOString(),
+          updated_at: userData.updated_at || new Date().toISOString()
         };
         
         setProfileData(sanitizedData);
