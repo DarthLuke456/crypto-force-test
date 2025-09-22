@@ -71,30 +71,30 @@ export default function ProfileContent() {
 
   useEffect(() => {
     const loadProfileData = async () => {
-      if (!user) return;
+      if (!userData) return;
       try {
         setLoading(true);
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.access_token) throw new Error('No hay sesión activa');
-        const response = await fetch('/api/profile', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.data) {
-            const sanitizedData = {
-              nombre: data.data.nombre || '', apellido: data.data.apellido || '', nickname: data.data.nickname || '',
-              email: data.data.email || '', movil: data.data.movil || '', exchange: data.data.exchange || '',
-              avatar: data.data.avatar || '/images/default-avatar.png',
-              user_level: data.data.user_level || 1,
-              referral_code: data.data.referral_code || '', referred_by: data.data.referred_by || '',
-              total_referrals: data.data.total_referrals || 0, created_at: data.data.created_at || '',
-              updated_at: data.data.updated_at || ''
-            };
-            setProfileData(sanitizedData);
-          }
-        }
+        
+        // Usar datos del AuthContext offline en lugar de Supabase
+        const sanitizedData = {
+          nombre: userData.nombre || '', 
+          apellido: userData.apellido || '', 
+          nickname: userData.nickname || '',
+          email: userData.email || '', 
+          movil: userData.movil || '', 
+          exchange: userData.exchange || '',
+          avatar: userAvatar || '/images/default-avatar.png',
+          user_level: userData.user_level || 1,
+          referral_code: userData.referral_code || '', 
+          referred_by: userData.referred_by || '',
+          total_referrals: userData.total_referrals || 0, 
+          created_at: userData.created_at || '',
+          updated_at: userData.updated_at || ''
+        };
+        
+        setProfileData(sanitizedData);
+        setAvatarPreview(sanitizedData.avatar);
+        console.log('✅ ProfileContent: Datos del perfil cargados desde AuthContext offline');
       } catch (e) {
         console.error('Error cargando datos del perfil:', e);
         setError('Error cargando datos del perfil');
@@ -103,7 +103,7 @@ export default function ProfileContent() {
       }
     };
     loadProfileData();
-  }, [user]);
+  }, [userData, userAvatar]);
 
   const saveProfile = async (newData: typeof profileData) => {
     try {
@@ -111,53 +111,33 @@ export default function ProfileContent() {
       setError(null);
       
       // Verificar que el usuario esté autenticado
-      if (!user) {
+      if (!userData) {
         throw new Error('No hay usuario autenticado');
       }
       
-      // Obtener la sesión actual
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        throw new Error('No hay sesión activa');
-      }
-      
+      // Simular guardado en localStorage para el contexto offline
       const cleanedData = {
-        nombre: newData.nombre || '', apellido: newData.apellido || '', nickname: newData.nickname || '',
-        email: newData.email || '', movil: newData.movil || '', exchange: newData.exchange || '',
-        avatar: newData.avatar || '/images/default-avatar.png', user_level: newData.user_level || 1
+        nombre: newData.nombre || '', 
+        apellido: newData.apellido || '', 
+        nickname: newData.nickname || '',
+        email: newData.email || '', 
+        movil: newData.movil || '', 
+        exchange: newData.exchange || '',
+        avatar: newData.avatar || '/images/default-avatar.png', 
+        user_level: newData.user_level || 1
       };
-      const response = await fetch('/api/profile/update', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify(cleanedData)
-      });
       
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setProfileData(data.profile);
-          setIsEditing(false);
-          setShowSuccess(true);
-          setTimeout(() => setShowSuccess(false), 2000);
-          
-          // Emitir evento de actualización de perfil
-          emitUserDataUpdate({
-            type: 'profile_updated',
-            userId: user?.id || '',
-            userData: data.profile,
-            timestamp: new Date().toISOString()
-          });
-        } else {
-          setError(data.error || 'Error actualizando perfil');
-        }
-      } else {
-        try {
-          const errorData = await response.json();
-          setError(errorData.error || 'Error actualizando perfil');
-        } catch (parseError) {
-          setError(`Error ${response.status}: ${response.statusText}`);
-        }
-      }
+      // Actualizar los datos en localStorage
+      const updatedUserData = { ...userData, ...cleanedData };
+      localStorage.setItem('crypto-force-user-data', JSON.stringify(updatedUserData));
+      
+      // Actualizar el estado local
+      setProfileData({ ...profileData, ...cleanedData });
+      setIsEditing(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2000);
+      
+      console.log('✅ ProfileContent: Perfil actualizado en localStorage');
     } catch (e) {
       console.error('Error en saveProfile:', e);
       setError('Error de conexión');
