@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -56,34 +56,9 @@ export default function DashboardSelectionPage() {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const { avatar: userAvatar, changeAvatar, forceUpdate, reloadAvatar } = useAvatar();
   const { hasSavedData } = useFeedbackPersistence();
-  const [redirectAttempts, setRedirectAttempts] = useState(0);
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
 
-  // Debug del estado de la página - Solo una vez al montar
-  useEffect(() => {
-    console.log('🔍 [PAGE LOAD] Componente montado');
-    console.log('🔍 [PAGE LOAD] userData:', userData);
-    console.log('🔍 [PAGE LOAD] isReady:', isReady);
-    console.log('🔍 [PAGE LOAD] loading:', loading);
-  }, []); // Solo ejecutar una vez al montar
-
-  // Debug para rastrear redirecciones - SIMPLIFICADO
-  useEffect(() => {
-    console.log('🔍 [REDIRECT DEBUG] Página cargada:', window.location.href);
-    console.log('🔍 [REDIRECT DEBUG] Referrer:', document.referrer);
-    console.log('🔍 [REDIRECT DEBUG] Timestamp:', new Date().toISOString());
-  }, []);
-
-  // ELIMINADO: Native DOM event listeners que causaban conflictos
-
-  // Reset isNavigating state when component mounts
-  useEffect(() => {
-    console.log('🔄 Dashboard Selection - Reseteando estado de navegación');
-    setIsNavigating(false);
-  }, []);
-
-  // ELIMINADO: useEffect de feedback que causaba re-renders
+  // ELIMINADO: Todos los useEffect problemáticos que causan bucles infinitos
 
   // Función para comprimir imagen con compresión más agresiva
   const compressImage = (file: File, maxWidth: number = 150, quality: number = 0.6): Promise<string> => {
@@ -264,20 +239,7 @@ export default function DashboardSelectionPage() {
     }
   };
 
-  // Cerrar menú de perfil al hacer clic fuera
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (isProfileMenuOpen && !target.closest('.profile-menu-container')) {
-        setIsProfileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isProfileMenuOpen]);
+  // ELIMINADO: useEffect de menú de perfil
 
               // REDIRECCIÓN AUTOMÁTICA DESHABILITADA TEMPORALMENTE
               /*
@@ -423,92 +385,46 @@ export default function DashboardSelectionPage() {
   ];
 
 
-  // Usar refs para estabilizar valores y evitar re-renders
-  const userLevelRef = useRef<number>(1);
-  const roleDisplayTextRef = useRef<string>('Iniciado');
-  const roleColorRef = useRef<string>('#8a8a8a');
-  const isInitializedRef = useRef<boolean>(false);
+  // ELIMINADO: Refs que causaban problemas
 
-  // Función estable para calcular nivel de usuario
-  const calculateUserLevel = useCallback(() => {
+  // Funciones simples - SIN USECALLBACK
+  const calculateUserLevel = () => {
     if (!userData) return 1;
-    
-    // Usuarios fundadores (nivel 0) tienen acceso a Maestro
-    if (userData.user_level === 0) {
-      return 0; // Mantener nivel 0 para fundadores
-    }
-    
+    if (userData.user_level === 0) return 0; // Fundadores
     return userData.user_level || 1;
-  }, [userData?.user_level]);
+  };
 
-  // Función estable para calcular texto del rol
-  const calculateRoleDisplayText = useCallback(() => {
+  const calculateRoleDisplayText = () => {
     if (!userData) return 'Iniciado';
-    
-    if (userData.user_level === 0) {
-      return 'Fundador';
-    }
-    
+    if (userData.user_level === 0) return 'Fundador';
     return getLevelDisplayName(userData);
-  }, [userData?.user_level]);
+  };
 
-  // Función estable para calcular color del rol
-  const calculateRoleColor = useCallback(() => {
+  const calculateRoleColor = () => {
     if (!userData) return '#8a8a8a';
     
-    // Verificar si es Maestro Fundador
     const isMaestroFundador = userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
     
     if (isMaestroFundador) {
       return '#FF8C42'; // Color naranja para Maestros Fundadores
     }
     
-    // Para otros maestros (nivel 6) que no sean fundadores
     if (userData.user_level === 6) {
       return '#8a8a8a'; // Color gris para otros maestros
     }
     
-    // Para otros niveles, usar el color de su nivel
     const option = dashboardOptions.find(o => o.level === userData.user_level);
     return option?.color || '#8a8a8a';
-  }, [userData?.email, userData?.user_level, dashboardOptions]);
+  };
 
-  // Inicializar valores UNA SOLA VEZ - SIN BUCLE INFINITO
-  useEffect(() => {
-    if (userData && isReady && !isInitializedRef.current) {
-      userLevelRef.current = calculateUserLevel();
-      roleDisplayTextRef.current = calculateRoleDisplayText();
-      roleColorRef.current = calculateRoleColor();
-      
-      isInitializedRef.current = true;
-      
-      console.log('✅ Valores inicializados:', {
-        userLevel: userLevelRef.current,
-        roleDisplayText: roleDisplayTextRef.current,
-        roleColor: roleColorRef.current,
-        userEmail: userData.email,
-        isMaestroFundador: userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())
-      });
-    }
-  }, [userData?.email, userData?.user_level, isReady, calculateUserLevel, calculateRoleDisplayText, calculateRoleColor]);
+  // ELIMINADO: useEffect de inicialización que causaba bucle infinito
 
-  // Valores estables que no causan re-renders - USAR REFS
-  const userLevel = userLevelRef.current;
-  const roleDisplayText = roleDisplayTextRef.current;
-  const getRoleColor = roleColorRef.current;
+  // Calcular valores directamente - SIN REFS NI USEEFFECT
+  const userLevel = userData ? calculateUserLevel() : 1;
+  const roleDisplayText = userData ? calculateRoleDisplayText() : 'Iniciado';
+  const getRoleColor = userData ? calculateRoleColor() : '#8a8a8a';
 
-  // Debug simplificado del usuario - Solo una vez al montar
-  useEffect(() => {
-    if (userData && isReady && isInitializedRef.current) {
-      console.log('🔍 Dashboard Selection - Usuario cargado:', {
-        nickname: userData.nickname,
-        email: userData.email,
-        user_level: userData.user_level,
-        calculatedLevel: userLevel,
-        roleDisplayText: roleDisplayText
-      });
-    }
-  }, [userData?.email, userData?.user_level, isReady, isInitializedRef.current]);
+  // ELIMINADO: useEffect de debug que causaba re-renders
 
   // Función para cerrar sesión
   const handleLogout = async () => {
@@ -627,39 +543,27 @@ export default function DashboardSelectionPage() {
 
 
   // Función estable para verificar acceso a roles
-  const canAccessRole = useCallback((roleLevel: number) => {
+  const canAccessRole = (roleLevel: number) => {
     if (!userData) return false;
     
     const currentUserEmail = userData.email;
-    
-    // Verificar si es usuario fundador por email
     const isFundadorByEmail = currentUserEmail && MAESTRO_AUTHORIZED_EMAILS.includes(currentUserEmail.toLowerCase().trim());
     
-    // Fundadores tienen acceso a TODOS los dashboards
     if (isFundadorByEmail) {
-      console.log(`✅ ${getLevelDisplayName(userData)} accesible para usuario`);
       return true;
     }
     
-    // Calcular nivel actual del usuario
     const currentUserLevel = userData.user_level || 1;
     
-    // También verificar por nivel 6
     if (currentUserLevel === 6) {
-      console.log(`✅ ${getLevelDisplayName(userData)} accesible para usuario`);
       return true;
     }
     
-    // Otros usuarios solo pueden acceder a su nivel y niveles inferiores
-    const hasAccess = roleLevel <= currentUserLevel;
-    if (hasAccess) {
-      console.log(`✅ ${getLevelDisplayName(userData)} accesible para usuario`);
-    }
-    return hasAccess;
-  }, [userData]);
+    return roleLevel <= currentUserLevel;
+  };
 
   // Mostrar error si hay bucle de redirección
-  if (redirectAttempts > 3) {
+  if (false) { // ELIMINADO: redirectAttempts
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
@@ -701,17 +605,7 @@ export default function DashboardSelectionPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#ec4d58] mx-auto mb-4"></div>
           <p className="text-white mt-4">Cargando tu perfil...</p>
-          {loadingTimeout && (
-            <div className="mt-4">
-              <p className="text-red-400 mb-4">Error de carga - Recargando automáticamente...</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
-              >
-                Recargar Página
-              </button>
-            </div>
-          )}
+          {/* ELIMINADO: loadingTimeout */}
         </div>
       </div>
     );
