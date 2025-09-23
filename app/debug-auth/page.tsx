@@ -1,88 +1,136 @@
 'use client';
 
-import { useSafeAuth } from '@/context/AuthContext';
-import { useEffect, useState } from 'react';
+import { useSafeAuth } from '@/context/AuthContext-offline';
+import { MAESTRO_AUTHORIZED_EMAILS } from '@/utils/dashboardUtils';
 
 export default function DebugAuthPage() {
-  const { userData, loading, isReady, user } = useSafeAuth();
-  const [debugInfo, setDebugInfo] = useState<any>({});
-
-  useEffect(() => {
-    const info = {
-      timestamp: new Date().toISOString(),
-      loading,
-      isReady,
-      user: user ? {
-        id: user.id,
-        email: user.email,
-        created_at: user.created_at
-      } : null,
-      userData: userData ? {
-        id: userData.id,
-        email: userData.email,
-        user_level: userData.user_level,
-        nickname: userData.nickname
-      } : null
-    };
-    
-    setDebugInfo(info);
-    console.log('🔍 DEBUG AUTH:', info);
-  }, [loading, isReady, user, userData]);
+  const { user, userData, loading, isReady } = useSafeAuth();
 
   return (
     <div className="min-h-screen bg-[#121212] p-8">
-      <h1 className="text-2xl font-bold text-white mb-6">Debug Authentication</h1>
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-white mb-8">Debug Authentication</h1>
       
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Auth Context Status */}
       <div className="bg-[#1a1a1a] p-6 rounded-lg">
-        <h2 className="text-lg font-semibold text-white mb-4">Estado Actual:</h2>
+            <h2 className="text-xl font-semibold text-white mb-4">Auth Context Status</h2>
         <div className="space-y-2 text-sm">
-          <div className="flex">
-            <span className="text-gray-400 w-32">Loading:</span>
-            <span className={loading ? 'text-red-400' : 'text-green-400'}>{loading ? 'true' : 'false'}</span>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Loading:</span>
+                <span className={loading ? 'text-red-400' : 'text-green-400'}>{loading ? 'Yes' : 'No'}</span>
           </div>
-          <div className="flex">
-            <span className="text-gray-400 w-32">IsReady:</span>
-            <span className={isReady ? 'text-green-400' : 'text-red-400'}>{isReady ? 'true' : 'false'}</span>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Is Ready:</span>
+                <span className={isReady ? 'text-green-400' : 'text-red-400'}>{isReady ? 'Yes' : 'No'}</span>
           </div>
-          <div className="flex">
-            <span className="text-gray-400 w-32">User:</span>
-            <span className={user ? 'text-green-400' : 'text-red-400'}>{user ? 'Present' : 'null'}</span>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Has User:</span>
+                <span className={user ? 'text-green-400' : 'text-red-400'}>{user ? 'Yes' : 'No'}</span>
           </div>
-          <div className="flex">
-            <span className="text-gray-400 w-32">UserData:</span>
-            <span className={userData ? 'text-green-400' : 'text-red-400'}>{userData ? 'Present' : 'null'}</span>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Has UserData:</span>
+                <span className={userData ? 'text-green-400' : 'text-red-400'}>{userData ? 'Yes' : 'No'}</span>
           </div>
         </div>
       </div>
 
-      <div className="bg-[#1a1a1a] p-6 rounded-lg mt-6">
-        <h2 className="text-lg font-semibold text-white mb-4">Información Detallada:</h2>
-        <pre className="text-xs text-gray-300 overflow-auto">
-          {JSON.stringify(debugInfo, null, 2)}
-        </pre>
+          {/* User Data */}
+          <div className="bg-[#1a1a1a] p-6 rounded-lg">
+            <h2 className="text-xl font-semibold text-white mb-4">User Data</h2>
+            {userData ? (
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Email:</span>
+                  <span className="text-white">{userData.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Nickname:</span>
+                  <span className="text-white">{userData.nickname}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">User Level:</span>
+                  <span className="text-white">{userData.user_level}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">User Level Type:</span>
+                  <span className="text-white">{typeof userData.user_level}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-red-400">No user data available</p>
+            )}
+          </div>
+
+          {/* Authorization Check */}
+          <div className="bg-[#1a1a1a] p-6 rounded-lg">
+            <h2 className="text-xl font-semibold text-white mb-4">Authorization Check</h2>
+            {userData ? (
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Email in MAESTRO_AUTHORIZED_EMAILS:</span>
+                  <span className={MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim()) ? 'text-green-400' : 'text-red-400'}>
+                    {MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim()) ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Is Level 0:</span>
+                  <span className={userData.user_level === 0 ? 'text-green-400' : 'text-red-400'}>
+                    {userData.user_level === 0 ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Is Level 6:</span>
+                  <span className={userData.user_level === 6 ? 'text-green-400' : 'text-red-400'}>
+                    {userData.user_level === 6 ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Authorized Emails:</span>
+                  <span className="text-white text-xs">{MAESTRO_AUTHORIZED_EMAILS.join(', ')}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-red-400">No user data to check</p>
+            )}
       </div>
 
-      <div className="bg-[#1a1a1a] p-6 rounded-lg mt-6">
-        <h2 className="text-lg font-semibold text-white mb-4">Acciones:</h2>
-        <div className="space-x-4">
+          {/* Navigation Test */}
+          <div className="bg-[#1a1a1a] p-6 rounded-lg">
+            <h2 className="text-xl font-semibold text-white mb-4">Navigation Test</h2>
+            <div className="space-y-3">
           <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                onClick={() => window.location.href = '/login/dashboard-selection'}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            Recargar Página
+                Go to Dashboard Selection
           </button>
           <button
-            onClick={() => window.location.href = '/login/signin'}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                onClick={() => window.location.href = '/dashboard/maestro'}
+                className="w-full px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700"
           >
-            Ir a Login
+                Go to Maestro Dashboard
           </button>
           <button
-            onClick={() => window.location.href = '/dashboard/maestro/courses/tribunal-imperial'}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Ir a Tribunal Imperial
+                onClick={() => {
+                  localStorage.clear();
+                  sessionStorage.clear();
+                  window.location.reload();
+                }}
+                className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Clear Storage & Reload
           </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Raw Data */}
+        <div className="mt-8 bg-[#1a1a1a] p-6 rounded-lg">
+          <h2 className="text-xl font-semibold text-white mb-4">Raw Data</h2>
+          <pre className="text-xs text-gray-400 overflow-auto">
+            {JSON.stringify({ user, userData, loading, isReady }, null, 2)}
+          </pre>
         </div>
       </div>
     </div>

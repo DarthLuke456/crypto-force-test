@@ -17,7 +17,6 @@ import {
   LineChart
 } from 'lucide-react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabaseClient';
 
 export default function MaestroDashboardPage() {
   const [systemStats, setSystemStats] = useState({
@@ -36,31 +35,13 @@ export default function MaestroDashboardPage() {
   useEffect(() => {
     const fetchSystemStats = async () => {
       try {
-        // Obtener el token de autenticación
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.access_token) {
-          throw new Error('No hay sesión activa');
-        }
-
-        const response = await fetch('/api/maestro/real-stats', {
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          // Calcular estadísticas del sistema basadas en datos reales
-          setSystemStats(prev => ({
-            ...prev,
-            activeSessions: data.metrics?.activeUsers || 0,
-            totalStorage: `${((data.users?.length || 0) * 0.1).toFixed(1)} GB`
-          }));
-        } else {
-          const errorData = await response.json();
-          console.error('Error fetching system stats:', errorData.error);
-        }
+        // Para AuthContext offline, no necesitamos token de Supabase
+        // Simular datos del sistema
+        setSystemStats(prev => ({
+          ...prev,
+          activeSessions: 1, // Usuario actual
+          totalStorage: '2.4 GB'
+        }));
       } catch (error) {
         console.error('Error fetching system stats:', error);
       } finally {
