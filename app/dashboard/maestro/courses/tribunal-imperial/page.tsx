@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Crown, FileText, CheckCircle, XCircle, Clock, Users, BarChart3, Plus, Eye, Save, Edit, Trash2, ArrowLeft, HelpCircle, ExternalLink, X } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext-working';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { canUserAccessTribunal, hasAbsoluteAuthority } from '@/lib/tribunal/permissions';
 import ContentEditor from '@/components/tribunal/ContentEditor';
 import NotionEditor from '@/components/tribunal/NotionEditor';

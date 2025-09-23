@@ -13,7 +13,7 @@ import {
   Zap,
   Unlock
 } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext-working';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 
 interface DashboardOption {
   id: string;

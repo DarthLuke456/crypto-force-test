@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Maestro Access</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: #fafafa;
+            padding: 20px;
+        }
+        .debug-section {
+            background: #1e1e1e;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #2a2a2a;
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .warning { color: #fbbf24; }
+        .info { color: #60a5fa; }
+        button {
+            background: #ec4d58;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #d43d48;
+        }
+        pre {
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Maestro Access</h1>
+    
+    <div class="debug-section">
+        <h2>1. Verificar localStorage</h2>
+        <button onclick="checkLocalStorage()">Verificar localStorage</button>
+        <div id="localStorage-result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>2. Simular AuthContext</h2>
+        <button onclick="simulateAuthContext()">Simular AuthContext</button>
+        <div id="authContext-result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>3. Verificar Acceso Maestro</h2>
+        <button onclick="checkMaestroAccess()">Verificar Acceso</button>
+        <div id="maestroAccess-result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>4. Navegar a Maestro</h2>
+        <button onclick="navigateToMaestro()">Ir a /dashboard/maestro</button>
+        <div id="navigation-result"></div>
+    </div>
+
+    <script>
+        const MAESTRO_AUTHORIZED_EMAILS = [
+            'infocryptoforce@gmail.com',
+            'coeurdeluke.js@gmail.com'
+        ];
+
+        function checkLocalStorage() {
+            const result = document.getElementById('localStorage-result');
+            const storedEmail = localStorage.getItem('crypto-force-user-email');
+            const isLoggedOut = localStorage.getItem('crypto-force-logged-out');
+            const avatar = localStorage.getItem('user-avatar');
+            
+            result.innerHTML = `
+                <h3 class="info">LocalStorage Status:</h3>
+                <pre>Stored Email: ${storedEmail || 'null'}
+Is Logged Out: ${isLoggedOut || 'null'}
+Has Avatar: ${avatar ? 'Yes' : 'No'}
+All Keys: ${Object.keys(localStorage).join(', ')}</pre>
+            `;
+        }
+
+        function simulateAuthContext() {
+            const result = document.getElementById('authContext-result');
+            
+            // Simular la lógica del AuthContext
+            const storedEmail = localStorage.getItem('crypto-force-user-email');
+            const isLoggedOut = localStorage.getItem('crypto-force-logged-out');
+            const authorizedEmails = ['coeurdeluke.js@gmail.com', 'infocryptoforce@gmail.com'];
+            
+            let userData = null;
+            let isReady = false;
+            let loading = true;
+            
+            if (isLoggedOut === 'true') {
+                result.innerHTML = '<h3 class="error">Usuario deslogueado</h3>';
+                return;
+            }
+            
+            if (storedEmail && authorizedEmails.includes(storedEmail)) {
+                // Crear userData como en AuthContext
+                const isFounder = storedEmail === 'coeurdeluke.js@gmail.com' || storedEmail === 'infocryptoforce@gmail.com';
+                userData = {
+                    id: `user-${Date.now()}`,
+                    email: storedEmail,
+                    nombre: 'Usuario',
+                    apellido: 'Crypto Force',
+                    nickname: storedEmail.split('@')[0],
+                    movil: '',
+                    exchange: '',
+                    user_level: isFounder ? 0 : 1,
+                    referral_code: `USER-${storedEmail.split('@')[0].toUpperCase()}`,
+                    uid: `uid-${Date.now()}`,
+                    codigo_referido: null,
+                    referred_by: null,
+                    total_referrals: 0
+                };
+                isReady = true;
+                loading = false;
+            } else {
+                isReady = true;
+                loading = false;
+            }
+            
+            result.innerHTML = `
+                <h3 class="info">AuthContext Simulation:</h3>
+                <pre>User Data: ${JSON.stringify(userData, null, 2)}
+Is Ready: ${isReady}
+Loading: ${loading}
+Stored Email: ${storedEmail}
+Is Logged Out: ${isLoggedOut}</pre>
+            `;
+        }
+
+        function checkMaestroAccess() {
+            const result = document.getElementById('maestroAccess-result');
+            
+            // Simular la lógica del Maestro Layout
+            const storedEmail = localStorage.getItem('crypto-force-user-email');
+            const isLoggedOut = localStorage.getItem('crypto-force-logged-out');
+            
+            if (isLoggedOut === 'true') {
+                result.innerHTML = '<h3 class="error">Usuario deslogueado - No acceso</h3>';
+                return;
+            }
+            
+            if (!storedEmail) {
+                result.innerHTML = '<h3 class="error">No hay email guardado - No acceso</h3>';
+                return;
+            }
+            
+            // Crear userData como en AuthContext
+            const isFounder = storedEmail === 'coeurdeluke.js@gmail.com' || storedEmail === 'infocryptoforce@gmail.com';
+            const userData = {
+                email: storedEmail,
+                user_level: isFounder ? 0 : 1
+            };
+            
+            // Verificar acceso como en Maestro Layout
+            const userEmail = userData.email.toLowerCase().trim();
+            const clientAuthorized = MAESTRO_AUTHORIZED_EMAILS.includes(userEmail);
+            const isLevel6 = userData.user_level === 6 || String(userData.user_level) === '6' || userData.user_level === 6.0;
+            const isLevel0 = userData.user_level === 0 || String(userData.user_level) === '0' || userData.user_level === 0.0;
+            const hasAccess = clientAuthorized || isLevel6 || isLevel0;
+            
+            result.innerHTML = `
+                <h3 class="${hasAccess ? 'success' : 'error'}">Acceso Maestro: ${hasAccess ? 'PERMITIDO' : 'DENEGADO'}</h3>
+                <pre>Email: ${userData.email}
+User Level: ${userData.user_level} (${typeof userData.user_level})
+Client Authorized: ${clientAuthorized}
+Is Level 6: ${isLevel6}
+Is Level 0: ${isLevel0}
+Has Access: ${hasAccess}
+Authorized Emails: ${MAESTRO_AUTHORIZED_EMAILS.join(', ')}</pre>
+            `;
+        }
+
+        function navigateToMaestro() {
+            const result = document.getElementById('navigation-result');
+            
+            // Verificar acceso antes de navegar
+            const storedEmail = localStorage.getItem('crypto-force-user-email');
+            const isLoggedOut = localStorage.getItem('crypto-force-logged-out');
+            
+            if (isLoggedOut === 'true') {
+                result.innerHTML = '<h3 class="error">Usuario deslogueado - No se puede navegar</h3>';
+                return;
+            }
+            
+            if (!storedEmail) {
+                result.innerHTML = '<h3 class="error">No hay email guardado - No se puede navegar</h3>';
+                return;
+            }
+            
+            result.innerHTML = '<h3 class="info">Navegando a /dashboard/maestro...</h3>';
+            
+            // Navegar
+            setTimeout(() => {
+                window.location.href = '/dashboard/maestro';
+            }, 1000);
+        }
+
+        // Auto-ejecutar al cargar
+        window.onload = function() {
+            checkLocalStorage();
+            simulateAuthContext();
+            checkMaestroAccess();
+        };
+    </script>
+</body>
+</html>
