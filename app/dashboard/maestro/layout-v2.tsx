@@ -30,7 +30,6 @@ function MaestroLayoutContent({ children }: MaestroLayoutContentProps) {
     hasUserData: !!userData, 
     isReady, 
     loading, 
-    hasError: !!error,
     isAuthorized,
     accessCheckComplete
   });
