@@ -69,7 +69,7 @@ const menuItems: MenuItem[] = [
   },
   {
     label: 'Niveles',
-    href: '/login/dashboard-selection',
+    href: '/dashboard/maestro/levels',
     icon: Compass
   },
   {
