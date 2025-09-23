@@ -219,18 +219,18 @@ export default function MaestroLevelsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+    <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f]">
       {/* Header */}
-      <div className="bg-black/20 backdrop-blur-sm border-b border-white/10 mb-8">
+      <div className="bg-[#1e1e1e]/50 backdrop-blur-sm border-b border-[#2a2a2a] mb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-[#ec4d58] to-[#d43d48] rounded-full flex items-center justify-center">
                 <Crown className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white">Sistema de Niveles</h1>
-                <p className="text-gray-300">Gestiona y supervisa todos los niveles de poder</p>
+                <h1 className="text-3xl font-bold text-[#fafafa]">Sistema de Niveles</h1>
+                <p className="text-[#8a8a8a]">Gestiona y supervisa todos los niveles de poder</p>
               </div>
             </div>
           </div>
@@ -240,51 +240,51 @@ export default function MaestroLevelsPage() {
       {/* Contenido principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-white mb-4">
-            Bienvenido, {userData?.nickname || 'Maestro'}
+          <h2 className="text-4xl md:text-5xl font-bold text-[#fafafa] mb-4">
+            Bienvenido, <span className="text-[#ec4d58]">{userData?.nickname || 'Maestro'}</span>
           </h2>
-          <p className="text-xl text-gray-300 mb-6">
-            Tu nivel actual: <span className="text-yellow-400 font-bold">{roleDisplayText}</span>
+          <p className="text-xl text-[#8a8a8a] mb-6">
+            Tu nivel actual: <span className="text-[#ec4d58] font-bold">{roleDisplayText}</span>
           </p>
-          <p className="text-gray-400 max-w-2xl mx-auto">
+          <p className="text-[#8a8a8a] text-lg max-w-3xl mx-auto">
             Como Maestro, tienes acceso completo a todos los niveles del sistema. Puedes supervisar, gestionar y guiar a los usuarios en su camino hacia el poder.
           </p>
         </div>
 
         {/* Estadísticas de niveles */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+          <div className="bg-[#1e1e1e]/50 backdrop-blur-sm rounded-xl p-6 border border-[#2a2a2a]">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-400" />
+              <div className="w-12 h-12 bg-[#ec4d58]/20 rounded-full flex items-center justify-center">
+                <Users className="w-6 h-6 text-[#ec4d58]" />
               </div>
               <div>
-                <p className="text-gray-300 text-sm">Total de Niveles</p>
-                <p className="text-2xl font-bold text-white">6</p>
+                <p className="text-[#8a8a8a] text-sm">Total de Niveles</p>
+                <p className="text-2xl font-bold text-[#fafafa]">6</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+          <div className="bg-[#1e1e1e]/50 backdrop-blur-sm rounded-xl p-6 border border-[#2a2a2a]">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-400" />
+              <div className="w-12 h-12 bg-[#ec4d58]/20 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-[#ec4d58]" />
               </div>
               <div>
-                <p className="text-gray-300 text-sm">Niveles Desbloqueados</p>
-                <p className="text-2xl font-bold text-white">6</p>
+                <p className="text-[#8a8a8a] text-sm">Niveles Desbloqueados</p>
+                <p className="text-2xl font-bold text-[#fafafa]">6</p>
               </div>
             </div>
           </div>
           
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+          <div className="bg-[#1e1e1e]/50 backdrop-blur-sm rounded-xl p-6 border border-[#2a2a2a]">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
-                <Award className="w-6 h-6 text-purple-400" />
+              <div className="w-12 h-12 bg-[#ec4d58]/20 rounded-full flex items-center justify-center">
+                <Award className="w-6 h-6 text-[#ec4d58]" />
               </div>
               <div>
-                <p className="text-gray-300 text-sm">Tu Nivel</p>
-                <p className="text-2xl font-bold text-white">{roleDisplayText}</p>
+                <p className="text-[#8a8a8a] text-sm">Tu Nivel</p>
+                <p className="text-2xl font-bold text-[#fafafa]">{roleDisplayText}</p>
               </div>
             </div>
           </div>
@@ -300,24 +300,33 @@ export default function MaestroLevelsPage() {
             return (
               <div
                 key={option.id}
-                className={`relative group cursor-pointer transform transition-all duration-300 hover:scale-105 ${
-                  isCurrent ? 'ring-4 ring-yellow-400 ring-opacity-50' : ''
-                } ${!isAccessible ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`group relative overflow-hidden rounded-xl border transition-all duration-300 transform hover:scale-105 ${
+                  isCurrent
+                    ? 'shadow-lg'
+                    : isAccessible
+                    ? 'border-[#2a2a2a] hover:border-[#3a3a3a]'
+                    : 'border-[#1a1a1a] opacity-60'
+                } ${isAccessible ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                style={{
+                  borderColor: isCurrent ? optionColor : undefined,
+                  boxShadow: isCurrent ? `0 0 20px ${optionColor}20` : undefined
+                }}
                 onClick={() => isAccessible && handleDashboardNavigation(option)}
               >
-                <div
-                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:border-white/40 transition-all duration-300"
-                  style={{
-                    background: `linear-gradient(135deg, ${optionColor}20, ${optionColor}05)`,
-                    borderColor: isCurrent ? optionColor : 'rgba(255,255,255,0.2)'
-                  }}
-                >
+                {/* Fondo con gradiente */}
+                <div 
+                  className="absolute inset-0 opacity-10 transition-opacity duration-300 group-hover:opacity-20"
+                  style={{ background: `linear-gradient(135deg, ${optionColor}20, ${optionColor}10)` }}
+                />
+                
+                {/* Contenido */}
+                <div className="relative p-6">
                   {/* Emblema y nivel */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="text-4xl">{option.emblem}</div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-white">{option.title}</div>
-                      <div className="text-sm text-gray-300">Nivel {option.level}</div>
+                      <div className="text-2xl font-bold text-[#fafafa]">{option.title}</div>
+                      <div className="text-sm text-[#8a8a8a]">Nivel {option.level}</div>
                     </div>
                   </div>
 
@@ -333,29 +342,35 @@ export default function MaestroLevelsPage() {
 
                   {/* Descripción */}
                   <div className="text-center mb-6">
-                    <h3 className="text-lg font-semibold text-white mb-2">{option.title}</h3>
-                    <p className="text-gray-300 text-sm">{option.description}</p>
+                    <h3 className="text-lg font-semibold text-[#fafafa] mb-2">{option.title}</h3>
+                    <p className="text-[#8a8a8a] text-sm">{option.description}</p>
                   </div>
 
                   {/* Filosofía */}
                   <div className="mb-6">
-                    <p className="text-gray-400 text-sm italic text-center">"{option.philosophy}"</p>
+                    <p className="text-[#8a8a8a] text-sm italic text-center">"{option.philosophy}"</p>
                   </div>
 
                   {/* Estado */}
                   <div className="text-center">
                     {isCurrent ? (
-                      <div className="inline-flex items-center px-4 py-2 bg-yellow-400/20 text-yellow-400 rounded-full text-sm font-medium">
+                      <div 
+                        className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium"
+                        style={{ 
+                          backgroundColor: `${optionColor}20`, 
+                          color: optionColor 
+                        }}
+                      >
                         <Star className="w-4 h-4 mr-2" />
                         Nivel Actual
                       </div>
                     ) : isAccessible ? (
-                      <div className="inline-flex items-center px-4 py-2 bg-green-400/20 text-green-400 rounded-full text-sm font-medium">
+                      <div className="inline-flex items-center px-4 py-2 bg-[#ec4d58]/20 text-[#ec4d58] rounded-full text-sm font-medium">
                         <Unlock className="w-4 h-4 mr-2" />
                         Accesible
                       </div>
                     ) : (
-                      <div className="inline-flex items-center px-4 py-2 bg-gray-400/20 text-gray-400 rounded-full text-sm font-medium">
+                      <div className="inline-flex items-center px-4 py-2 bg-[#8a8a8a]/20 text-[#8a8a8a] rounded-full text-sm font-medium">
                         <Lock className="w-4 h-4 mr-2" />
                         Bloqueado
                       </div>
@@ -368,28 +383,28 @@ export default function MaestroLevelsPage() {
         </div>
 
         {/* Información adicional para Maestros */}
-        <div className="mt-12 bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10">
+        <div className="mt-12 bg-[#1e1e1e]/50 backdrop-blur-sm rounded-xl p-8 border border-[#2a2a2a]">
           <div className="text-center">
-            <h3 className="text-2xl font-bold text-white mb-4">Poderes de Maestro</h3>
-            <p className="text-gray-300 mb-6">
+            <h3 className="text-2xl font-bold text-[#fafafa] mb-4">Poderes de Maestro</h3>
+            <p className="text-[#8a8a8a] mb-6">
               Como Maestro, tienes acceso completo a todos los niveles y puedes supervisar el progreso de todos los usuarios.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="flex items-center space-x-3 p-4 bg-white/10 rounded-lg">
-                <Target className="w-5 h-5 text-yellow-400" />
-                <span className="text-white text-sm">Supervisión Total</span>
+              <div className="flex items-center space-x-3 p-4 bg-[#2a2a2a]/50 rounded-lg">
+                <Target className="w-5 h-5 text-[#ec4d58]" />
+                <span className="text-[#fafafa] text-sm">Supervisión Total</span>
               </div>
-              <div className="flex items-center space-x-3 p-4 bg-white/10 rounded-lg">
-                <Settings className="w-5 h-5 text-blue-400" />
-                <span className="text-white text-sm">Gestión Avanzada</span>
+              <div className="flex items-center space-x-3 p-4 bg-[#2a2a2a]/50 rounded-lg">
+                <Settings className="w-5 h-5 text-[#ec4d58]" />
+                <span className="text-[#fafafa] text-sm">Gestión Avanzada</span>
               </div>
-              <div className="flex items-center space-x-3 p-4 bg-white/10 rounded-lg">
-                <Users className="w-5 h-5 text-green-400" />
-                <span className="text-white text-sm">Control de Usuarios</span>
+              <div className="flex items-center space-x-3 p-4 bg-[#2a2a2a]/50 rounded-lg">
+                <Users className="w-5 h-5 text-[#ec4d58]" />
+                <span className="text-[#fafafa] text-sm">Control de Usuarios</span>
               </div>
-              <div className="flex items-center space-x-3 p-4 bg-white/10 rounded-lg">
-                <Crown className="w-5 h-5 text-purple-400" />
-                <span className="text-white text-sm">Autoridad Suprema</span>
+              <div className="flex items-center space-x-3 p-4 bg-[#2a2a2a]/50 rounded-lg">
+                <Crown className="w-5 h-5 text-[#ec4d58]" />
+                <span className="text-[#fafafa] text-sm">Autoridad Suprema</span>
               </div>
             </div>
           </div>
