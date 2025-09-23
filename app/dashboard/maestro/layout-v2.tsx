@@ -19,7 +19,7 @@ interface MaestroLayoutContentProps {
 }
 
 function MaestroLayoutContent({ children }: MaestroLayoutContentProps) {
-  const { userData, isReady, loading, error, retryAuth } = useSafeAuth();
+  const { userData, isReady, loading } = useSafeAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -55,13 +55,6 @@ function MaestroLayoutContent({ children }: MaestroLayoutContentProps) {
         return;
       }
 
-      if (error) {
-        layoutLog.error('Auth error detected', { error });
-        setIsAuthorized(false);
-        setAccessCheckComplete(true);
-        setIsLoading(false);
-        return;
-      }
 
       if (!userData) {
         layoutLog.warn('No user data available, redirecting to login');
@@ -112,7 +105,7 @@ function MaestroLayoutContent({ children }: MaestroLayoutContentProps) {
       setAccessCheckComplete(true);
       setIsLoading(false);
     }
-  }, [isReady, loading, error, userData, router]);
+  }, [isReady, loading, userData, router]);
 
   // Efecto para verificar acceso
   useEffect(() => {
@@ -133,15 +126,14 @@ function MaestroLayoutContent({ children }: MaestroLayoutContentProps) {
     layoutLog.debug('Auth state change effect triggered', { 
       isReady, 
       loading, 
-      hasUserData: !!userData,
-      hasError: !!error 
+      hasUserData: !!userData
     });
 
-    if (isReady && !loading && !error && userData) {
+    if (isReady && !loading && userData) {
       layoutLog.info('Auth state ready, checking access');
       checkAccess();
     }
-  }, [isReady, loading, error, userData, checkAccess]);
+  }, [isReady, loading, userData, checkAccess]);
 
   // Mostrar loading mientras se verifica el acceso
   if (isLoading || !accessCheckComplete) {
@@ -160,16 +152,7 @@ function MaestroLayoutContent({ children }: MaestroLayoutContentProps) {
           <div className="mt-4 text-sm text-gray-400">
             <p>Estado: {isReady ? 'Listo' : 'Cargando'}</p>
             <p>Usuario: {userData ? 'Cargado' : 'No cargado'}</p>
-            <p>Error: {error || 'Ninguno'}</p>
           </div>
-          {error && (
-            <button
-              onClick={retryAuth}
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            >
-              Reintentar
-            </button>
-          )}
         </div>
       </div>
     );
@@ -201,13 +184,6 @@ function MaestroLayoutContent({ children }: MaestroLayoutContentProps) {
               className="w-full px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
             >
               Volver a Selección de Dashboard
-            </button>
-            
-            <button 
-              onClick={retryAuth}
-              className="w-full px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Reintentar Verificación
             </button>
           </div>
         </div>
