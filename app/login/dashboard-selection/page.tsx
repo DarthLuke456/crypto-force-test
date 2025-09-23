@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -387,20 +387,20 @@ export default function DashboardSelectionPage() {
 
   // ELIMINADO: Refs que causaban problemas
 
-  // Funciones simples - SIN USECALLBACK
-  const calculateUserLevel = () => {
+  // Funciones memoizadas para evitar re-renders
+  const userLevel = useMemo(() => {
     if (!userData) return 1;
     if (userData.user_level === 0) return 0; // Fundadores
     return userData.user_level || 1;
-  };
+  }, [userData?.user_level]);
 
-  const calculateRoleDisplayText = () => {
+  const roleDisplayText = useMemo(() => {
     if (!userData) return 'Iniciado';
     if (userData.user_level === 0) return 'Fundador';
     return getLevelDisplayName(userData);
-  };
+  }, [userData?.user_level, userData?.nickname]);
 
-  const calculateRoleColor = () => {
+  const getRoleColor = useMemo(() => {
     if (!userData) return '#8a8a8a';
     
     const isMaestroFundador = userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
@@ -415,14 +415,7 @@ export default function DashboardSelectionPage() {
     
     const option = dashboardOptions.find(o => o.level === userData.user_level);
     return option?.color || '#8a8a8a';
-  };
-
-  // ELIMINADO: useEffect de inicialización que causaba bucle infinito
-
-  // Calcular valores directamente - SIN REFS NI USEEFFECT
-  const userLevel = userData ? calculateUserLevel() : 1;
-  const roleDisplayText = userData ? calculateRoleDisplayText() : 'Iniciado';
-  const getRoleColor = userData ? calculateRoleColor() : '#8a8a8a';
+  }, [userData?.email, userData?.user_level]);
 
   // ELIMINADO: useEffect de debug que causaba re-renders
 
@@ -442,8 +435,8 @@ export default function DashboardSelectionPage() {
     }
   };
 
-  // Función para navegar a perfil
-  const handleProfileNavigation = () => {
+  // Funciones memoizadas para navegación
+  const handleProfileNavigation = useCallback(() => {
     if (!userData) return;
     
     console.log('🖱️ [PROFILE] Navegando a perfil...');
@@ -452,23 +445,21 @@ export default function DashboardSelectionPage() {
     
     setIsNavigating(true);
     window.location.href = profilePath;
-  };
+  }, [userData]);
 
-  // Función para navegar a Maestro
-  const handleMaestroNavigation = () => {
+  const handleMaestroNavigation = useCallback(() => {
     console.log('🖱️ [MAESTRO] Navegando a Maestro...');
     setIsNavigating(true);
     window.location.href = '/dashboard/maestro';
-  };
+  }, []);
 
-  // Función para navegar a dashboard específico
-  const handleDashboardNavigation = (option: DashboardOption) => {
+  const handleDashboardNavigation = useCallback((option: DashboardOption) => {
     if (isNavigating) return;
     
     console.log('🚀 Navegando a:', option.path);
     setIsNavigating(true);
     window.location.href = option.path;
-  };
+  }, [isNavigating]);
 
   // Función para manejar el menú de perfil
   const handleProfileAction = (action: string) => {
@@ -542,8 +533,8 @@ export default function DashboardSelectionPage() {
 
 
 
-  // Función estable para verificar acceso a roles
-  const canAccessRole = (roleLevel: number) => {
+  // Función memoizada para verificar acceso a roles
+  const canAccessRole = useCallback((roleLevel: number) => {
     if (!userData) return false;
     
     const currentUserEmail = userData.email;
@@ -560,7 +551,7 @@ export default function DashboardSelectionPage() {
     }
     
     return roleLevel <= currentUserLevel;
-  };
+  }, [userData?.email, userData?.user_level]);
 
   // Mostrar error si hay bucle de redirección
   if (false) { // ELIMINADO: redirectAttempts
@@ -611,10 +602,14 @@ export default function DashboardSelectionPage() {
     );
   }
 
-  // Debug: Log user data
-  console.log('🔍 [DASHBOARD-SELECTION] User data:', userData);
-  console.log('🔍 [DASHBOARD-SELECTION] User email:', userData?.email);
-  console.log('🔍 [DASHBOARD-SELECTION] User nickname:', userData?.nickname);
+  // Debug: Log user data (only when userData changes)
+  if (userData) {
+    console.log('🔍 [DASHBOARD-SELECTION] User data loaded:', {
+      email: userData.email,
+      nickname: userData.nickname,
+      user_level: userData.user_level
+    });
+  }
 
   // Bloquear solo datos de ejemplo específicos
   if (userData?.email === 'email@ejemplo.com' || userData?.nickname === 'Usuario') {
@@ -853,145 +848,7 @@ export default function DashboardSelectionPage() {
         </div>
       </div>
 
-      {/* Test Buttons - Always Visible - SIMPLIFIED VERSION */}
-      {(() => {
-        console.log('🔍 [BUTTON RENDER] Renderizando botones de prueba');
-        console.log('🔍 [BUTTON RENDER] userData disponible:', !!userData);
-        console.log('🔍 [BUTTON RENDER] isReady:', isReady);
-        console.log('🔍 [BUTTON RENDER] Timestamp:', new Date().toISOString());
-        return null;
-      })()}
-      
-      {/* VISUAL INDICATOR */}
-      <div 
-        style={{
-          position: 'fixed',
-          top: '10px',
-          right: '10px',
-          zIndex: 99999,
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          color: 'white',
-          padding: '10px',
-          borderRadius: '8px',
-          fontSize: '12px'
-        }}
-      >
-        <div>🔍 DEBUG: Buttons should be visible</div>
-        <div>UserData: {userData ? '✅' : '❌'}</div>
-        <div>Ready: {isReady ? '✅' : '❌'}</div>
-        <div>Time: {new Date().toLocaleTimeString()}</div>
-      </div>
-      
-      {/* ULTRA INDEPENDENT BUTTONS - MAXIMUM DEBUGGING */}
-      <div 
-        id="debug-buttons-container"
-        style={{
-          position: 'fixed',
-          top: '10px',
-          left: '10px',
-          zIndex: 999999,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-          pointerEvents: 'auto'
-        }}
-      >
-        <button
-          id="test-button"
-          onClick={(e) => {
-            console.log('🧪 [REACT TEST] Click event fired!');
-            e.preventDefault();
-            e.stopPropagation();
-            alert('TEST BUTTON CLICKED!');
-          }}
-          style={{
-            padding: '15px 25px',
-            backgroundColor: '#10B981',
-            color: 'white',
-            border: '3px solid #059669',
-            borderRadius: '12px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            zIndex: 999999,
-            position: 'fixed',
-            top: '60px',
-            left: '20px',
-            pointerEvents: 'auto',
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-            MozUserSelect: 'none',
-            msUserSelect: 'none',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-          }}
-        >
-          TEST BUTTON
-        </button>
-        
-        <button
-          id="profile-button"
-          onClick={(e) => {
-            console.log('🖱️ [REACT PROFILE] Click event fired!');
-            e.preventDefault();
-            e.stopPropagation();
-            handleProfileNavigation();
-          }}
-          style={{
-            padding: '15px 25px',
-            backgroundColor: '#EC4D58',
-            color: 'white',
-            border: '3px solid #DC2626',
-            borderRadius: '12px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            zIndex: 999999,
-            position: 'fixed',
-            top: '120px',
-            left: '20px',
-            pointerEvents: 'auto',
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-            MozUserSelect: 'none',
-            msUserSelect: 'none',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-          }}
-        >
-          PROFILE
-        </button>
-        
-        <button
-          id="maestro-button"
-          onClick={(e) => {
-            console.log('🖱️ [REACT MAESTRO] Click event fired!');
-            e.preventDefault();
-            e.stopPropagation();
-            handleMaestroNavigation();
-          }}
-          style={{
-            padding: '15px 25px',
-            backgroundColor: '#FF8C42',
-            color: 'white',
-            border: '3px solid #E67E22',
-            borderRadius: '12px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            zIndex: 999999,
-            position: 'fixed',
-            top: '180px',
-            left: '20px',
-            pointerEvents: 'auto',
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-            MozUserSelect: 'none',
-            msUserSelect: 'none',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
-          }}
-        >
-          MAESTRO
-        </button>
-      </div>
+      {/* Debug buttons removed to prevent re-render loop */}
 
       {/* Header */}
       <div className="relative z-10 pt-20 pb-6 px-4">
@@ -1049,15 +906,7 @@ export default function DashboardSelectionPage() {
               // Para otros usuarios, usar su nivel real
               const isCurrentLevel = userData?.user_level === 0 ? option.level === 6 : option.level === userLevel;
               
-              // DEBUG: Log para verificar la lógica
-              if (userData?.user_level === 0) {
-                console.log('🔍 [CURRENT LEVEL DEBUG] Usuario fundador detectado:', {
-                  userLevel: userData.user_level,
-                  optionLevel: option.level,
-                  optionTitle: option.title,
-                  isCurrentLevel: isCurrentLevel
-                });
-              }
+              // Debug logging removed to prevent re-render loop
               
               // Determinar el color correcto para este rol
               const getOptionColor = () => {
@@ -1076,10 +925,7 @@ export default function DashboardSelectionPage() {
               
               const optionColor = getOptionColor();
               
-              // Debug del renderizado de cada opción (simplificado)
-              if (isAccessible) {
-                console.log(`✅ ${option.title} accesible para usuario`);
-              }
+              // Debug logging removed to prevent re-render loop
               
               return (
                 <div
