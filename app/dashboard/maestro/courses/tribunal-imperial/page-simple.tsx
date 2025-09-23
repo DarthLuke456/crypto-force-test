@@ -1,6 +1,6 @@
 'use client';
 
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { canUserAccessTribunal } from '@/lib/tribunal/permissions';
 
 export default function TribunalImperialPageSimple() {

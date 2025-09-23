@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { supabase } from '@/lib/supabaseClient';
 import { getTribunalColors, getLevelName, getLevelEmoji } from '@/lib/tribunal-colors';
 import { 

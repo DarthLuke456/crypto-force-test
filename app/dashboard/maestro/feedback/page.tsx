@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { MessageSquare, Filter, Search, AlertCircle, XCircle, Eye, Reply, Trash2, Send, RotateCcw } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-offline';
 import { supabase } from '@/lib/supabaseClient';
 
 interface FeedbackResponse {
