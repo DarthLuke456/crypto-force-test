@@ -422,13 +422,10 @@ export default function DashboardSelectionPage() {
   // Función para cerrar sesión
   const handleLogout = async () => {
     try {
-      console.log('🚪 Cerrando sesión desde dashboard-selection...');
-      
       // Usar la función de logout del AuthContext
       logout();
       
       // Redirigir al login
-      console.log('🚪 Redirigiendo a signin...');
       window.location.href = '/login/signin';
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
@@ -439,16 +436,12 @@ export default function DashboardSelectionPage() {
   const handleProfileNavigation = useCallback(() => {
     if (!userData) return;
     
-    console.log('🖱️ [PROFILE] Navegando a perfil...');
     const profilePath = getUserProfilePath(userData);
-    console.log('🖱️ [PROFILE] ProfilePath calculado:', profilePath);
-    
     setIsNavigating(true);
     window.location.href = profilePath;
   }, [userData]);
 
   const handleMaestroNavigation = useCallback(() => {
-    console.log('🖱️ [MAESTRO] Navegando a Maestro...');
     setIsNavigating(true);
     window.location.href = '/dashboard/maestro';
   }, []);
@@ -456,7 +449,6 @@ export default function DashboardSelectionPage() {
   const handleDashboardNavigation = useCallback((option: DashboardOption) => {
     if (isNavigating) return;
     
-    console.log('🚀 Navegando a:', option.path);
     setIsNavigating(true);
     window.location.href = option.path;
   }, [isNavigating]);
@@ -468,19 +460,10 @@ export default function DashboardSelectionPage() {
     switch (action) {
       case 'profile':
         // Redirigir al perfil del dashboard de nivel más alto
-        console.log('🔍 handleProfileAction - userData recibido:', userData);
-        console.log('🔍 handleProfileAction - userData.email:', userData?.email);
-        console.log('🔍 handleProfileAction - userData.user_level:', userData?.user_level);
-        console.log('🔍 handleProfileAction - MAESTRO_AUTHORIZED_EMAILS:', MAESTRO_AUTHORIZED_EMAILS);
-        
         const profilePath = getUserProfilePath(userData);
-        console.log('🔍 handleProfileAction - ProfilePath calculado:', profilePath);
-        console.log('🔍 handleProfileAction - Redirigiendo a perfil:', profilePath);
         
         // Usar setTimeout para asegurar que la redirección se ejecute
-        console.log('🔍 handleProfileAction - Ejecutando redirección en 100ms...');
         setTimeout(() => {
-          console.log('🔍 handleProfileAction - Redirigiendo ahora a:', profilePath);
           window.location.href = profilePath;
         }, 100);
         break;
@@ -602,14 +585,7 @@ export default function DashboardSelectionPage() {
     );
   }
 
-  // Debug: Log user data (only when userData changes)
-  if (userData) {
-    console.log('🔍 [DASHBOARD-SELECTION] User data loaded:', {
-      email: userData.email,
-      nickname: userData.nickname,
-      user_level: userData.user_level
-    });
-  }
+  // Debug logging removed to prevent re-render loop
 
   // Bloquear solo datos de ejemplo específicos
   if (userData?.email === 'email@ejemplo.com' || userData?.nickname === 'Usuario') {
@@ -689,7 +665,6 @@ export default function DashboardSelectionPage() {
               <div className="relative profile-menu-container">
                 <button
                   onClick={() => {
-                    console.log('🖱️ [PROFILE MENU] Toggle profile menu, current state:', isProfileMenuOpen);
                     setIsProfileMenuOpen(!isProfileMenuOpen);
                   }}
                   className="px-3 py-2 bg-[#2a2a2a] hover:bg-[#3a3a3a] text-white rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium hover:scale-105 active:scale-95 border border-[#3a3a3a]"
@@ -718,9 +693,7 @@ export default function DashboardSelectionPage() {
                 </button>
 
                 {/* Menú desplegable */}
-                {isProfileMenuOpen && (() => {
-                  console.log('🖱️ [PROFILE MENU] Rendering profile menu');
-                  return (
+                {isProfileMenuOpen && (
                   <div className="absolute right-0 top-full mt-2 w-64 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-xl z-50 overflow-hidden">
                     {/* Header del menú */}
                     <div className="px-4 py-3 border-b border-[#2a2a2a]">
@@ -770,7 +743,6 @@ export default function DashboardSelectionPage() {
                               e.stopPropagation();
                               const input = document.getElementById('avatar-input-dashboard-selection') as HTMLInputElement;
                               if (input) {
-                                console.log('🔍 Click en overlay, abriendo selector...');
                                 input.click();
                               }
                             }}
@@ -816,7 +788,6 @@ export default function DashboardSelectionPage() {
                     <div className="p-2">
                       <button
                         onClick={() => {
-                          console.log('🖱️ [PROFILE BUTTON] Click en Editar Perfil');
                           handleProfileAction('profile');
                         }}
                         className="w-full px-4 py-3 text-left text-white hover:bg-[#2a2a2a] transition-colors duration-200 flex items-center gap-3 rounded-lg"
@@ -840,8 +811,7 @@ export default function DashboardSelectionPage() {
                       </button>
                     </div>
                   </div>
-                  );
-                })()}
+                )}
               </div>
             </div>
           </div>
@@ -969,9 +939,7 @@ export default function DashboardSelectionPage() {
                           width={48}
                           height={48}
                           className="w-full h-full object-contain"
-                          onLoad={() => console.log(`✅ Imagen cargada exitosamente: ${option.image}`)}
                           onError={(e) => {
-                            console.error(`❌ Error cargando imagen: ${option.image}`);
                             // Fallback a un emoji si la imagen falla
                             const target = e.currentTarget as HTMLImageElement;
                             target.style.display = 'none';
@@ -1045,18 +1013,15 @@ export default function DashboardSelectionPage() {
                           
                           if (!isNavigating) {
                             setIsNavigating(true);
-                          console.log(`🚀 Navegando a: ${option.path}`);
                             
                             setTimeout(() => {
-                          window.location.href = option.path;
+                              window.location.href = option.path;
                             }, 100);
                             
                             // Reset isNavigating after a delay to allow for retry if needed
                             setTimeout(() => {
                               setIsNavigating(false);
                             }, 2000);
-                          } else {
-                            console.log('⏳ Ya navegando, ignorando click');
                           }
                         }}
                         className={`w-full py-2 px-4 rounded-lg font-medium text-sm transition-all duration-300 ${
