@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔍 Profile Diagnostic API - Starting diagnostic');
     
-    const diagnostic = {
+    const diagnostic: any = {
       timestamp: new Date().toISOString(),
       environment: {
         supabaseUrl: supabaseUrl ? 'Present' : 'Missing',
