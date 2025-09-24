@@ -35,6 +35,7 @@ interface AuthContextType {
   logout: () => void;
   updateInvitationCode: (newNickname: string) => void;
   syncUserData: () => Promise<void>;
+  forceSync: () => Promise<void>;
 }
 
 // Contexto
@@ -47,6 +48,7 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
   updateInvitationCode: () => {},
   syncUserData: async () => {},
+  forceSync: async () => {},
 });
 
 // Hook
@@ -54,8 +56,8 @@ export const useAuth = () => useContext(AuthContext);
 
 // Hook simplificado
 export const useSafeAuth = () => {
-  const { user, userData, loading, isReady, login, logout, updateInvitationCode, syncUserData } = useAuth();
-  return { user, userData, loading, isReady, login, logout, updateInvitationCode, syncUserData };
+  const { user, userData, loading, isReady, login, logout, updateInvitationCode, syncUserData, forceSync } = useAuth();
+  return { user, userData, loading, isReady, login, logout, updateInvitationCode, syncUserData, forceSync };
 };
 
 // Provider completamente offline
@@ -160,6 +162,11 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           setUserData(updatedUserData);
           localStorage.setItem('crypto-force-user-data', JSON.stringify(updatedUserData));
           console.log('✅ AuthContext: Datos sincronizados con la BD y localStorage');
+          
+          // Disparar evento personalizado para notificar a otros componentes
+          window.dispatchEvent(new CustomEvent('userDataSynced', { 
+            detail: updatedUserData 
+          }));
         } else {
           console.log('⚠️ AuthContext: Response no exitosa:', data);
         }
@@ -171,6 +178,12 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('❌ AuthContext: Error sincronizando datos:', error);
     }
+  };
+
+  // Función para forzar sincronización (puede ser llamada desde cualquier componente)
+  const forceSync = async () => {
+    console.log('🔄 AuthContext: Forzando sincronización...');
+    await syncUserData();
   };
 
   // Función para crear datos de usuario
@@ -287,8 +300,34 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     setTimeout(initializeAuth, 100);
   }, []);
 
+  // Sincronizar datos cuando cambia la URL (navegación)
+  useEffect(() => {
+    if (!userData?.email) return;
+
+    const handleNavigation = () => {
+      console.log('🔄 AuthContext: Navegación detectada, sincronizando datos...');
+      syncUserData();
+    };
+
+    // Sincronizar en cada cambio de página
+    const handlePopState = () => {
+      setTimeout(handleNavigation, 100); // Pequeño delay para asegurar que la página se cargó
+    };
+
+    // Escuchar cambios de URL
+    window.addEventListener('popstate', handlePopState);
+    
+    // Sincronizar también cuando se hace focus en la ventana
+    window.addEventListener('focus', handleNavigation);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('focus', handleNavigation);
+    };
+  }, [userData?.email]);
+
   return (
-    <AuthContext.Provider value={{ user, userData, loading, isReady, login, logout, updateInvitationCode, syncUserData }}>
+    <AuthContext.Provider value={{ user, userData, loading, isReady, login, logout, updateInvitationCode, syncUserData, forceSync }}>
       {children}
     </AuthContext.Provider>
   );

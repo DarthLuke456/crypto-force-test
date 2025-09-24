@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sync Working</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            background: #8A8A8A;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #7a7a7a;
+        }
+        .result {
+            background: #0a0a0a;
+            border: 1px solid #3a3a3a;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .error {
+            background: #4a1a1a;
+            border-color: #8a3a3a;
+        }
+        .success {
+            background: #1a4a1a;
+            border-color: #3a8a3a;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background: #2a2a2a;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Sync Working - Profile Persistence</h1>
+        
+        <div class="test-section">
+            <h2>Step 1: Update Profile in Database</h2>
+            <p>First, let's update your profile data in the database</p>
+            <button onclick="updateProfile()">Update Profile</button>
+            <div id="update-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Step 2: Check Database Data</h2>
+            <p>Verify the data was saved in the database</p>
+            <button onclick="checkDatabase()">Check Database</button>
+            <div id="database-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Step 3: Test Navigation Simulation</h2>
+            <p>Simulate what happens when you navigate between pages</p>
+            <button onclick="simulateNavigation()">Simulate Navigation</button>
+            <div id="navigation-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Step 4: Test Real App Navigation</h2>
+            <p>Now test in the real app:</p>
+            <div class="step">
+                <strong>1.</strong> Go to your profile page in the app
+            </div>
+            <div class="step">
+                <strong>2.</strong> Make some changes to your profile
+            </div>
+            <div class="step">
+                <strong>3.</strong> Save the changes
+            </div>
+            <div class="step">
+                <strong>4.</strong> Navigate to another page (like Maestro dashboard)
+            </div>
+            <div class="step">
+                <strong>5.</strong> Come back to the profile page
+            </div>
+            <div class="step">
+                <strong>6.</strong> Check if your changes are still there
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const testEmail = 'coeurdeluke.js@gmail.com';
+
+        async function updateProfile() {
+            const resultDiv = document.getElementById('update-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'Updating profile...';
+
+            try {
+                const testData = {
+                    email: testEmail,
+                    nombre: 'Usuario Test Sync',
+                    apellido: 'Crypto Force Sync',
+                    nickname: `sync_test_${Date.now()}`,
+                    movil: '987654321',
+                    exchange: 'Sync Exchange',
+                    avatar: '/images/default-avatar.png',
+                    user_level: 0
+                };
+
+                const response = await fetch('/api/profile/update-offline', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ SUCCESS: Profile updated in database\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ ERROR: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ NETWORK ERROR: ${error.message}`;
+            }
+        }
+
+        async function checkDatabase() {
+            const resultDiv = document.getElementById('database-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'Checking database...';
+
+            try {
+                const response = await fetch('/api/profile/get-offline', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: testEmail })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ SUCCESS: Database data retrieved\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ ERROR: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ NETWORK ERROR: ${error.message}`;
+            }
+        }
+
+        async function simulateNavigation() {
+            const resultDiv = document.getElementById('navigation-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'Simulating navigation...';
+
+            try {
+                // Simulate what happens when the app loads
+                const response = await fetch('/api/profile/get-offline', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: testEmail })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success && data.profile) {
+                    // Simulate updating localStorage
+                    localStorage.setItem('crypto-force-user-data', JSON.stringify(data.profile));
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ SUCCESS: Navigation simulation completed\nData loaded from database:\n${JSON.stringify(data.profile, null, 2)}\n\nThis is what should happen when you navigate between pages.`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ ERROR: Could not load data from database\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ NETWORK ERROR: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

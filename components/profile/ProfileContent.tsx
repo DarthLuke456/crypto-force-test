@@ -40,7 +40,7 @@ const getLevelColor = (level: number) => {
 };
 
 export default function ProfileContent() {
-  const { userData, syncUserData } = useSafeAuth();
+  const { userData, syncUserData, forceSync } = useSafeAuth();
   const { avatar: userAvatar, changeAvatar } = useAvatar();
   const { stats: referralStats } = useReferralDataSimple();
   const { emitUserDataUpdate } = useUserDataSync();
@@ -121,6 +121,44 @@ export default function ProfileContent() {
     loadProfileData();
   }, [userData, userAvatar, syncUserData]);
 
+  // Escuchar eventos de sincronización
+  useEffect(() => {
+    const handleUserDataSynced = (event: CustomEvent) => {
+      console.log('🔄 ProfileContent: Datos sincronizados, actualizando interfaz...');
+      const updatedUserData = event.detail;
+      
+      // Actualizar los datos del perfil con los datos sincronizados
+      const sanitizedData = {
+        nombre: updatedUserData.nombre || '',
+        apellido: updatedUserData.apellido || '',
+        nickname: updatedUserData.nickname || '',
+        email: updatedUserData.email || '',
+        movil: updatedUserData.movil || '',
+        exchange: updatedUserData.exchange || '',
+        avatar: updatedUserData.avatar || '/images/default-avatar.png',
+        user_level: updatedUserData.user_level || 1,
+        referral_code: updatedUserData.referral_code || '',
+        referred_by: updatedUserData.referred_by || '',
+        total_referrals: updatedUserData.total_referrals || 0,
+        created_at: updatedUserData.created_at || new Date().toISOString(),
+        updated_at: updatedUserData.updated_at || new Date().toISOString(),
+        birthdate: updatedUserData.birthdate || '',
+        country: updatedUserData.country || '',
+        bio: updatedUserData.bio || ''
+      };
+      
+      setProfileData(sanitizedData);
+      setAvatarPreview(sanitizedData.avatar);
+      console.log('✅ ProfileContent: Interfaz actualizada con datos sincronizados');
+    };
+
+    window.addEventListener('userDataSynced', handleUserDataSynced as EventListener);
+    
+    return () => {
+      window.removeEventListener('userDataSynced', handleUserDataSynced as EventListener);
+    };
+  }, []);
+
   const saveProfile = async (newData: typeof profileData) => {
     try {
       setLoading(true);
@@ -174,10 +212,16 @@ export default function ProfileContent() {
           setShowSuccess(true);
           setTimeout(() => setShowSuccess(false), 2000);
           
-          // Sincronizar con la base de datos para asegurar consistencia
-          await syncUserData();
-          
-          console.log('✅ ProfileContent: Perfil actualizado correctamente en BD y localStorage');
+                 // Sincronizar con la base de datos para asegurar consistencia
+                 await syncUserData();
+
+                 // Forzar una segunda sincronización después de un pequeño delay
+                 setTimeout(async () => {
+                   console.log('🔄 ProfileContent: Segunda sincronización forzada...');
+                   await forceSync();
+                 }, 500);
+
+                 console.log('✅ ProfileContent: Perfil actualizado correctamente en BD y localStorage');
         } else {
           console.error('❌ ProfileContent: Error en response data:', data.error);
           setError(data.error || 'Error actualizando perfil');
