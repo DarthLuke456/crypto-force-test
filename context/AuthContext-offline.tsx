@@ -29,6 +29,7 @@ interface AuthContextType {
   isReady: boolean;
   login: (email: string) => void;
   logout: () => void;
+  updateInvitationCode: (newNickname: string) => void;
 }
 
 // Contexto
@@ -39,6 +40,7 @@ const AuthContext = createContext<AuthContextType>({
   isReady: false,
   login: () => {},
   logout: () => {},
+  updateInvitationCode: () => {},
 });
 
 // Hook
@@ -107,6 +109,19 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log('🚪 AuthContext: Usuario deslogueado, avatar preservado');
   };
 
+  // Función para actualizar el código de invitación cuando cambia el nickname
+  const updateInvitationCode = (newNickname: string) => {
+    if (userData) {
+      const updatedUserData = {
+        ...userData,
+        nickname: newNickname,
+        referral_code: `CRYPTOFORCE${newNickname.toUpperCase()}`
+      };
+      setUserData(updatedUserData);
+      console.log('🔄 AuthContext: Código de invitación actualizado:', updatedUserData.referral_code);
+    }
+  };
+
   // Función para crear datos de usuario
   const createUserData = (email: string): UserData => {
     const isFounder = email === 'coeurdeluke.js@gmail.com' || email === 'infocryptoforce@gmail.com';
@@ -120,7 +135,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       movil: '',
       exchange: '',
       user_level: isFounder ? 0 : 1, // Level 0 for founders (Fundador)
-      referral_code: `USER-${email.split('@')[0].toUpperCase()}`,
+      referral_code: `CRYPTOFORCE${email.split('@')[0].toUpperCase()}`,
       uid: `uid-${Date.now()}`,
       codigo_referido: null,
       referred_by: null,
@@ -196,7 +211,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, isReady, login, logout }}>
+    <AuthContext.Provider value={{ user, userData, loading, isReady, login, logout, updateInvitationCode }}>
       {children}
     </AuthContext.Provider>
   );

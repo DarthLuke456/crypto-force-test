@@ -63,8 +63,8 @@ const menuItems: MenuItem[] = [
     icon: LineChart
   },
   {
-    label: 'Compartí',
-    href: '/dashboard/maestro/referral-code',
+    label: 'Invitación',
+    href: '/dashboard/maestro/invitation',
     icon: UserPlus
   },
   {
