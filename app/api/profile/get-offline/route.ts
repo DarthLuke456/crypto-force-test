@@ -8,21 +8,10 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔍 Profile Get Offline API - Iniciando request');
     
-    // Parse request body
-    let requestData: any;
-    try {
-      const requestBody = await request.text();
-      console.log('🔍 Profile Get Offline API - Request body:', requestBody);
-      requestData = JSON.parse(requestBody);
-    } catch (parseError) {
-      console.error('❌ Profile Get Offline API - Error parsing body:', parseError);
-      return NextResponse.json({ 
-        error: 'Error parsing request body',
-        details: parseError instanceof Error ? parseError.message : 'Error desconocido'
-      }, { status: 400 });
-    }
-
-    const { email } = requestData;
+    // Get email from query parameters
+    const { searchParams } = new URL(request.url);
+    const email = searchParams.get('email');
+    
     if (!email) {
       return NextResponse.json({ 
         error: 'Email es requerido' 

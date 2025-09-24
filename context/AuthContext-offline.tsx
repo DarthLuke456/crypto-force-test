@@ -141,12 +141,11 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🔄 AuthContext: Sincronizando datos del usuario con la BD');
       console.log('🔄 AuthContext: Email del usuario:', userData.email);
       
-      const response = await fetch('/api/profile/get-offline', {
+      const response = await fetch(`/api/profile/get-offline?email=${encodeURIComponent(userData.email)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email: userData.email })
+        }
       });
       
       console.log('🔄 AuthContext: Response status:', response.status);
@@ -257,12 +256,11 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           
           // Sincronizar con la base de datos después de cargar desde localStorage
           console.log('🔄 AuthContext: Sincronizando con BD después de carga inicial');
-          fetch('/api/profile/get-offline', {
+          fetch(`/api/profile/get-offline?email=${encodeURIComponent(storedEmail)}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email: storedEmail })
+            }
           })
           .then(response => response.json())
           .then(data => {

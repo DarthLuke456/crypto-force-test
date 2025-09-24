@@ -159,12 +159,11 @@
             resultDiv.textContent = 'Checking database...';
 
             try {
-                const response = await fetch('/api/profile/get-offline', {
+                const response = await fetch(`/api/profile/get-offline?email=${encodeURIComponent(testEmail)}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email: testEmail })
+                    }
                 });
 
                 const data = await response.json();
@@ -190,12 +189,11 @@
 
             try {
                 // Simulate what happens when the app loads
-                const response = await fetch('/api/profile/get-offline', {
+                const response = await fetch(`/api/profile/get-offline?email=${encodeURIComponent(testEmail)}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email: testEmail })
+                    }
                 });
 
                 const data = await response.json();
