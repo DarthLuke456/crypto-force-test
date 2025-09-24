@@ -130,10 +130,14 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Función para sincronizar datos del usuario con la base de datos
   const syncUserData = async () => {
-    if (!userData?.email) return;
+    if (!userData?.email) {
+      console.log('🔍 AuthContext: No hay userData para sincronizar');
+      return;
+    }
     
     try {
       console.log('🔄 AuthContext: Sincronizando datos del usuario con la BD');
+      console.log('🔄 AuthContext: Email del usuario:', userData.email);
       
       const response = await fetch('/api/profile/get-offline', {
         method: 'GET',
@@ -143,14 +147,26 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email: userData.email })
       });
       
+      console.log('🔄 AuthContext: Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('🔄 AuthContext: Response data:', data);
+        
         if (data.success && data.profile) {
           const updatedUserData = { ...userData, ...data.profile };
+          console.log('🔄 AuthContext: Datos actualizados desde BD:', updatedUserData);
+          
           setUserData(updatedUserData);
           localStorage.setItem('crypto-force-user-data', JSON.stringify(updatedUserData));
-          console.log('✅ AuthContext: Datos sincronizados con la BD');
+          console.log('✅ AuthContext: Datos sincronizados con la BD y localStorage');
+        } else {
+          console.log('⚠️ AuthContext: Response no exitosa:', data);
         }
+      } else {
+        console.error('❌ AuthContext: Error en response:', response.status);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ AuthContext: Error data:', errorData);
       }
     } catch (error) {
       console.error('❌ AuthContext: Error sincronizando datos:', error);
@@ -225,6 +241,28 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           
           setUser(mockUser);
           setUserData(userData);
+          
+          // Sincronizar con la base de datos después de cargar desde localStorage
+          console.log('🔄 AuthContext: Sincronizando con BD después de carga inicial');
+          fetch('/api/profile/get-offline', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: storedEmail })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success && data.profile) {
+              const updatedUserData = { ...userData, ...data.profile };
+              setUserData(updatedUserData);
+              localStorage.setItem('crypto-force-user-data', JSON.stringify(updatedUserData));
+              console.log('✅ AuthContext: Datos sincronizados con BD en carga inicial');
+            }
+          })
+          .catch(syncError => {
+            console.error('❌ AuthContext: Error en sincronización inicial:', syncError);
+          });
           
           console.log('✅ AuthContext: Usuario autenticado offline:', userData);
         } else {
