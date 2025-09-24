@@ -72,12 +72,20 @@ export default function ProfileContent() {
 
   useEffect(() => {
     const loadProfileData = async () => {
-      if (!userData) return;
+      if (!userData) {
+        console.log('🔍 ProfileContent: No userData available');
+        return;
+      }
+      
       try {
         setLoading(true);
+        console.log('🔍 ProfileContent: Loading profile data...');
+        console.log('🔍 ProfileContent: Current userData:', userData);
         
         // Sincronizar datos con la base de datos primero para asegurar consistencia
+        console.log('🔍 ProfileContent: Syncing with database...');
         await syncUserData();
+        console.log('🔍 ProfileContent: Database sync completed');
         
         // Usar datos del AuthContext offline después de la sincronización
         const sanitizedData = {
@@ -99,11 +107,12 @@ export default function ProfileContent() {
           bio: userData.bio || ''
         };
         
+        console.log('🔍 ProfileContent: Sanitized data:', sanitizedData);
         setProfileData(sanitizedData);
         setAvatarPreview(sanitizedData.avatar);
         console.log('✅ ProfileContent: Datos del perfil cargados y sincronizados con BD');
       } catch (e) {
-        console.error('Error cargando datos del perfil:', e);
+        console.error('❌ ProfileContent: Error cargando datos del perfil:', e);
         setError('Error cargando datos del perfil');
       } finally {
         setLoading(false);
@@ -125,7 +134,7 @@ export default function ProfileContent() {
       console.log('🔍 ProfileContent: Iniciando saveProfile');
       console.log('🔍 ProfileContent: Datos recibidos:', newData);
       
-      // Preparar datos para enviar a la base de datos
+      // Preparar datos para enviar a la base de datos (solo campos que existen en BD)
       const cleanedData = {
         nombre: newData.nombre || '', 
         apellido: newData.apellido || '', 
@@ -134,10 +143,7 @@ export default function ProfileContent() {
         movil: newData.movil || '', 
         exchange: newData.exchange || '',
         avatar: newData.avatar || '/images/default-avatar.png', 
-        user_level: newData.user_level || 1,
-        birthdate: newData.birthdate || '',
-        country: newData.country || '',
-        bio: newData.bio || ''
+        user_level: newData.user_level || 1
       };
       
       console.log('🔍 ProfileContent: Datos limpios:', cleanedData);

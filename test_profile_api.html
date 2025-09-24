@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Profile API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            background: #8A8A8A;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #7a7a7a;
+        }
+        .result {
+            background: #0a0a0a;
+            border: 1px solid #3a3a3a;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .error {
+            background: #4a1a1a;
+            border-color: #8a3a3a;
+        }
+        .success {
+            background: #1a4a1a;
+            border-color: #3a8a3a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Profile API Endpoints</h1>
+        
+        <div class="test-section">
+            <h2>Test 1: Database Connectivity</h2>
+            <p>Test if the database update API is working</p>
+            <button onclick="testDatabaseUpdate()">Test Database Update</button>
+            <div id="test1-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 2: Profile Update</h2>
+            <p>Test the actual profile update functionality</p>
+            <button onclick="testProfileUpdate()">Test Profile Update</button>
+            <div id="test2-result" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 3: Get Profile Data</h2>
+            <p>Test retrieving profile data from database</p>
+            <button onclick="testGetProfile()">Test Get Profile</button>
+            <div id="test3-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const testEmail = 'coeurdeluke.js@gmail.com';
+
+        async function testDatabaseUpdate() {
+            const resultDiv = document.getElementById('test1-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'Testing database update...';
+
+            try {
+                const response = await fetch('/api/profile/test-update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: testEmail,
+                        testField: 'nickname'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ SUCCESS: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ ERROR: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ NETWORK ERROR: ${error.message}`;
+            }
+        }
+
+        async function testProfileUpdate() {
+            const resultDiv = document.getElementById('test2-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'Testing profile update...';
+
+            try {
+                const testData = {
+                    email: testEmail,
+                    nombre: 'Usuario Test',
+                    apellido: 'Crypto Force Test',
+                    nickname: `test_${Date.now()}`,
+                    movil: '123456789',
+                    exchange: 'Test Exchange',
+                    avatar: '/images/default-avatar.png',
+                    user_level: 0
+                };
+
+                const response = await fetch('/api/profile/update-offline', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ SUCCESS: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ ERROR: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ NETWORK ERROR: ${error.message}`;
+            }
+        }
+
+        async function testGetProfile() {
+            const resultDiv = document.getElementById('test3-result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'Testing get profile...';
+
+            try {
+                const response = await fetch('/api/profile/get-offline', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: testEmail })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ SUCCESS: ${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ ERROR: ${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ NETWORK ERROR: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

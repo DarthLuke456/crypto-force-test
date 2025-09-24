@@ -42,10 +42,10 @@ export async function PUT(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Validar campos permitidos
+    // Validar campos permitidos (solo los que existen en la BD)
     const allowedFields = [
       'nombre', 'apellido', 'nickname', 'email', 'movil', 'exchange', 
-      'avatar', 'birthdate', 'country', 'bio', 'user_level'
+      'avatar', 'user_level'
     ];
     
     const validUpdates: any = {};
