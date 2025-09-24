@@ -40,7 +40,7 @@ const getLevelColor = (level: number) => {
 };
 
 export default function ProfileContent() {
-  const { userData } = useSafeAuth();
+  const { userData, syncUserData } = useSafeAuth();
   const { avatar: userAvatar, changeAvatar } = useAvatar();
   const { stats: referralStats } = useReferralDataSimple();
   const { emitUserDataUpdate } = useUserDataSync();
@@ -59,7 +59,8 @@ export default function ProfileContent() {
   const [profileData, setProfileData] = useState({
     nombre: '', apellido: '', nickname: '', email: '', movil: '', exchange: '',
     avatar: '/images/default-avatar.png', user_level: 1,
-    referral_code: '', referred_by: '', total_referrals: 0, created_at: '', updated_at: ''
+    referral_code: '', referred_by: '', total_referrals: 0, created_at: '', updated_at: '',
+    birthdate: '', country: '', bio: ''
   });
 
   const [avatarPreview, setAvatarPreview] = useState(userAvatar || profileData.avatar);
@@ -75,7 +76,10 @@ export default function ProfileContent() {
       try {
         setLoading(true);
         
-        // Usar datos del AuthContext offline en lugar de Supabase
+        // Sincronizar datos con la base de datos primero para asegurar consistencia
+        await syncUserData();
+        
+        // Usar datos del AuthContext offline después de la sincronización
         const sanitizedData = {
           nombre: userData.nombre || '', 
           apellido: userData.apellido || '', 
@@ -89,12 +93,15 @@ export default function ProfileContent() {
           referred_by: userData.referred_by || '',
           total_referrals: userData.total_referrals || 0, 
           created_at: userData.created_at || new Date().toISOString(),
-          updated_at: userData.updated_at || new Date().toISOString()
+          updated_at: userData.updated_at || new Date().toISOString(),
+          birthdate: userData.birthdate || '',
+          country: userData.country || '',
+          bio: userData.bio || ''
         };
         
         setProfileData(sanitizedData);
         setAvatarPreview(sanitizedData.avatar);
-        console.log('✅ ProfileContent: Datos del perfil cargados desde AuthContext offline');
+        console.log('✅ ProfileContent: Datos del perfil cargados y sincronizados con BD');
       } catch (e) {
         console.error('Error cargando datos del perfil:', e);
         setError('Error cargando datos del perfil');
@@ -103,7 +110,7 @@ export default function ProfileContent() {
       }
     };
     loadProfileData();
-  }, [userData, userAvatar]);
+  }, [userData, userAvatar, syncUserData]);
 
   const saveProfile = async (newData: typeof profileData) => {
     try {
@@ -115,7 +122,10 @@ export default function ProfileContent() {
         throw new Error('No hay usuario autenticado');
       }
       
-      // Simular guardado en localStorage para el contexto offline
+      console.log('🔍 ProfileContent: Iniciando saveProfile');
+      console.log('🔍 ProfileContent: Datos recibidos:', newData);
+      
+      // Preparar datos para enviar a la base de datos
       const cleanedData = {
         nombre: newData.nombre || '', 
         apellido: newData.apellido || '', 
@@ -124,22 +134,61 @@ export default function ProfileContent() {
         movil: newData.movil || '', 
         exchange: newData.exchange || '',
         avatar: newData.avatar || '/images/default-avatar.png', 
-        user_level: newData.user_level || 1
+        user_level: newData.user_level || 1,
+        birthdate: newData.birthdate || '',
+        country: newData.country || '',
+        bio: newData.bio || ''
       };
       
-      // Actualizar los datos en localStorage
-      const updatedUserData = { ...userData, ...cleanedData };
-      localStorage.setItem('crypto-force-user-data', JSON.stringify(updatedUserData));
+      console.log('🔍 ProfileContent: Datos limpios:', cleanedData);
       
-      // Actualizar el estado local
-      setProfileData({ ...profileData, ...cleanedData });
-      setIsEditing(false);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 2000);
+      // Guardar en la base de datos usando la API offline
+      const response = await fetch('/api/profile/update-offline', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(cleanedData)
+      });
       
-      console.log('✅ ProfileContent: Perfil actualizado en localStorage');
+      console.log('🔍 ProfileContent: Response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🔍 ProfileContent: Response data:', data);
+        
+        if (data.success) {
+          // Actualizar los datos en localStorage
+          const updatedUserData = { ...userData, ...cleanedData };
+          localStorage.setItem('crypto-force-user-data', JSON.stringify(updatedUserData));
+          
+          // Actualizar el estado local
+          setProfileData({ ...profileData, ...cleanedData });
+          setIsEditing(false);
+          setShowSuccess(true);
+          setTimeout(() => setShowSuccess(false), 2000);
+          
+          // Sincronizar con la base de datos para asegurar consistencia
+          await syncUserData();
+          
+          console.log('✅ ProfileContent: Perfil actualizado correctamente en BD y localStorage');
+        } else {
+          console.error('❌ ProfileContent: Error en response data:', data.error);
+          setError(data.error || 'Error actualizando perfil');
+        }
+      } else {
+        console.error('❌ ProfileContent: Response no ok, status:', response.status);
+        try {
+          const errorData = await response.json();
+          console.error('❌ ProfileContent: Error data:', errorData);
+          setError(errorData.error || 'Error actualizando perfil');
+        } catch (parseError) {
+          console.error('❌ ProfileContent: Error parsing error response:', parseError);
+          setError(`Error ${response.status}: ${response.statusText}`);
+        }
+      }
     } catch (e) {
-      console.error('Error en saveProfile:', e);
+      console.error('❌ ProfileContent: Error en saveProfile:', e);
       setError('Error de conexión');
     } finally {
       setLoading(false);

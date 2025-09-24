@@ -20,6 +20,10 @@ interface UserData {
   total_referrals: number;
   created_at?: string;
   updated_at?: string;
+  avatar?: string;
+  birthdate?: string;
+  country?: string;
+  bio?: string;
 }
 
 interface AuthContextType {
@@ -30,6 +34,7 @@ interface AuthContextType {
   login: (email: string) => void;
   logout: () => void;
   updateInvitationCode: (newNickname: string) => void;
+  syncUserData: () => Promise<void>;
 }
 
 // Contexto
@@ -41,6 +46,7 @@ const AuthContext = createContext<AuthContextType>({
   login: () => {},
   logout: () => {},
   updateInvitationCode: () => {},
+  syncUserData: async () => {},
 });
 
 // Hook
@@ -48,8 +54,8 @@ export const useAuth = () => useContext(AuthContext);
 
 // Hook simplificado
 export const useSafeAuth = () => {
-  const { user, userData, loading, isReady, login, logout } = useAuth();
-  return { user, userData, loading, isReady, login, logout };
+  const { user, userData, loading, isReady, login, logout, updateInvitationCode, syncUserData } = useAuth();
+  return { user, userData, loading, isReady, login, logout, updateInvitationCode, syncUserData };
 };
 
 // Provider completamente offline
@@ -122,6 +128,35 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Función para sincronizar datos del usuario con la base de datos
+  const syncUserData = async () => {
+    if (!userData?.email) return;
+    
+    try {
+      console.log('🔄 AuthContext: Sincronizando datos del usuario con la BD');
+      
+      const response = await fetch('/api/profile/get-offline', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: userData.email })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.profile) {
+          const updatedUserData = { ...userData, ...data.profile };
+          setUserData(updatedUserData);
+          localStorage.setItem('crypto-force-user-data', JSON.stringify(updatedUserData));
+          console.log('✅ AuthContext: Datos sincronizados con la BD');
+        }
+      }
+    } catch (error) {
+      console.error('❌ AuthContext: Error sincronizando datos:', error);
+    }
+  };
+
   // Función para crear datos de usuario
   const createUserData = (email: string): UserData => {
     const isFounder = email === 'coeurdeluke.js@gmail.com' || email === 'infocryptoforce@gmail.com';
@@ -139,7 +174,11 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       uid: `uid-${Date.now()}`,
       codigo_referido: null,
       referred_by: null,
-      total_referrals: 0
+      total_referrals: 0,
+      avatar: '/images/default-avatar.png',
+      birthdate: '',
+      country: '',
+      bio: ''
     };
   };
 
@@ -211,7 +250,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, isReady, login, logout, updateInvitationCode }}>
+    <AuthContext.Provider value={{ user, userData, loading, isReady, login, logout, updateInvitationCode, syncUserData }}>
       {children}
     </AuthContext.Provider>
   );
