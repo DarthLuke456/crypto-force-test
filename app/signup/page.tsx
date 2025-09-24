@@ -116,15 +116,26 @@ export default function SignUpPage() {
   };
 
   // Mostrar loading solo mientras se inicializa la autenticación
+  // PERO solo si hay un usuario potencialmente autenticado
   if (loading && !isReady) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#ec4d58] mx-auto mb-4"></div>
-          <p className="text-white text-lg">Verificando autenticación...</p>
+    // Verificar si hay indicios de usuario autenticado
+    const hasStoredEmail = typeof window !== 'undefined' && localStorage.getItem('crypto-force-user-email');
+    const isLoggedOut = typeof window !== 'undefined' && localStorage.getItem('crypto-force-logged-out') === 'true';
+    
+    // Si no hay email guardado o el usuario se deslogueó, mostrar el formulario inmediatamente
+    if (!hasStoredEmail || isLoggedOut) {
+      console.log('🔍 Signup: No hay usuario autenticado, mostrando formulario inmediatamente');
+      // No mostrar loading, continuar al formulario
+    } else {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#ec4d58] mx-auto mb-4"></div>
+            <p className="text-white text-lg">Verificando autenticación...</p>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   // Si el usuario ya está autenticado, redirigir inmediatamente
@@ -143,6 +154,12 @@ export default function SignUpPage() {
         </div>
       </div>
     );
+  }
+
+  // Fallback: Si no hay usuario y la autenticación está lista, mostrar el formulario
+  // Esto asegura que el formulario se muestre incluso si hay problemas con el estado
+  if (!user && isReady) {
+    console.log('🔍 Signup: No hay usuario autenticado, mostrando formulario de registro');
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
