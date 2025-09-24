@@ -28,14 +28,14 @@ const getRoleName = (level: number) => {
 
 const getLevelColor = (level: number) => {
   switch (level) {
-    case 0: return '#FF8C42';
-    case 1: return '#fafafa';
-    case 2: return '#FFD447';
-    case 3: return '#3ED598';
-    case 4: return '#4671D5';
-    case 5: return '#ec4d58';
-    case 6: return '#8a8a8a';
-    default: return '#fafafa';
+    case 0: return '#FF8C42'; // Fundador - Orange
+    case 1: return '#8a8a8a'; // Iniciado - Gray
+    case 2: return '#FFD447'; // Acólito - Yellow
+    case 3: return '#3ED598'; // Warrior - Green
+    case 4: return '#4671D5'; // Lord - Blue
+    case 5: return '#ec4d58'; // Darth - Red
+    case 6: return '#8a8a8a'; // Maestro - Gray
+    default: return '#8a8a8a';
   }
 };
 
@@ -79,8 +79,16 @@ export default function ProfileContent() {
     
     console.log('🔍 ProfileContent: Loading profile data...');
     console.log('🔍 ProfileContent: Current userData:', userData);
+    console.log('🔍 ProfileContent: User level from database:', userData.user_level);
+    console.log('🔍 ProfileContent: User email:', userData.email);
     
     // Use userData directly without any sync calls
+    // Fix: Ensure correct user level for authorized emails
+    let correctUserLevel = userData.user_level || 1;
+    if (userData.email === 'coeurdeluke.js@gmail.com' || userData.email === 'infocryptoforce@gmail.com') {
+      correctUserLevel = 0; // Fundador level for authorized emails
+    }
+    
     const sanitizedData = {
       nombre: userData.nombre || '', 
       apellido: userData.apellido || '', 
@@ -89,7 +97,7 @@ export default function ProfileContent() {
       movil: userData.movil || '', 
       exchange: userData.exchange || '',
       avatar: userAvatar || '/images/default-avatar.png',
-      user_level: userData.user_level || 1,
+      user_level: correctUserLevel,
       referral_code: userData.referral_code || '', 
       referred_by: userData.referred_by || '',
       total_referrals: userData.total_referrals || 0, 
@@ -101,6 +109,8 @@ export default function ProfileContent() {
     };
     
     console.log('🔍 ProfileContent: Sanitized data:', sanitizedData);
+    console.log('🔍 ProfileContent: Calculated role name:', getRoleName(sanitizedData.user_level));
+    console.log('🔍 ProfileContent: Calculated role color:', getLevelColor(sanitizedData.user_level));
     setProfileData(sanitizedData);
     setAvatarPreview(sanitizedData.avatar);
     console.log('✅ ProfileContent: Datos del perfil cargados');
