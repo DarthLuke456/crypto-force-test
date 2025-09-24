@@ -40,7 +40,7 @@ const getLevelColor = (level: number) => {
 };
 
 export default function ProfileContent() {
-  const { userData, syncUserData, forceSync } = useSafeAuth();
+  const { userData } = useSafeAuth();
   const { avatar: userAvatar, changeAvatar } = useAvatar();
   const { stats: referralStats } = useReferralDataSimple();
   const { emitUserDataUpdate } = useUserDataSync();
@@ -64,100 +64,47 @@ export default function ProfileContent() {
   });
 
   const [avatarPreview, setAvatarPreview] = useState(userAvatar || profileData.avatar);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Update avatar preview when userAvatar changes
   useEffect(() => {
     setAvatarPreview(userAvatar || profileData.avatar);
   }, [userAvatar, profileData.avatar]);
 
+  // Load profile data when userData changes - SIMPLIFIED VERSION
   useEffect(() => {
-    const loadProfileData = async () => {
-      if (!userData) {
-        console.log('🔍 ProfileContent: No userData available');
-        return;
-      }
-      
-      try {
-        setLoading(true);
-        console.log('🔍 ProfileContent: Loading profile data...');
-        console.log('🔍 ProfileContent: Current userData:', userData);
-        
-        // Sincronizar datos con la base de datos primero para asegurar consistencia
-        console.log('🔍 ProfileContent: Syncing with database...');
-        await syncUserData();
-        console.log('🔍 ProfileContent: Database sync completed');
-        
-        // Usar datos del AuthContext offline después de la sincronización
-        const sanitizedData = {
-          nombre: userData.nombre || '', 
-          apellido: userData.apellido || '', 
-          nickname: userData.nickname || '',
-          email: userData.email || '', 
-          movil: userData.movil || '', 
-          exchange: userData.exchange || '',
-          avatar: userAvatar || '/images/default-avatar.png',
-          user_level: userData.user_level || 1,
-          referral_code: userData.referral_code || '', 
-          referred_by: userData.referred_by || '',
-          total_referrals: userData.total_referrals || 0, 
-          created_at: userData.created_at || new Date().toISOString(),
-          updated_at: userData.updated_at || new Date().toISOString(),
-          birthdate: userData.birthdate || '',
-          country: userData.country || '',
-          bio: userData.bio || ''
-        };
-        
-        console.log('🔍 ProfileContent: Sanitized data:', sanitizedData);
-        setProfileData(sanitizedData);
-        setAvatarPreview(sanitizedData.avatar);
-        console.log('✅ ProfileContent: Datos del perfil cargados y sincronizados con BD');
-      } catch (e) {
-        console.error('❌ ProfileContent: Error cargando datos del perfil:', e);
-        setError('Error cargando datos del perfil');
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProfileData();
-  }, [userData, userAvatar, syncUserData]);
-
-  // Escuchar eventos de sincronización
-  useEffect(() => {
-    const handleUserDataSynced = (event: CustomEvent) => {
-      console.log('🔄 ProfileContent: Datos sincronizados, actualizando interfaz...');
-      const updatedUserData = event.detail;
-      
-      // Actualizar los datos del perfil con los datos sincronizados
-      const sanitizedData = {
-        nombre: updatedUserData.nombre || '',
-        apellido: updatedUserData.apellido || '',
-        nickname: updatedUserData.nickname || '',
-        email: updatedUserData.email || '',
-        movil: updatedUserData.movil || '',
-        exchange: updatedUserData.exchange || '',
-        avatar: updatedUserData.avatar || '/images/default-avatar.png',
-        user_level: updatedUserData.user_level || 1,
-        referral_code: updatedUserData.referral_code || '',
-        referred_by: updatedUserData.referred_by || '',
-        total_referrals: updatedUserData.total_referrals || 0,
-        created_at: updatedUserData.created_at || new Date().toISOString(),
-        updated_at: updatedUserData.updated_at || new Date().toISOString(),
-        birthdate: updatedUserData.birthdate || '',
-        country: updatedUserData.country || '',
-        bio: updatedUserData.bio || ''
-      };
-      
-      setProfileData(sanitizedData);
-      setAvatarPreview(sanitizedData.avatar);
-      console.log('✅ ProfileContent: Interfaz actualizada con datos sincronizados');
-    };
-
-    window.addEventListener('userDataSynced', handleUserDataSynced as EventListener);
+    if (!userData) {
+      console.log('🔍 ProfileContent: No userData available');
+      return;
+    }
     
-    return () => {
-      window.removeEventListener('userDataSynced', handleUserDataSynced as EventListener);
+    console.log('🔍 ProfileContent: Loading profile data...');
+    console.log('🔍 ProfileContent: Current userData:', userData);
+    
+    // Use userData directly without any sync calls
+    const sanitizedData = {
+      nombre: userData.nombre || '', 
+      apellido: userData.apellido || '', 
+      nickname: userData.nickname || '',
+      email: userData.email || '', 
+      movil: userData.movil || '', 
+      exchange: userData.exchange || '',
+      avatar: userAvatar || '/images/default-avatar.png',
+      user_level: userData.user_level || 1,
+      referral_code: userData.referral_code || '', 
+      referred_by: userData.referred_by || '',
+      total_referrals: userData.total_referrals || 0, 
+      created_at: userData.created_at || new Date().toISOString(),
+      updated_at: userData.updated_at || new Date().toISOString(),
+      birthdate: userData.birthdate || '',
+      country: userData.country || '',
+      bio: userData.bio || ''
     };
-  }, []);
+    
+    console.log('🔍 ProfileContent: Sanitized data:', sanitizedData);
+    setProfileData(sanitizedData);
+    setAvatarPreview(sanitizedData.avatar);
+    console.log('✅ ProfileContent: Datos del perfil cargados');
+  }, [userData, userAvatar]);
 
   const saveProfile = async (newData: typeof profileData) => {
     try {
@@ -212,16 +159,7 @@ export default function ProfileContent() {
           setShowSuccess(true);
           setTimeout(() => setShowSuccess(false), 2000);
           
-                 // Sincronizar con la base de datos para asegurar consistencia
-                 await syncUserData();
-
-                 // Forzar una segunda sincronización después de un pequeño delay
-                 setTimeout(async () => {
-                   console.log('🔄 ProfileContent: Segunda sincronización forzada...');
-                   await forceSync();
-                 }, 500);
-
-                 console.log('✅ ProfileContent: Perfil actualizado correctamente en BD y localStorage');
+          console.log('✅ ProfileContent: Perfil actualizado correctamente en BD y localStorage');
         } else {
           console.error('❌ ProfileContent: Error en response data:', data.error);
           setError(data.error || 'Error actualizando perfil');
@@ -267,57 +205,64 @@ export default function ProfileContent() {
           emitUserDataUpdate({
             type: 'profile_updated',
             userId: userData?.id || '',
-            userData: updatedProfile,
+            userData: {
+              ...userData,
+              avatar: ev.target?.result as string
+            },
             timestamp: new Date().toISOString()
           });
-        } catch (err) {
-          console.error('Error actualizando avatar:', err);
-          setError('Error de conexión');
-        } finally { setLoading(false); }
+        } catch (e) {
+          console.error('❌ ProfileContent: Error cambiando avatar:', e);
+          setError('Error cambiando avatar');
+        } finally {
+          setLoading(false);
+        }
       }
     };
     reader.readAsDataURL(file);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setProfileData({ ...profileData, [e.target.name]: e.target.value });
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    saveProfile(profileData);
   };
 
-  const handlePasswordChange = (field: string, value: string) => {
-    setPasswordData(prev => ({ ...prev, [field]: value }));
-    if (passwordErrors[field]) setPasswordErrors(prev => ({ ...prev, [field]: '' }));
+  const handleInputChange = (field: string, value: string) => {
+    setProfileData(prev => ({ ...prev, [field]: value }));
   };
 
-  const validatePasswordForm = () => {
-    const newErrors: Record<string, string> = {};
-    if (!passwordData.currentPassword.trim()) newErrors.currentPassword = 'La contraseña actual es requerida';
-    if (!passwordData.newPassword.trim()) newErrors.newPassword = 'La nueva contraseña es requerida';
-    else if (passwordData.newPassword.length < 6) newErrors.newPassword = 'La nueva contraseña debe tener al menos 6 caracteres';
-    if (!passwordData.confirmPassword.trim()) newErrors.confirmPassword = 'Confirma la nueva contraseña';
-    else if (passwordData.newPassword !== passwordData.confirmPassword) newErrors.confirmPassword = 'Las contraseñas no coinciden';
-    setPasswordErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChangePassword = async () => {
-    if (!validatePasswordForm()) return;
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsChangingPassword(true);
     setPasswordErrors({});
+
+    // Validaciones
+    const errors: Record<string, string> = {};
+    if (!passwordData.currentPassword) errors.currentPassword = 'Contraseña actual requerida';
+    if (!passwordData.newPassword) errors.newPassword = 'Nueva contraseña requerida';
+    if (passwordData.newPassword.length < 6) errors.newPassword = 'La contraseña debe tener al menos 6 caracteres';
+    if (passwordData.newPassword !== passwordData.confirmPassword) errors.confirmPassword = 'Las contraseñas no coinciden';
+
+    if (Object.keys(errors).length > 0) {
+      setPasswordErrors(errors);
+      setIsChangingPassword(false);
+      return;
+    }
+
     try {
-      const { error: reauthError } = await supabase.auth.signInWithPassword({
-        email: userData?.email || profileData.email,
-        password: passwordData.currentPassword
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.newPassword
       });
-      if (reauthError) { setPasswordErrors({ currentPassword: 'La contraseña actual es incorrecta' }); return; }
-      const { error } = await supabase.auth.updateUser({ password: passwordData.newPassword });
-      if (error) { setPasswordErrors({ general: error.message }); return; }
+
+      if (error) throw error;
+
       setShowSuccess(true);
-      setShowChangePassword(false);
+      setTimeout(() => setShowSuccess(false), 2000);
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      setTimeout(() => setShowSuccess(false), 3000);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
-      setPasswordErrors({ general: errorMessage });
+      setShowChangePassword(false);
+    } catch (error) {
+      console.error('Error changing password:', error);
+      setError('Error cambiando contraseña');
     } finally {
       setIsChangingPassword(false);
     }
@@ -325,187 +270,330 @@ export default function ProfileContent() {
 
   if (!userData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
-        <div className="text-center">
-          <div className="bg-[#1a1a1a] border border-[#3a3a3a] rounded-lg p-8 max-w-md">
-            <h2 className="text-xl font-bold text-white mb-4">Cargando Perfil...</h2>
-            <p className="text-gray-400 mb-6">Cargando datos del perfil...</p>
-          </div>
+      <div className="min-h-screen bg-[#121212] flex items-center justify-center">
+        <div className="text-[#fafafa] text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Cargando perfil...</p>
         </div>
       </div>
     );
   }
 
-  const userActualLevel = userData?.user_level || profileData.user_level || 1;
-  const currentRoleName = getRoleName(userActualLevel);
-  const currentRoleColor = getLevelColor(userActualLevel);
-
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] text-white">
-      <main className="flex-1 flex flex-col items-center justify-start pt-24 pb-8 px-4 transition-all duration-300">
-        <div className="w-full max-w-md bg-[#181818] rounded-2xl shadow-lg p-8 border border-[#232323] flex flex-col items-center relative">
-          {showSuccess && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-green-600/90 text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in-out z-20">
-              <CheckCircle className="w-5 h-5 text-white" />
-              <span>¡Perfil actualizado!</span>
-            </div>
-          )}
-          {error && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-red-600/90 text-white px-4 py-2 rounded-lg shadow-lg animate-fade-in-out z-20">
-              <AlertCircle className="w-5 h-5 text-white" />
-              <span>{error}</span>
-            </div>
-          )}
+    <div className="min-h-screen bg-[#121212] text-[#fafafa] p-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-[#fafafa] mb-2">Mi Perfil</h1>
+          <p className="text-[#8a8a8a]">Gestiona tu información personal y configuración</p>
+        </div>
 
-          <div className="relative mb-4">
-            <Image src={avatarPreview} alt="Tu foto de perfil" width={128} height={128} className="w-32 h-32 rounded-full object-cover border-4 border-[#8a8a8a] shadow-lg" />
-            <button className="absolute bottom-2 right-2 bg-[#8a8a8a] p-2 rounded-full hover:bg-[#6a6a6a] transition-colors" onClick={() => fileInputRef.current && fileInputRef.current.click()} aria-label="Cambiar foto de perfil">
-              <Camera className="w-5 h-5 text-white" />
-            </button>
-            <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleAvatarChange} />
+        {/* Success Message */}
+        {showSuccess && (
+          <div className="mb-6 p-4 bg-green-900/20 border border-green-500/30 rounded-lg flex items-center gap-3">
+            <CheckCircle className="h-5 w-5 text-green-400" />
+            <span className="text-green-400">Perfil actualizado correctamente</span>
           </div>
+        )}
 
-          <div className="w-full text-center mb-6">
-            {isEditing ? (
-              <>
-                <div className="relative mb-2 flex items-center">
-                  <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input name="nombre" value={profileData.nombre} onChange={handleChange} className="w-full bg-[#232323] border border-[#333] rounded-lg px-8 py-2 text-white mb-2 focus:outline-none focus:ring-2 focus:ring-[#8a8a8a] text-center" placeholder="Tu nombre" />
-                </div>
-                <div className="relative mb-2 flex items-center">
-                  <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input name="apellido" value={profileData.apellido} onChange={handleChange} className="w-full bg-[#232323] border border-[#333] rounded-lg px-8 py-2 text-white mb-2 focus:outline-none focus:ring-2 focus:ring-[#8a8a8a] text-center" placeholder="Tu apellido" />
-                </div>
-                <div className="relative mb-2 flex items-center">
-                  <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input name="nickname" value={profileData.nickname} onChange={handleChange} className="w-full bg-[#232323] border border-[#333] rounded-lg px-8 py-2 text-white mb-2 focus:outline-none focus:ring-2 focus:ring-[#8a8a8a] text-center" placeholder="Tu nickname" />
-                </div>
-                <div className="relative mb-2 flex items-center">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input name="email" value={profileData.email} onChange={handleChange} className="w-full bg-[#232323] border border-[#333] rounded-lg px-8 py-2 text-white mb-2 focus:outline-none focus:ring-2 focus:ring-[#8a8a8a] text-center" placeholder="Tu correo" type="email" />
-                </div>
-                <div className="relative mb-2 flex items-center">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <input name="movil" value={profileData.movil} onChange={handleChange} className="w-full bg-[#232323] border border-[#333] rounded-lg px-8 py-2 text-white mb-2 focus:outline-none focus:ring-2 focus:ring-[#8a8a8a] text-center" placeholder="Teléfono (opcional)" type="tel" />
-                </div>
-                <div className="relative mb-2 flex items-center">
-                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <select name="exchange" value={profileData.exchange} onChange={handleChange} className="w-full bg-[#232323] border border-[#333] rounded-lg px-8 py-2 text-white mb-2 focus:outline-none focus:ring-2 focus:ring-[#8a8a8a] appearance-none text-center" style={{ backgroundPosition: 'right 1rem center', backgroundRepeat: 'no-repeat' }}>
-                    <option value="">Selecciona Exchange</option>
-                    <option value="ZoomEx">ZoomEx</option>
-                    <option value="Bitget">Bitget</option>
-                  </select>
-                  <span className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼</span>
-                </div>
-              </>
-            ) : (
-              <>
-                <h2 className="text-2xl font-bold mb-1">{profileData.nombre} {profileData.apellido}</h2>
-                <p className="text-gray-400 text-sm mb-1">@{profileData.nickname}</p>
-                <p className="text-gray-400 text-sm mb-1">{profileData.email}</p>
-                {profileData.movil && (<p className="text-gray-400 text-xs mb-1">Teléfono: {profileData.movil}</p>)}
-                {profileData.exchange && (<p className="text-gray-400 text-xs mb-1">Exchange: {profileData.exchange}</p>)}
-                {profileData.referral_code && (<p className="text-gray-400 text-xs mb-1">Código de Referido: <span className="text-[#8a8a8a] font-mono">{profileData.referral_code}</span></p>)}
-                {profileData.referred_by && (<p className="text-gray-400 text-xs mb-1">Referido por: <span className="text-[#8a8a8a]">{profileData.referred_by}</span></p>)}
-                {profileData.total_referrals > 0 && (<p className="text-gray-400 text-xs mb-1">Total de Referidos: <span className="text-[#3ED598] font-bold">{profileData.total_referrals}</span></p>)}
-              </>
-            )}
-            <p className="text-gray-500 text-xs">Miembro desde {profileData.created_at ? new Date(profileData.created_at).toLocaleDateString('es-ES') : 'Fecha no disponible'}</p>
-            {profileData.updated_at && (<p className="text-gray-500 text-xs">Última actualización: {new Date(profileData.updated_at).toLocaleDateString('es-ES')}</p>)}
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-900/20 border border-red-500/30 rounded-lg flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-red-400" />
+            <span className="text-red-400">{error}</span>
           </div>
+        )}
 
-          <button className="bg-[#8a8a8a] hover:bg-[#6a6a6a] text-white px-6 py-2 rounded-lg transition-colors flex items-center justify-center mb-4 w-full disabled:opacity-50" onClick={() => { if (isEditing) saveProfile(profileData); else setIsEditing(true); }} disabled={loading}>
-            {loading ? (<Loader2 className="w-4 h-4 mr-2 animate-spin" />) : isEditing ? (<Save className="w-4 h-4 mr-2" />) : (<Edit3 className="w-4 h-4 mr-2" />)}
-            {loading ? 'Guardando...' : isEditing ? 'Guardar' : 'Editar perfil'}
-          </button>
-
-          <button className="bg-[#4a4a4a] hover:bg-[#5a5a5a] text-white px-6 py-2 rounded-lg transition-colors flex items-center justify-center mb-6 w-full" onClick={() => setShowChangePassword(!showChangePassword)}>
-            <Lock className="w-4 h-4 mr-2" />
-            {showChangePassword ? 'Cancelar' : 'Cambiar Contraseña'}
-          </button>
-
-          {showChangePassword && (
-            <div className="w-full bg-[#232323] rounded-lg p-4 mb-6 border border-[#333]">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                <Lock className="w-5 h-5 mr-2" />
-                Cambiar Contraseña
-              </h3>
-              {passwordErrors.general && (<div className="mb-4 p-3 bg-[#ec4d58] bg-opacity-20 border border-[#ec4d58] text-[#ec4d58] rounded-lg text-sm">{passwordErrors.general}</div>)}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-white mb-2">Contraseña Actual</label>
-                  <div className="relative">
-                    <input type={showPasswords.current ? 'text' : 'password'} value={passwordData.currentPassword} onChange={(e) => handlePasswordChange('currentPassword', e.target.value)} className={`w-full px-3 py-2 pr-10 bg-[#1a1a1a] text-white rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#8a8a8a] ${passwordErrors.currentPassword ? 'border-[#8a8a8a]' : 'border-[#4a4a4a]'}`} placeholder="Tu contraseña actual" />
-                    <button type="button" onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#6a6a6a] hover:text-white transition-colors">{showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Profile Card */}
+          <div className="lg:col-span-2">
+            <div className="bg-[#1a1a1a] rounded-xl p-6 border border-[#333]">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-[#fafafa]">Información Personal</h2>
+                {!isEditing ? (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#8a8a8a] text-[#121212] rounded-lg hover:bg-[#999] transition-colors"
+                  >
+                    <Edit3 className="h-4 w-4" />
+                    Editar
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="px-4 py-2 bg-[#333] text-[#fafafa] rounded-lg hover:bg-[#444] transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleSubmit}
+                      disabled={loading}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#8a8a8a] text-[#121212] rounded-lg hover:bg-[#999] transition-colors disabled:opacity-50"
+                    >
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                      Guardar
+                    </button>
                   </div>
-                  {passwordErrors.currentPassword && (<p className="text-[#ec4d58] text-sm mt-1">{passwordErrors.currentPassword}</p>)}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-white mb-2">Nueva Contraseña</label>
-                  <div className="relative">
-                    <input type={showPasswords.new ? 'text' : 'password'} value={passwordData.newPassword} onChange={(e) => handlePasswordChange('newPassword', e.target.value)} className={`w-full px-3 py-2 pr-10 bg-[#1a1a1a] text-white rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#8a8a8a] ${passwordErrors.newPassword ? 'border-[#8a8a8a]' : 'border-[#4a4a4a]'}`} placeholder="Mínimo 6 caracteres" />
-                    <button type="button" onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#6a6a6a] hover:text-white transition-colors">{showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
-                  </div>
-                  {passwordErrors.newPassword && (<p className="text-[#ec4d58] text-sm mt-1">{passwordErrors.newPassword}</p>)}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-white mb-2">Confirmar Nueva Contraseña</label>
-                  <div className="relative">
-                    <input type={showPasswords.confirm ? 'text' : 'password'} value={passwordData.confirmPassword} onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)} className={`w-full px-3 py-2 pr-10 bg-[#1a1a1a] text-white rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#8a8a8a] ${passwordErrors.confirmPassword ? 'border-[#8a8a8a]' : 'border-[#4a4a4a]'}`} placeholder="Repite la nueva contraseña" />
-                    <button type="button" onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#6a6a6a] hover:text-white transition-colors">{showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
-                  </div>
-                  {passwordErrors.confirmPassword && (<p className="text-[#ec4d58] text-sm mt-1">{passwordErrors.confirmPassword}</p>)}
-                </div>
-                <div className="flex gap-3">
-                  <button onClick={handleChangePassword} disabled={isChangingPassword} className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${isChangingPassword ? 'bg-[#6a6a6a] cursor-not-allowed' : 'bg-[#8a8a8a] hover:bg-[#6a6a6a]'} text-white`}>{isChangingPassword ? 'Cambiando...' : 'Cambiar Contraseña'}</button>
-                  <button onClick={() => { setShowChangePassword(false); setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' }); setPasswordErrors({}); }} className="px-4 py-2 bg-[#6a6a6a] hover:bg-[#5a5a5a] text-white rounded-lg transition-colors">Cancelar</button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="w-full mb-6">
-            <div className="bg-[#1a1a1a] border border-[#3a3a3a] rounded-lg p-4 text-center">
-              <div className="text-2xl font-bold mb-1" style={{ color: currentRoleColor }}>{currentRoleName}</div>
-              <div className="text-xs text-[#a0a0a0]">Rol Actual</div>
-            </div>
-          </div>
-
-          {referralStats && referralStats.recent_referrals && referralStats.recent_referrals.length > 0 && (
-            <div className="w-full mb-6">
-              <div className="bg-[#1a1a1a] border border-[#3a3a3a] rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Users className="w-5 h-5 text-[#8a8a8a]" />
-                  <h3 className="text-lg font-semibold text-white">Invitados Recientes</h3>
-                </div>
-                <div className="space-y-2">
-                  {referralStats.recent_referrals.slice(0, 3).map((referral: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-[#232323] rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-[#8a8a8a] rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold text-white">{referral.email?.charAt(0).toUpperCase() || 'U'}</span>
-                        </div>
-                        <div>
-                          <p className="text-white text-sm font-medium">{referral.email}</p>
-                          <p className="text-xs text-gray-400">{new Date(referral.date).toLocaleDateString('es-ES')}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[#3ED598] text-xs font-bold">Invitado</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {referralStats.total_referrals > 3 && (
-                  <p className="text-xs text-gray-400 text-center mt-2">Y {referralStats.total_referrals - 3} más...</p>
                 )}
               </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Avatar Section */}
+                <div className="flex items-center gap-6">
+                  <div className="relative">
+                    <Image
+                      src={avatarPreview}
+                      alt="Avatar"
+                      width={80}
+                      height={80}
+                      className="rounded-full border-2 border-[#333]"
+                    />
+                    {isEditing && (
+                      <label className="absolute -bottom-2 -right-2 bg-[#8a8a8a] text-[#121212] p-2 rounded-full cursor-pointer hover:bg-[#999] transition-colors">
+                        <Camera className="h-4 w-4" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleAvatarChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-[#fafafa]">{profileData.nombre} {profileData.apellido}</h3>
+                    <p className="text-[#8a8a8a]">{getRoleName(profileData.user_level)}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: getLevelColor(profileData.user_level) }}
+                      />
+                      <span className="text-sm text-[#8a8a8a]">Nivel {profileData.user_level}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Form Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-[#fafafa] mb-2">Nombre</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={profileData.nombre}
+                        onChange={(e) => handleInputChange('nombre', e.target.value)}
+                        className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-[#fafafa] focus:border-[#8a8a8a] focus:outline-none"
+                      />
+                    ) : (
+                      <p className="text-[#8a8a8a]">{profileData.nombre || 'No especificado'}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#fafafa] mb-2">Apellido</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={profileData.apellido}
+                        onChange={(e) => handleInputChange('apellido', e.target.value)}
+                        className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-[#fafafa] focus:border-[#8a8a8a] focus:outline-none"
+                      />
+                    ) : (
+                      <p className="text-[#8a8a8a]">{profileData.apellido || 'No especificado'}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#fafafa] mb-2">Nickname</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={profileData.nickname}
+                        onChange={(e) => handleInputChange('nickname', e.target.value)}
+                        className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-[#fafafa] focus:border-[#8a8a8a] focus:outline-none"
+                      />
+                    ) : (
+                      <p className="text-[#8a8a8a]">{profileData.nickname || 'No especificado'}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#fafafa] mb-2">Email</label>
+                    <p className="text-[#8a8a8a]">{profileData.email}</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#fafafa] mb-2">Teléfono</label>
+                    {isEditing ? (
+                      <input
+                        type="tel"
+                        value={profileData.movil}
+                        onChange={(e) => handleInputChange('movil', e.target.value)}
+                        className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-[#fafafa] focus:border-[#8a8a8a] focus:outline-none"
+                      />
+                    ) : (
+                      <p className="text-[#8a8a8a]">{profileData.movil || 'No especificado'}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#fafafa] mb-2">Exchange</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={profileData.exchange}
+                        onChange={(e) => handleInputChange('exchange', e.target.value)}
+                        className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-[#fafafa] focus:border-[#8a8a8a] focus:outline-none"
+                      />
+                    ) : (
+                      <p className="text-[#8a8a8a]">{profileData.exchange || 'No especificado'}</p>
+                    )}
+                  </div>
+                </div>
+              </form>
             </div>
-          )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Account Stats */}
+            <div className="bg-[#1a1a1a] rounded-xl p-6 border border-[#333]">
+              <h3 className="text-lg font-semibold text-[#fafafa] mb-4">Estadísticas</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#8a8a8a]">Nivel</span>
+                  <span className="text-[#fafafa] font-medium">{getRoleName(profileData.user_level)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#8a8a8a]">Referidos</span>
+                  <span className="text-[#fafafa] font-medium">{profileData.total_referrals}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#8a8a8a]">Miembro desde</span>
+                  <span className="text-[#fafafa] font-medium">
+                    {new Date(profileData.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Referral Code */}
+            <div className="bg-[#1a1a1a] rounded-xl p-6 border border-[#333]">
+              <h3 className="text-lg font-semibold text-[#fafafa] mb-4">Código de Referido</h3>
+              <div className="bg-[#121212] rounded-lg p-4 border border-[#333]">
+                <p className="text-[#8a8a8a] text-sm mb-2">Tu código de referido:</p>
+                <p className="text-[#fafafa] font-mono text-lg">{profileData.referral_code}</p>
+              </div>
+            </div>
+
+            {/* Security */}
+            <div className="bg-[#1a1a1a] rounded-xl p-6 border border-[#333]">
+              <h3 className="text-lg font-semibold text-[#fafafa] mb-4">Seguridad</h3>
+              <button
+                onClick={() => setShowChangePassword(true)}
+                className="w-full flex items-center gap-2 px-4 py-2 bg-[#333] text-[#fafafa] rounded-lg hover:bg-[#444] transition-colors"
+              >
+                <Lock className="h-4 w-4" />
+                Cambiar Contraseña
+              </button>
+            </div>
+          </div>
         </div>
-      </main>
+
+        {/* Change Password Modal */}
+        {showChangePassword && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-[#1a1a1a] rounded-xl p-6 w-full max-w-md border border-[#333]">
+              <h3 className="text-xl font-semibold text-[#fafafa] mb-4">Cambiar Contraseña</h3>
+              <form onSubmit={handlePasswordChange} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#fafafa] mb-2">Contraseña Actual</label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.current ? 'text' : 'password'}
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                      className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-[#fafafa] focus:border-[#8a8a8a] focus:outline-none pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#8a8a8a]"
+                    >
+                      {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {passwordErrors.currentPassword && (
+                    <p className="text-red-400 text-sm mt-1">{passwordErrors.currentPassword}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[#fafafa] mb-2">Nueva Contraseña</label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.new ? 'text' : 'password'}
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                      className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-[#fafafa] focus:border-[#8a8a8a] focus:outline-none pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#8a8a8a]"
+                    >
+                      {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {passwordErrors.newPassword && (
+                    <p className="text-red-400 text-sm mt-1">{passwordErrors.newPassword}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[#fafafa] mb-2">Confirmar Nueva Contraseña</label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.confirm ? 'text' : 'password'}
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-[#fafafa] focus:border-[#8a8a8a] focus:outline-none pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#8a8a8a]"
+                    >
+                      {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {passwordErrors.confirmPassword && (
+                    <p className="text-red-400 text-sm mt-1">{passwordErrors.confirmPassword}</p>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowChangePassword(false)}
+                    className="flex-1 px-4 py-2 bg-[#333] text-[#fafafa] rounded-lg hover:bg-[#444] transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isChangingPassword}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#8a8a8a] text-[#121212] rounded-lg hover:bg-[#999] transition-colors disabled:opacity-50"
+                  >
+                    {isChangingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Cambiar'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-
-
