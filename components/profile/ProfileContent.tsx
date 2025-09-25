@@ -63,6 +63,9 @@ export default function ProfileContent() {
     birthdate: '', country: '', bio: ''
   });
 
+  // Ref to track the last processed userData to prevent unnecessary re-renders
+  const lastProcessedUserData = useRef<string>('');
+
   const [avatarPreview, setAvatarPreview] = useState(userAvatar || profileData.avatar);
 
   // Update avatar preview when userAvatar changes
@@ -70,10 +73,39 @@ export default function ProfileContent() {
     setAvatarPreview(userAvatar || profileData.avatar);
   }, [userAvatar, profileData.avatar]);
 
-  // Load profile data when userData changes - SIMPLIFIED VERSION
+  // Load profile data when userData changes - OPTIMIZED WITH REF
   useEffect(() => {
+    console.log('🔍 ProfileContent: useEffect triggered');
+    console.log('🔍 ProfileContent: userData exists:', !!userData);
+    console.log('🔍 ProfileContent: userData ID:', userData?.id);
+    console.log('🔍 ProfileContent: userData email:', userData?.email);
+    console.log('🔍 ProfileContent: userData nombre:', userData?.nombre);
+    console.log('🔍 ProfileContent: userData apellido:', userData?.apellido);
+    console.log('🔍 ProfileContent: userData nickname:', userData?.nickname);
+    console.log('🔍 ProfileContent: userData user_level:', userData?.user_level);
+    
     if (!userData) {
       console.log('🔍 ProfileContent: No userData available');
+      return;
+    }
+    
+    // Create a hash of the current userData to check if it has actually changed
+    const currentUserDataHash = JSON.stringify({
+      id: userData.id,
+      email: userData.email,
+      nombre: userData.nombre,
+      apellido: userData.apellido,
+      nickname: userData.nickname,
+      user_level: userData.user_level,
+      avatar: userData.avatar
+    });
+    
+    console.log('🔍 ProfileContent: Current hash:', currentUserDataHash);
+    console.log('🔍 ProfileContent: Last processed hash:', lastProcessedUserData.current);
+    
+    // Check if the data has actually changed
+    if (currentUserDataHash === lastProcessedUserData.current) {
+      console.log('🔍 ProfileContent: No significant changes detected, skipping update');
       return;
     }
     
@@ -118,8 +150,11 @@ export default function ProfileContent() {
     console.log('🔍 ProfileContent: Calculated role color:', getLevelColor(sanitizedData.user_level));
     setProfileData(sanitizedData);
     setAvatarPreview(sanitizedData.avatar);
+    
+    // Update the ref to track that we've processed this userData
+    lastProcessedUserData.current = currentUserDataHash;
     console.log('✅ ProfileContent: Datos del perfil cargados');
-  }, [userData?.id, userData?.email, userData?.nombre, userData?.apellido, userData?.nickname, userData?.user_level]); // Only depend on specific fields
+  }, [userData?.id, userData?.email, userData?.nombre, userData?.apellido, userData?.nickname, userData?.user_level, userData?.avatar]); // Include avatar in dependencies
 
   const saveProfile = async (newData: typeof profileData) => {
     try {
