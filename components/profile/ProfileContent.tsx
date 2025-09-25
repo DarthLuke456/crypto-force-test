@@ -41,7 +41,7 @@ const getLevelColor = (level: number) => {
 
 export default function ProfileContent() {
   const { userData, refreshUserData } = useSafeAuth();
-  const { avatar: userAvatar, changeAvatar } = useAvatar();
+  const { avatar: userAvatar, changeAvatar, isLoading: avatarLoading } = useAvatar();
   const { stats: referralStats } = useReferralDataSimple();
   const { emitUserDataUpdate } = useUserDataSync();
 
@@ -242,7 +242,6 @@ export default function ProfileContent() {
       if (ev.target && typeof ev.target.result === 'string') {
         setAvatarPreview(ev.target.result);
         try {
-          setLoading(true);
           setError(null);
           await changeAvatar(ev.target.result);
           const updatedProfile = { ...profileData, avatar: ev.target?.result as string };
@@ -263,8 +262,6 @@ export default function ProfileContent() {
         } catch (e) {
           console.error('❌ ProfileContent: Error cambiando avatar:', e);
           setError('Error cambiando avatar');
-        } finally {
-          setLoading(false);
         }
       }
     };
@@ -377,10 +374,10 @@ export default function ProfileContent() {
                     </button>
                     <button
                       onClick={handleSubmit}
-                      disabled={loading}
+                      disabled={loading || avatarLoading}
                       className="flex items-center gap-2 px-4 py-2 bg-[#8a8a8a] text-[#121212] rounded-lg hover:bg-[#999] transition-colors disabled:opacity-50"
                     >
-                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                      {(loading || avatarLoading) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                       Guardar
                     </button>
                   </div>
@@ -399,12 +396,13 @@ export default function ProfileContent() {
                       className="rounded-full border-2 border-[#333]"
                     />
                     {isEditing && (
-                      <label className="absolute -bottom-2 -right-2 bg-[#8a8a8a] text-[#121212] p-2 rounded-full cursor-pointer hover:bg-[#999] transition-colors">
-                        <Camera className="h-4 w-4" />
+                      <label className={`absolute -bottom-2 -right-2 bg-[#8a8a8a] text-[#121212] p-2 rounded-full cursor-pointer hover:bg-[#999] transition-colors ${avatarLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        {avatarLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
                         <input
                           type="file"
                           accept="image/*"
                           onChange={handleAvatarChange}
+                          disabled={avatarLoading}
                           className="hidden"
                         />
                       </label>
