@@ -106,8 +106,8 @@ export function useAvatarUnified() {
       updateAvatar(newAvatar);
       
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.session) {
-        throw new Error('No active session');
+      if (!session || !session.user?.email) {
+        throw new Error('No active session or user email');
       }
 
       console.log('🔄 useAvatarUnified: Updating avatar in database...');
@@ -119,7 +119,7 @@ export function useAvatarUnified() {
           avatar: newAvatar,
           updated_at: new Date().toISOString()
         })
-        .eq('email', session.session.user.email);
+        .eq('email', session.user.email);
 
       if (error) {
         console.error('❌ useAvatarUnified: Error updating avatar in database:', error);
