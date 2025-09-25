@@ -183,14 +183,14 @@ export function useAvatarOptimized() {
       updateAvatar(compressedAvatar);
       
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.session) {
+      if (!session) {
         throw new Error('No active session');
       }
 
       console.log('🔄 useAvatarOptimized: Updating avatar in database...');
       
       // Cleanup old avatar before updating
-      await cleanupOldAvatar(session.session.user.email, compressedAvatar);
+      await cleanupOldAvatar(session.user.email, compressedAvatar);
       
       // Update in database
       const { error } = await supabase
@@ -199,7 +199,7 @@ export function useAvatarOptimized() {
           avatar: compressedAvatar,
           updated_at: new Date().toISOString()
         })
-        .eq('email', session.session.user.email);
+        .eq('email', session.user.email);
 
       if (error) {
         console.error('❌ useAvatarOptimized: Error updating avatar in database:', error);
