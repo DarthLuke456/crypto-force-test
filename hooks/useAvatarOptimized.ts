@@ -120,6 +120,12 @@ export function useAvatarOptimized() {
   const cleanupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const updateAvatar = useCallback((newAvatar: string | null) => {
+    // Prevent infinite loops by checking if avatar is already the same
+    if (globalAvatarCache === newAvatar) {
+      console.log('🔍 useAvatarOptimized: Avatar unchanged, skipping update');
+      return;
+    }
+    
     console.log('🔄 useAvatarOptimized: Updating avatar:', newAvatar ? 'Present' : 'Null');
     globalAvatarCache = newAvatar;
     saveAvatarToStorage(newAvatar);
@@ -312,6 +318,13 @@ export function useAvatarOptimized() {
       if (e.key === 'user-avatar') {
         const newAvatar = e.newValue && e.newValue !== 'null' ? e.newValue : null;
         console.log('🔄 useAvatarOptimized: Storage changed, updating avatar');
+        
+        // Prevent infinite loops by checking if avatar is already the same
+        if (globalAvatarCache === newAvatar) {
+          console.log('🔍 useAvatarOptimized: Storage avatar same as cache, skipping');
+          return;
+        }
+        
         updateAvatar(newAvatar);
       }
     };
@@ -319,6 +332,13 @@ export function useAvatarOptimized() {
     const handleAvatarChanged = (event: CustomEvent) => {
       const newAvatar = event.detail.avatar;
       console.log('🔄 useAvatarOptimized: Avatar changed event received');
+      
+      // Prevent infinite loops by checking if avatar is already the same
+      if (globalAvatarCache === newAvatar) {
+        console.log('🔍 useAvatarOptimized: Event avatar same as cache, skipping');
+        return;
+      }
+      
       updateAvatar(newAvatar);
     };
 
