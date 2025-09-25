@@ -158,13 +158,8 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         console.log('🔄 AuthContext: Initializing authentication...');
         
-        // Obtener sesión actual con timeout más largo
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Session timeout')), 10000)
-        );
-        
-        const { data: { session }, error: sessionError } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        // Obtener sesión actual sin timeout para evitar problemas
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.warn('⚠️ AuthContext: Session error:', sessionError);
@@ -213,11 +208,13 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           }
         } else {
+          console.log('⚠️ AuthContext: No session found, checking for stored email...');
           // Si no hay sesión, crear datos básicos para usuarios autorizados
           const authorizedEmails = ['coeurdeluke.js@gmail.com', 'coeurdeluke@gmail.com', 'infocryptoforce@gmail.com'];
           const storedEmail = localStorage.getItem('crypto-force-user-email');
           
           if (storedEmail && authorizedEmails.includes(storedEmail)) {
+            console.log('✅ AuthContext: Using stored email for fallback:', storedEmail);
             const mockUser: User = {
               id: `fallback-${Date.now()}`,
               email: storedEmail,
@@ -232,8 +229,23 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
             };
             
             setUser(mockUser);
-            const basicUserData = createBasicUserData(mockUser);
-            setUserData(basicUserData);
+            
+            // Try to fetch real data from database immediately
+            console.log('🔄 AuthContext: Attempting to fetch real data from database...');
+            const realUserData = await supabase
+              .from('users')
+              .select('*')
+              .eq('email', storedEmail)
+              .single();
+            
+            if (realUserData.data) {
+              console.log('✅ AuthContext: Found real user data in database:', realUserData.data);
+              setUserData(realUserData.data);
+            } else {
+              console.log('⚠️ AuthContext: No real data found, using fallback');
+              const basicUserData = createBasicUserData(mockUser);
+              setUserData(basicUserData);
+            }
           }
         }
       } catch (error) {
