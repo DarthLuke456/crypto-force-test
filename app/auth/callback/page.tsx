@@ -11,24 +11,33 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        console.log('Manejando callback de autenticación de Supabase...');
+        console.log('🔍 [CALLBACK] Manejando callback de autenticación de Supabase...');
+        
+        // Esperar un poco para que Supabase procese la autenticación
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Obtener la sesión actual
         const { data: { session }, error } = await supabase.auth.getSession();
         
+        console.log('🔍 [CALLBACK] Sesión obtenida:', { 
+          hasSession: !!session, 
+          hasUser: !!session?.user, 
+          error: error?.message 
+        });
+        
         if (error) {
-          console.error('Error obteniendo sesión:', error);
+          console.error('❌ [CALLBACK] Error obteniendo sesión:', error);
           router.push('/login/signin?error=session_error');
           return;
         }
 
         if (!session?.user) {
-          console.log('No hay usuario en sesión');
+          console.log('⚠️ [CALLBACK] No hay usuario en sesión');
           router.push('/login/signin?error=no_user');
           return;
         }
 
-        console.log('Usuario autenticado:', session.user.email);
+        console.log('✅ [CALLBACK] Usuario autenticado:', session.user.email);
 
         // Verificar si el usuario existe en la tabla de perfiles
         const { data: existingProfile, error: profileError } = await supabase
