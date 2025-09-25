@@ -61,7 +61,31 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isReady, setReady] = useState(false);
 
   // Función para crear datos de usuario básicos
-  const createBasicUserData = (user: User): UserData => {
+  const createBasicUserData = async (user: User): Promise<UserData> => {
+    // Check if user should be referred by infocryptoforce@gmail.com
+    let referredBy = null;
+    const isFounder = user.email === 'coeurdeluke.js@gmail.com' || user.email === 'coeurdeluke@gmail.com' || user.email === 'infocryptoforce@gmail.com';
+    
+    if (!isFounder) {
+      // For non-founders, assign to infocryptoforce@gmail.com as default referrer
+      try {
+        const { data: francData, error: francError } = await supabase
+          .from('users')
+          .select('id, email')
+          .eq('email', 'infocryptoforce@gmail.com')
+          .single();
+        
+        if (francData && !francError) {
+          referredBy = francData.id;
+          console.log('✅ New user assigned to infocryptoforce@gmail.com as default referrer');
+        } else {
+          console.warn('⚠️ infocryptoforce@gmail.com not found in database, user will have no referrer');
+        }
+      } catch (error) {
+        console.warn('⚠️ Error finding default referrer:', error);
+      }
+    }
+
     return {
       id: user.id,
       email: user.email || '',
@@ -75,7 +99,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       referral_code: `CRYPTOFORCE_${user.email?.split('@')[0].toUpperCase().replace(/\s+/g, '_') || 'USER'}`,
       uid: user.id,
       codigo_referido: null,
-      referred_by: null,
+      referred_by: referredBy,
       total_referrals: 0,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -183,7 +207,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           } else {
             // Si no hay datos en la base de datos, crear datos básicos
             console.log('⚠️ AuthContext: No user data found in database, creating basic user data');
-            const basicUserData = createBasicUserData(session.user);
+            const basicUserData = await createBasicUserData(session.user);
             setUserData(basicUserData);
             
             // Intentar crear el usuario en la base de datos
@@ -196,6 +220,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
                   nickname: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuario',
                   user_level: basicUserData.user_level,
                   referral_code: basicUserData.referral_code,
+                  referred_by: basicUserData.referred_by,
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString()
                 });
@@ -204,6 +229,31 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.warn('⚠️ AuthContext: Error creating user in database:', createError);
               } else {
                 console.log('✅ AuthContext: User created in database successfully');
+                
+                // If user was referred by someone, increment their referral count
+                if (basicUserData.referred_by) {
+                  try {
+                    const { data: currentUser, error: fetchError } = await supabase
+                      .from('users')
+                      .select('total_referrals')
+                      .eq('id', basicUserData.referred_by)
+                      .single();
+                    
+                    if (!fetchError && currentUser) {
+                      await supabase
+                        .from('users')
+                        .update({ 
+                          total_referrals: (currentUser.total_referrals || 0) + 1,
+                          updated_at: new Date().toISOString()
+                        })
+                        .eq('id', basicUserData.referred_by);
+                      
+                      console.log('✅ Referral count updated for referrer');
+                    }
+                  } catch (error) {
+                    console.warn('⚠️ Error updating referral count:', error);
+                  }
+                }
               }
             } catch (error) {
               console.warn('⚠️ AuthContext: Error creating user in database:', error);
@@ -245,8 +295,49 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
               setUserData(realUserData.data);
             } else {
               console.log('⚠️ AuthContext: No real data found, using fallback');
-              const basicUserData = createBasicUserData(mockUser);
+              const basicUserData = await createBasicUserData(mockUser);
               setUserData(basicUserData);
+              
+              // Try to create user in database
+              try {
+                const { error: createError } = await supabase
+                  .from('users')
+                  .insert({
+                    email: mockUser.email,
+                    uid: mockUser.id,
+                    nickname: mockUser.email?.split('@')[0] || 'Usuario',
+                    user_level: basicUserData.user_level,
+                    referral_code: basicUserData.referral_code,
+                    referred_by: basicUserData.referred_by,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                  });
+                
+                if (!createError && basicUserData.referred_by) {
+                  // Update referrer's count
+                  try {
+                    const { data: currentUser, error: fetchError } = await supabase
+                      .from('users')
+                      .select('total_referrals')
+                      .eq('id', basicUserData.referred_by)
+                      .single();
+                    
+                    if (!fetchError && currentUser) {
+                      await supabase
+                        .from('users')
+                        .update({ 
+                          total_referrals: (currentUser.total_referrals || 0) + 1,
+                          updated_at: new Date().toISOString()
+                        })
+                        .eq('id', basicUserData.referred_by);
+                    }
+                  } catch (error) {
+                    console.warn('⚠️ Error updating referral count:', error);
+                  }
+                }
+              } catch (error) {
+                console.warn('⚠️ Error creating user in database:', error);
+              }
             }
           }
         }
@@ -290,8 +381,49 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
               setUserData(realUserData.data);
             } else {
               console.log('⚠️ AuthContext: No real data found, using fallback');
-              const basicUserData = createBasicUserData(mockUser);
+              const basicUserData = await createBasicUserData(mockUser);
               setUserData(basicUserData);
+              
+              // Try to create user in database
+              try {
+                const { error: createError } = await supabase
+                  .from('users')
+                  .insert({
+                    email: mockUser.email,
+                    uid: mockUser.id,
+                    nickname: mockUser.email?.split('@')[0] || 'Usuario',
+                    user_level: basicUserData.user_level,
+                    referral_code: basicUserData.referral_code,
+                    referred_by: basicUserData.referred_by,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                  });
+                
+                if (!createError && basicUserData.referred_by) {
+                  // Update referrer's count
+                  try {
+                    const { data: currentUser, error: fetchError } = await supabase
+                      .from('users')
+                      .select('total_referrals')
+                      .eq('id', basicUserData.referred_by)
+                      .single();
+                    
+                    if (!fetchError && currentUser) {
+                      await supabase
+                        .from('users')
+                        .update({ 
+                          total_referrals: (currentUser.total_referrals || 0) + 1,
+                          updated_at: new Date().toISOString()
+                        })
+                        .eq('id', basicUserData.referred_by);
+                    }
+                  } catch (error) {
+                    console.warn('⚠️ Error updating referral count:', error);
+                  }
+                }
+              } catch (error) {
+                console.warn('⚠️ Error creating user in database:', error);
+              }
             }
           }
         }
@@ -318,8 +450,49 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           if (userData) {
             setUserData(userData);
           } else {
-            const basicUserData = createBasicUserData(session.user);
+            const basicUserData = await createBasicUserData(session.user);
             setUserData(basicUserData);
+            
+            // Try to create user in database
+            try {
+              const { error: createError } = await supabase
+                .from('users')
+                .insert({
+                  email: session.user.email,
+                  uid: session.user.id,
+                  nickname: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuario',
+                  user_level: basicUserData.user_level,
+                  referral_code: basicUserData.referral_code,
+                  referred_by: basicUserData.referred_by,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
+                });
+              
+              if (!createError && basicUserData.referred_by) {
+                // Update referrer's count
+                try {
+                  const { data: currentUser, error: fetchError } = await supabase
+                    .from('users')
+                    .select('total_referrals')
+                    .eq('id', basicUserData.referred_by)
+                    .single();
+                  
+                  if (!fetchError && currentUser) {
+                    await supabase
+                      .from('users')
+                      .update({ 
+                        total_referrals: (currentUser.total_referrals || 0) + 1,
+                        updated_at: new Date().toISOString()
+                      })
+                      .eq('id', basicUserData.referred_by);
+                  }
+                } catch (error) {
+                  console.warn('⚠️ Error updating referral count:', error);
+                }
+              }
+            } catch (error) {
+              console.warn('⚠️ Error creating user in database:', error);
+            }
           }
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
