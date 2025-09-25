@@ -62,7 +62,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       nickname: user.email?.split('@')[0] || 'Usuario',
       movil: '',
       exchange: '',
-      user_level: user.email === 'coeurdeluke.js@gmail.com' ? 6 : 1,
+      user_level: (user.email === 'coeurdeluke.js@gmail.com' || user.email === 'coeurdeluke@gmail.com') ? 0 : 1,
       referral_code: `USER-${user.id.slice(-8)}`,
       uid: user.id,
       codigo_referido: null,
@@ -131,7 +131,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         } else {
           // Si no hay sesión, crear datos básicos para usuarios autorizados
-          const authorizedEmails = ['coeurdeluke.js@gmail.com', 'infocryptoforce@gmail.com'];
+          const authorizedEmails = ['coeurdeluke.js@gmail.com', 'coeurdeluke@gmail.com', 'infocryptoforce@gmail.com'];
           const storedEmail = localStorage.getItem('crypto-force-user-email');
           
           if (storedEmail && authorizedEmails.includes(storedEmail)) {

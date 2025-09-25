@@ -616,7 +616,7 @@ export default function DashboardSelectionPage() {
   }
 
   // Verificar si el usuario está autorizado
-  const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com'];
+  const authorizedEmails = ['infocryptoforce@gmail.com', 'coeurdeluke.js@gmail.com', 'coeurdeluke@gmail.com'];
   const isAuthorized = userData?.email ? authorizedEmails.includes(userData.email.toLowerCase().trim()) : false;
   
   if (!isAuthorized) {
