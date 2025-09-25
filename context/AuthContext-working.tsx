@@ -13,6 +13,7 @@ interface UserData {
   nickname: string;
   movil: string;
   exchange: string;
+  avatar: string;
   user_level: number;
   referral_code: string;
   uid: string;
@@ -69,6 +70,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       nickname: user.email?.split('@')[0] || 'Usuario',
       movil: '',
       exchange: '',
+      avatar: '/images/default-avatar.png',
       user_level: user.email === 'coeurdeluke.js@gmail.com' ? 0 : 1,
       referral_code: `CRYPTOFORCE_${user.email?.split('@')[0].toUpperCase().replace(/\s+/g, '_') || 'USER'}`,
       uid: user.id,
