@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Edit3, Save, Camera, CheckCircle, Phone, Mail, User as UserIcon, Calendar, Globe, Lock, Eye, EyeOff, AlertCircle, Loader2, Users } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { supabase } from '@/lib/supabaseClient';
 import { useAvatarSimple as useAvatar } from '@/hooks/useAvatarSimple';
 import { useReferralDataSimple } from '@/hooks/useReferralDataSimple';
@@ -87,6 +87,8 @@ export default function ProfileContent() {
     let correctUserLevel = userData.user_level || 1;
     if (userData.email === 'coeurdeluke.js@gmail.com' || userData.email === 'infocryptoforce@gmail.com') {
       correctUserLevel = 0; // Fundador level for authorized emails
+    } else if (userData.email === 'coeurdeluke@gmail.com') {
+      correctUserLevel = 1; // Iniciado level for coeurdeluke@gmail.com
     }
     
     const sanitizedData = {
