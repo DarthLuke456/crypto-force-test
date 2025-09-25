@@ -90,14 +90,15 @@ export default function ProfileContent() {
     }
     
     // Create a hash of the current userData to check if it has actually changed
+    // Exclude avatar from hash to prevent issues with large base64 strings
     const currentUserDataHash = JSON.stringify({
       id: userData.id,
       email: userData.email,
       nombre: userData.nombre,
       apellido: userData.apellido,
       nickname: userData.nickname,
-      user_level: userData.user_level,
-      avatar: userData.avatar
+      user_level: userData.user_level
+      // Excluded avatar to prevent hash issues with large base64 strings
     });
     
     console.log('🔍 ProfileContent: Current hash:', currentUserDataHash);

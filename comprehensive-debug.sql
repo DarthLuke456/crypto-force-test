@@ -39,7 +39,7 @@ WHERE state = 'active'
 SELECT 
   'TABLE STATS' as check_type,
   schemaname,
-  tablename,
+  relname as tablename,
   n_tup_ins as total_inserts,
   n_tup_upd as total_updates,
   n_tup_del as total_deletes,
@@ -50,7 +50,7 @@ SELECT
   last_analyze,
   last_autoanalyze
 FROM pg_stat_user_tables 
-WHERE tablename = 'users';
+WHERE relname = 'users';
 
 -- 5. Check for any problematic patterns
 SELECT 
