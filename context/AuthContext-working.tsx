@@ -86,27 +86,45 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   // Función para obtener datos del usuario desde Supabase
   const fetchUserData = async (userId: string) => {
     try {
-      // Intentar obtener datos con timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), 3000)
-      );
+      console.log('🔍 AuthContext: Fetching user data for userId:', userId);
       
-      const fetchPromise = supabase
+      // Get current session first
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session) {
+        console.warn('⚠️ AuthContext: No active session for fetchUserData');
+        return null;
+      }
+
+      // Try with uid first
+      let { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('uid', userId)
         .single();
 
-      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
+      // If uid query fails, try with email
+      if (error && session.session.user.email) {
+        console.log('🔄 AuthContext: UID query failed, trying with email:', session.session.user.email);
+        const emailResult = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', session.session.user.email)
+          .single();
+        
+        data = emailResult.data;
+        error = emailResult.error;
+      }
 
       if (error) {
-        console.warn('Error fetching user data:', error);
+        console.error('❌ AuthContext: Error fetching user data:', error);
+        console.error('❌ AuthContext: Error details:', JSON.stringify(error, null, 2));
         return null;
       }
 
+      console.log('✅ AuthContext: User data fetched successfully:', data);
       return data;
     } catch (error) {
-      console.warn('Error in fetchUserData:', error);
+      console.error('❌ AuthContext: Exception in fetchUserData:', error);
       return null;
     }
   };
