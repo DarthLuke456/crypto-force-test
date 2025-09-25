@@ -156,13 +156,19 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Obtener sesión actual con timeout
+        console.log('🔄 AuthContext: Initializing authentication...');
+        
+        // Obtener sesión actual con timeout más largo
         const sessionPromise = supabase.auth.getSession();
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Session timeout')), 5000)
+          setTimeout(() => reject(new Error('Session timeout')), 10000)
         );
         
-        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        const { data: { session }, error: sessionError } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        
+        if (sessionError) {
+          console.warn('⚠️ AuthContext: Session error:', sessionError);
+        }
         
         if (session?.user) {
           setUser(session.user);
@@ -231,29 +237,34 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        console.error('❌ AuthContext: Error initializing auth:', error);
         
-        // Fallback para usuarios autorizados
-        const authorizedEmails = ['coeurdeluke.js@gmail.com', 'coeurdeluke@gmail.com', 'infocryptoforce@gmail.com'];
+        // Try to recover with stored email
         const storedEmail = localStorage.getItem('crypto-force-user-email');
-        
-        if (storedEmail && authorizedEmails.includes(storedEmail)) {
-          const mockUser: User = {
-            id: `fallback-${Date.now()}`,
-            email: storedEmail,
-            created_at: new Date().toISOString(),
-            aud: 'authenticated',
-            role: 'authenticated',
-            updated_at: new Date().toISOString(),
-            app_metadata: {},
-            user_metadata: {},
-            identities: [],
-            factors: []
-          };
+        if (storedEmail) {
+          console.log('🔄 AuthContext: Attempting recovery with stored email:', storedEmail);
           
-          setUser(mockUser);
-          const basicUserData = createBasicUserData(mockUser);
-          setUserData(basicUserData);
+          const authorizedEmails = ['coeurdeluke.js@gmail.com', 'coeurdeluke@gmail.com', 'infocryptoforce@gmail.com'];
+          if (authorizedEmails.includes(storedEmail)) {
+            console.log('✅ AuthContext: Using fallback for authorized email:', storedEmail);
+            
+            const mockUser: User = {
+              id: `fallback-${Date.now()}`,
+              email: storedEmail,
+              created_at: new Date().toISOString(),
+              aud: 'authenticated',
+              role: 'authenticated',
+              updated_at: new Date().toISOString(),
+              app_metadata: {},
+              user_metadata: {},
+              identities: [],
+              factors: []
+            };
+            
+            setUser(mockUser);
+            const basicUserData = createBasicUserData(mockUser);
+            setUserData(basicUserData);
+          }
         }
       } finally {
         setLoading(false);
