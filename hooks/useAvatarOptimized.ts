@@ -183,8 +183,8 @@ export function useAvatarOptimized() {
       updateAvatar(compressedAvatar);
       
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('No active session');
+      if (!session || !session.user?.email) {
+        throw new Error('No active session or user email');
       }
 
       console.log('🔄 useAvatarOptimized: Updating avatar in database...');
