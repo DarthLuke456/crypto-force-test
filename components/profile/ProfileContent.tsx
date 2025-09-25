@@ -40,7 +40,7 @@ const getLevelColor = (level: number) => {
 };
 
 export default function ProfileContent() {
-  const { userData } = useSafeAuth();
+  const { userData, refreshUserData } = useSafeAuth();
   const { avatar: userAvatar, changeAvatar } = useAvatar();
   const { stats: referralStats } = useReferralDataSimple();
   const { emitUserDataUpdate } = useUserDataSync();
@@ -173,9 +173,8 @@ export default function ProfileContent() {
 
       console.log('✅ ProfileContent: Perfil actualizado exitosamente:', data);
       
-      // Actualizar los datos en localStorage
-      const updatedUserData = { ...userData, ...cleanedData };
-      localStorage.setItem('crypto-force-user-data', JSON.stringify(updatedUserData));
+      // Refrescar los datos del usuario usando AuthContext
+      await refreshUserData();
       
       // Actualizar el estado local
       setProfileData({ ...profileData, ...cleanedData });

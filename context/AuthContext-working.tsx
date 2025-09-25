@@ -31,6 +31,7 @@ interface AuthContextType {
   userData: UserData | null;
   loading: boolean;
   isReady: boolean;
+  refreshUserData: () => Promise<void>;
 }
 
 // Contexto
@@ -39,6 +40,7 @@ const AuthContext = createContext<AuthContextType>({
   userData: null,
   loading: true,
   isReady: false,
+  refreshUserData: async () => {},
 });
 
 // Hook
@@ -106,6 +108,25 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.warn('Error in fetchUserData:', error);
       return null;
+    }
+  };
+
+  // Función para refrescar datos del usuario
+  const refreshUserData = async () => {
+    if (!user) return;
+    
+    try {
+      console.log('🔄 AuthContext: Refrescando datos del usuario...');
+      const userData = await fetchUserData(user.id);
+      
+      if (userData) {
+        setUserData(userData);
+        console.log('✅ AuthContext: Datos del usuario refrescados');
+      } else {
+        console.warn('⚠️ AuthContext: No se pudieron refrescar los datos del usuario');
+      }
+    } catch (error) {
+      console.error('❌ AuthContext: Error refrescando datos del usuario:', error);
     }
   };
 
@@ -253,7 +274,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, isReady }}>
+    <AuthContext.Provider value={{ user, userData, loading, isReady, refreshUserData }}>
       {children}
     </AuthContext.Provider>
   );
