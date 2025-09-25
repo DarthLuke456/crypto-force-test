@@ -235,19 +235,32 @@ export default function ProfileContent() {
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) { setError('Por favor selecciona un archivo de imagen válido'); return; }
-    if (file.size > 5 * 1024 * 1024) { setError('La imagen debe ser menor a 5MB'); return; }
+    if (!file.type.startsWith('image/')) { 
+      setError('Por favor selecciona un archivo de imagen válido'); 
+      return; 
+    }
+    if (file.size > 5 * 1024 * 1024) { 
+      setError('La imagen debe ser menor a 5MB'); 
+      return; 
+    }
+    
     const reader = new FileReader();
+    
     reader.onload = async (ev: ProgressEvent<FileReader>) => {
       if (ev.target && typeof ev.target.result === 'string') {
-        setAvatarPreview(ev.target.result);
         try {
           setError(null);
+          setAvatarPreview(ev.target.result);
+          
+          console.log('🔄 ProfileContent: Starting avatar change process...');
           await changeAvatar(ev.target.result);
-          const updatedProfile = { ...profileData, avatar: ev.target?.result as string };
+          
+          const updatedProfile = { ...profileData, avatar: ev.target.result };
           setProfileData(updatedProfile);
           setShowSuccess(true);
           setTimeout(() => setShowSuccess(false), 2000);
+          
+          console.log('✅ ProfileContent: Avatar changed successfully');
           
           // Emitir evento de actualización de perfil (avatar)
           emitUserDataUpdate({
@@ -255,16 +268,24 @@ export default function ProfileContent() {
             userId: userData?.id || '',
             userData: {
               ...userData,
-              avatar: ev.target?.result as string
+              avatar: ev.target.result
             },
             timestamp: new Date().toISOString()
           });
-        } catch (e) {
-          console.error('❌ ProfileContent: Error cambiando avatar:', e);
-          setError('Error cambiando avatar');
+        } catch (error) {
+          console.error('❌ ProfileContent: Error cambiando avatar:', error);
+          setError(`Error cambiando avatar: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+          // Revert preview on error
+          setAvatarPreview(userAvatar || profileData.avatar);
         }
       }
     };
+    
+    reader.onerror = (error) => {
+      console.error('❌ ProfileContent: Error reading file:', error);
+      setError('Error leyendo el archivo de imagen');
+    };
+    
     reader.readAsDataURL(file);
   };
 

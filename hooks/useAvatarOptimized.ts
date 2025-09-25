@@ -28,46 +28,65 @@ const loadAvatarFromStorage = (): string | null => {
 
 // Image compression utility
 const compressImage = (base64: string, maxSizeKB: number = 25): Promise<string> => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
+    
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      // Calculate new dimensions (max 150x150)
-      const maxSize = 150;
-      let { width, height } = img;
-      
-      if (width > height) {
-        if (width > maxSize) {
-          height = (height * maxSize) / width;
-          width = maxSize;
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+          console.error('❌ compressImage: Could not get canvas context');
+          reject(new Error('Could not get canvas context'));
+          return;
         }
-      } else {
-        if (height > maxSize) {
-          width = (width * maxSize) / height;
-          height = maxSize;
+        
+        // Calculate new dimensions (max 150x150)
+        const maxSize = 150;
+        let { width, height } = img;
+        
+        if (width > height) {
+          if (width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
         }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Try different quality levels
+        let quality = 0.8;
+        let compressed = canvas.toDataURL('image/jpeg', quality);
+        
+        // If still too large, reduce quality
+        while (compressed.length > maxSizeKB * 1024 && quality > 0.1) {
+          quality -= 0.1;
+          compressed = canvas.toDataURL('image/jpeg', quality);
+        }
+        
+        console.log('✅ compressImage: Image compressed successfully, size:', Math.round(compressed.length / 1024), 'KB');
+        resolve(compressed);
+      } catch (error) {
+        console.error('❌ compressImage: Error during compression:', error);
+        reject(error);
       }
-      
-      canvas.width = width;
-      canvas.height = height;
-      
-      // Draw and compress
-      ctx?.drawImage(img, 0, 0, width, height);
-      
-      // Try different quality levels
-      let quality = 0.8;
-      let compressed = canvas.toDataURL('image/jpeg', quality);
-      
-      // If still too large, reduce quality
-      while (compressed.length > maxSizeKB * 1024 && quality > 0.1) {
-        quality -= 0.1;
-        compressed = canvas.toDataURL('image/jpeg', quality);
-      }
-      
-      resolve(compressed);
     };
+    
+    img.onerror = (error) => {
+      console.error('❌ compressImage: Error loading image:', error);
+      reject(new Error('Failed to load image for compression'));
+    };
+    
     img.src = base64;
   });
 };
@@ -175,8 +194,18 @@ export function useAvatarOptimized() {
       // Compress image first
       setIsCompressing(true);
       console.log('🔄 useAvatarOptimized: Compressing image...');
-      const compressedAvatar = await compressImage(newAvatar);
-      console.log('🔄 useAvatarOptimized: Image compressed, size:', Math.round(compressedAvatar.length / 1024), 'KB');
+      
+      let compressedAvatar: string;
+      try {
+        compressedAvatar = await compressImage(newAvatar);
+        console.log('🔄 useAvatarOptimized: Image compressed, size:', Math.round(compressedAvatar.length / 1024), 'KB');
+      } catch (compressionError) {
+        console.error('❌ useAvatarOptimized: Image compression failed:', compressionError);
+        // Fallback to original image if compression fails
+        compressedAvatar = newAvatar;
+        console.log('🔄 useAvatarOptimized: Using original image as fallback');
+      }
+      
       setIsCompressing(false);
       
       // Update local state immediately for visual feedback
@@ -190,7 +219,11 @@ export function useAvatarOptimized() {
       console.log('🔄 useAvatarOptimized: Updating avatar in database...');
       
       // Cleanup old avatar before updating
-      await cleanupOldAvatar(session.user.email, compressedAvatar);
+      try {
+        await cleanupOldAvatar(session.user.email, compressedAvatar);
+      } catch (cleanupError) {
+        console.warn('⚠️ useAvatarOptimized: Cleanup failed, continuing with update:', cleanupError);
+      }
       
       // Update in database
       const { error } = await supabase
