@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Edit3, Save, Camera, CheckCircle, Phone, Mail, User as UserIcon, Calendar, Globe, Lock, Eye, EyeOff, AlertCircle, Loader2, Users } from 'lucide-react';
 import { useSafeAuth } from '@/context/AuthContext-working';
 import { supabase } from '@/lib/supabaseClient';
-import { useAvatarUnified as useAvatar } from '@/hooks/useAvatarUnified';
+import { useAvatarOptimized as useAvatar } from '@/hooks/useAvatarOptimized';
 import { useReferralDataSimple } from '@/hooks/useReferralDataSimple';
 import { useUserDataSync } from '@/hooks/useUserDataSync';
 

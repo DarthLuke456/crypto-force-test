@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSafeAuth } from '@/context/AuthContext-working';
-import { useAvatarUnified as useAvatarSync } from '@/hooks/useAvatarUnified';
+import { useAvatarOptimized as useAvatarSync } from '@/hooks/useAvatarOptimized';
 import { 
   HomeIcon, 
   ChartBarIcon, 
