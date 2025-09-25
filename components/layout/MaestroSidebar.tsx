@@ -28,7 +28,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { useMaestroSidebar } from '@/app/dashboard/maestro/MaestroSidebarContext';
-import { useAvatarSimple as useAvatar } from '@/hooks/useAvatarSimple';
+import { useAvatarUnified as useAvatar } from '@/hooks/useAvatarUnified';
 
 
 interface MenuItem {

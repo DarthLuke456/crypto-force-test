@@ -8,7 +8,7 @@ import { useSidebar } from "./SidebarContext";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight, Menu, LogOut, Compass, MessageSquare } from 'lucide-react';
 import { useSafeAuth } from '@/context/AuthContext-working';
-import { useAvatarSync } from '@/hooks/useAvatarSync';
+import { useAvatarUnified as useAvatarSync } from '@/hooks/useAvatarUnified';
 import { useMyFeedback } from '@/hooks/useMyFeedback';
 import { supabase } from '@/lib/supabaseClient';
 // Removed FeedbackModalEnhanced import - now using dedicated page
