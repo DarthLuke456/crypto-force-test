@@ -48,8 +48,8 @@ export const useAuth = () => useContext(AuthContext);
 
 // Hook simplificado
 export const useSafeAuth = () => {
-  const { user, userData, loading, isReady } = useAuth();
-  return { user, userData, loading, isReady };
+  const { user, userData, loading, isReady, refreshUserData } = useAuth();
+  return { user, userData, loading, isReady, refreshUserData };
 };
 
 // Provider que funciona con Supabase real
