@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Email Verification - Crypto Force</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0a0a0a;
+            color: white;
+        }
+        .test-section {
+            background: #1a1a1a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ec4d58;
+        }
+        .success { border-left-color: #3ED598; }
+        .warning { border-left-color: #FFD447; }
+        .error { border-left-color: #ec4d58; }
+        button {
+            background: #ec4d58;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #d43d4a; }
+        .result {
+            background: #2a2a2a;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Email Verification Diagnostic Tool</h1>
+    
+    <div class="test-section">
+        <h2>📋 Current Issues</h2>
+        <ul>
+            <li>❌ No verification emails being sent</li>
+            <li>❌ Users can login without email verification</li>
+            <li>✅ Signup page is working</li>
+        </ul>
+    </div>
+
+    <div class="test-section warning">
+        <h2>⚙️ Required Supabase Configuration</h2>
+        <div class="step">
+            <h3>1. Configure SMTP Settings</h3>
+            <p>Go to: <strong>Supabase Dashboard → Settings → Authentication → SMTP Settings</strong></p>
+            <p>Enable Custom SMTP and configure Gmail:</p>
+            <pre>
+SMTP Host: smtp.gmail.com
+SMTP Port: 587
+SMTP Username: your-email@gmail.com
+SMTP Password: [Gmail App Password]
+Sender Name: Crypto Force
+Sender Email: your-email@gmail.com
+            </pre>
+        </div>
+        
+        <div class="step">
+            <h3>2. Enable Email Confirmation</h3>
+            <p>Go to: <strong>Settings → Authentication → Providers → Email</strong></p>
+            <p>✅ <strong>Enable "Confirm email"</strong> (This is the key setting!)</p>
+        </div>
+
+        <div class="step">
+            <h3>3. Configure Redirect URLs</h3>
+            <p>Go to: <strong>Settings → Authentication → URL Configuration</strong></p>
+            <pre>
+Site URL: https://crypto-force-test.vercel.app
+Redirect URLs: 
+- https://crypto-force-test.vercel.app/auth/confirm
+- https://crypto-force-test.vercel.app/auth/callback
+            </pre>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Test Email Verification</h2>
+        <p>Use this form to test the email verification flow:</p>
+        
+        <form id="testForm">
+            <div style="margin: 10px 0;">
+                <label>Test Email:</label><br>
+                <input type="email" id="testEmail" placeholder="test@example.com" 
+                       style="width: 300px; padding: 8px; margin: 5px 0; background: #2a2a2a; color: white; border: 1px solid #444;">
+            </div>
+            <div style="margin: 10px 0;">
+                <label>Test Password:</label><br>
+                <input type="password" id="testPassword" placeholder="testpass123" 
+                       style="width: 300px; padding: 8px; margin: 5px 0; background: #2a2a2a; color: white; border: 1px solid #444;">
+            </div>
+            <button type="button" onclick="testSignup()">Test Signup</button>
+            <button type="button" onclick="testLogin()">Test Login</button>
+            <button type="button" onclick="checkAuthStatus()">Check Auth Status</button>
+        </form>
+        
+        <div id="results" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section success">
+        <h2>✅ Expected Behavior After Fix</h2>
+        <ol>
+            <li><strong>User signs up</strong> → Receives verification email</li>
+            <li><strong>User tries to login</strong> → Gets error: "Please verify your email"</li>
+            <li><strong>User clicks verification link</strong> → Email gets verified</li>
+            <li><strong>User tries to login again</strong> → Success! ✅</li>
+        </ol>
+    </div>
+
+    <div class="test-section error">
+        <h2>🚨 Important Notes</h2>
+        <ul>
+            <li><strong>Gmail App Password is REQUIRED</strong> - regular Gmail password won't work</li>
+            <li><strong>Email confirmation must be enabled</strong> - this is the key setting</li>
+            <li><strong>Test with fresh accounts</strong> - existing accounts might be cached</li>
+            <li><strong>Check spam folder</strong> - verification emails might be filtered</li>
+        </ul>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://crypto-force-test.vercel.app';
+        
+        function showResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            results.innerHTML = `<div style="color: ${type === 'error' ? '#ec4d58' : type === 'success' ? '#3ED598' : '#FFD447'}">${message}</div>`;
+        }
+
+        async function testSignup() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            if (!email || !password) {
+                showResult('Please enter email and password', 'error');
+                return;
+            }
+
+            showResult('Testing signup...', 'info');
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/api/auth/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult(`✅ Signup successful! Check your email: ${email}`, 'success');
+                } else {
+                    showResult(`❌ Signup failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            if (!email || !password) {
+                showResult('Please enter email and password', 'error');
+                return;
+            }
+
+            showResult('Testing login...', 'info');
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/api/auth/signin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showResult(`✅ Login successful! (This means email verification is NOT enforced)`, 'warning');
+                } else {
+                    showResult(`❌ Login failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkAuthStatus() {
+            showResult('Checking authentication status...', 'info');
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/api/auth/status`);
+                const result = await response.json();
+                
+                if (result.authenticated) {
+                    showResult(`✅ User is authenticated: ${result.user?.email}`, 'success');
+                } else {
+                    showResult('❌ No user authenticated', 'info');
+                }
+            } catch (error) {
+                showResult(`❌ Error checking status: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-fill test data
+        document.getElementById('testEmail').value = 'test' + Date.now() + '@example.com';
+        document.getElementById('testPassword').value = 'testpass123';
+    </script>
+</body>
+</html>
