@@ -262,16 +262,13 @@ export default function ProfileContent() {
           
           console.log('✅ ProfileContent: Avatar changed successfully');
           
-          // Emitir evento de actualización de perfil (avatar)
-          emitUserDataUpdate({
-            type: 'profile_updated',
-            userId: userData?.id || '',
-            userData: {
-              ...userData,
-              avatar: ev.target.result
-            },
-            timestamp: new Date().toISOString()
-          });
+          // Refresh user data to ensure avatar is synced across components
+          try {
+            await refreshUserData();
+            console.log('✅ ProfileContent: User data refreshed after avatar change');
+          } catch (refreshError) {
+            console.warn('⚠️ ProfileContent: Error refreshing user data:', refreshError);
+          }
         } catch (error) {
           console.error('❌ ProfileContent: Error cambiando avatar:', error);
           setError(`Error cambiando avatar: ${error instanceof Error ? error.message : 'Error desconocido'}`);
