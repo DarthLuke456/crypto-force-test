@@ -98,7 +98,7 @@ export function useAvatarOptimized() {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
-  const cleanupTimeoutRef = useRef<NodeJS.Timeout>();
+  const cleanupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const updateAvatar = useCallback((newAvatar: string | null) => {
     console.log('🔄 useAvatarOptimized: Updating avatar:', newAvatar ? 'Present' : 'Null');
