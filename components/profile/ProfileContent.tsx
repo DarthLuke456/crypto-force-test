@@ -262,13 +262,8 @@ export default function ProfileContent() {
           
           console.log('✅ ProfileContent: Avatar changed successfully');
           
-          // Refresh user data to ensure avatar is synced across components
-          try {
-            await refreshUserData();
-            console.log('✅ ProfileContent: User data refreshed after avatar change');
-          } catch (refreshError) {
-            console.warn('⚠️ ProfileContent: Error refreshing user data:', refreshError);
-          }
+          // Avatar changes are handled by useAvatarOptimized hook
+          // The hook will automatically sync the avatar across components
         } catch (error) {
           console.error('❌ ProfileContent: Error cambiando avatar:', error);
           setError(`Error cambiando avatar: ${error instanceof Error ? error.message : 'Error desconocido'}`);

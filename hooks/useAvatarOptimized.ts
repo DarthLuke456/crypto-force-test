@@ -185,6 +185,7 @@ export function useAvatarOptimized() {
 
     try {
       console.log('🔄 useAvatarOptimized: Changing avatar...');
+      setIsLoading(true);
       
       // Clear any pending cleanup
       if (cleanupTimeoutRef.current) {
@@ -258,6 +259,7 @@ export function useAvatarOptimized() {
       updateAvatar(storedAvatar);
       throw error;
     } finally {
+      setIsLoading(false);
       setIsCompressing(false);
     }
   }, [updateAvatar]);
