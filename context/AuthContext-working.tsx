@@ -113,15 +113,19 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Función para refrescar datos del usuario
   const refreshUserData = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('⚠️ AuthContext: No user available for refresh');
+      return;
+    }
     
     try {
-      console.log('🔄 AuthContext: Refrescando datos del usuario...');
+      console.log('🔄 AuthContext: Refrescando datos del usuario...', user.id);
       const userData = await fetchUserData(user.id);
       
       if (userData) {
+        console.log('🔍 AuthContext: Fresh userData from database:', userData);
         setUserData(userData);
-        console.log('✅ AuthContext: Datos del usuario refrescados');
+        console.log('✅ AuthContext: Datos del usuario refrescados y estado actualizado');
       } else {
         console.warn('⚠️ AuthContext: No se pudieron refrescar los datos del usuario');
       }

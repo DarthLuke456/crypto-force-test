@@ -77,10 +77,13 @@ export default function ProfileContent() {
       return;
     }
     
-    console.log('🔍 ProfileContent: Loading profile data...');
+    console.log('🔄 ProfileContent: userData changed, updating profile data...');
     console.log('🔍 ProfileContent: Current userData:', userData);
     console.log('🔍 ProfileContent: User level from database:', userData.user_level);
     console.log('🔍 ProfileContent: User email:', userData.email);
+    console.log('🔍 ProfileContent: User nombre:', userData.nombre);
+    console.log('🔍 ProfileContent: User apellido:', userData.apellido);
+    console.log('🔍 ProfileContent: User nickname:', userData.nickname);
     
     // Use userData directly without any sync calls
     // Fix: Ensure correct user level for authorized emails
@@ -174,7 +177,9 @@ export default function ProfileContent() {
       console.log('✅ ProfileContent: Perfil actualizado exitosamente:', data);
       
       // Refrescar los datos del usuario usando AuthContext
+      console.log('🔄 ProfileContent: Calling refreshUserData...');
       await refreshUserData();
+      console.log('✅ ProfileContent: refreshUserData completed');
       
       // Actualizar el estado local
       setProfileData({ ...profileData, ...cleanedData });
