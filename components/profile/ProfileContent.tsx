@@ -70,7 +70,7 @@ export default function ProfileContent() {
     setAvatarPreview(userAvatar || profileData.avatar);
   }, [userAvatar, profileData.avatar]);
 
-  // Load profile data when userData changes - FIXED VERSION
+  // Load profile data when userData changes - SIMPLIFIED VERSION
   useEffect(() => {
     if (!userData) {
       console.log('🔍 ProfileContent: No userData available');
@@ -101,7 +101,7 @@ export default function ProfileContent() {
       email: userData.email || '', 
       movil: userData.movil || '', 
       exchange: userData.exchange || '',
-      avatar: userData.avatar || '/images/default-avatar.png', // Use userData.avatar instead of userAvatar
+      avatar: userData.avatar || '/images/default-avatar.png',
       user_level: correctUserLevel,
       referral_code: userData.referral_code || '', 
       referred_by: userData.referred_by || '',
@@ -119,7 +119,7 @@ export default function ProfileContent() {
     setProfileData(sanitizedData);
     setAvatarPreview(sanitizedData.avatar);
     console.log('✅ ProfileContent: Datos del perfil cargados');
-  }, [userData]); // Removed userAvatar from dependencies to prevent infinite loop
+  }, [userData?.id, userData?.email, userData?.nombre, userData?.apellido, userData?.nickname, userData?.user_level]); // Only depend on specific fields
 
   const saveProfile = async (newData: typeof profileData) => {
     try {
