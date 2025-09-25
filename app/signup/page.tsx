@@ -50,12 +50,12 @@ export default function SignUpPage() {
           codigo_referido: processedCode
         }));
       } else {
-        // Para pruebas, usar un código de referido de prueba
-        const testCode = 'CRYPTOFORCE-DARTHLUKE';
-        console.log('🔍 Usando código de referido de prueba:', testCode);
+        // Usar el código de referido por defecto de infocryptoforce@gmail.com
+        const defaultCode = 'CRYPTOFORCE_INFOCRYPTOFORCE';
+        console.log('🔍 Usando código de referido por defecto:', defaultCode);
         setFormData(prev => ({
           ...prev,
-          codigo_referido: testCode
+          codigo_referido: defaultCode
         }));
       }
     }
