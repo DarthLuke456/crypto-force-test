@@ -262,8 +262,23 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
             };
             
             setUser(mockUser);
-            const basicUserData = createBasicUserData(mockUser);
-            setUserData(basicUserData);
+            
+            // Try to fetch real data from database even with fallback user
+            console.log('🔄 AuthContext: Attempting to fetch real data from database...');
+            const realUserData = await supabase
+              .from('users')
+              .select('*')
+              .eq('email', storedEmail)
+              .single();
+            
+            if (realUserData.data) {
+              console.log('✅ AuthContext: Found real user data in database:', realUserData.data);
+              setUserData(realUserData.data);
+            } else {
+              console.log('⚠️ AuthContext: No real data found, using fallback');
+              const basicUserData = createBasicUserData(mockUser);
+              setUserData(basicUserData);
+            }
           }
         }
       } finally {

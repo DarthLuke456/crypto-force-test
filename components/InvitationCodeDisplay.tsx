@@ -17,8 +17,13 @@ export default function InvitationCodeDisplay({ userLevel, className = "" }: Inv
 
   // Generate invitation code using CRYPTOFORCE + NICKNAME format
   const generateInvitationCode = () => {
-    if (!userData?.nickname) return "";
-    return `CRYPTOFORCE${userData.nickname.toUpperCase()}`;
+    if (!userData?.nickname) {
+      console.log('⚠️ InvitationCodeDisplay: No userData or nickname available');
+      return "";
+    }
+    const code = `CRYPTOFORCE_${userData.nickname.toUpperCase()}`;
+    console.log('🔍 InvitationCodeDisplay: Generated code:', code);
+    return code;
   };
 
   // Update invitation code when nickname changes
@@ -34,6 +39,18 @@ export default function InvitationCodeDisplay({ userLevel, className = "" }: Inv
   const totalReferrals = stats?.total_referrals || userData?.total_referrals || 0;
   const userLevelFromStats = stats?.user_level || userData?.user_level || userLevel;
   const recentReferrals = stats?.recent_referrals || [];
+
+  // Show loading state if userData is not available
+  if (!userData) {
+    return (
+      <div className="min-h-screen bg-[#121212] text-white p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3ED598] mx-auto mb-4"></div>
+          <p className="text-gray-400">Cargando datos del usuario...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Debug logging
   console.log('🔍 InvitationCodeDisplay Debug:', {
