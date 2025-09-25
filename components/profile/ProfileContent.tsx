@@ -145,48 +145,45 @@ export default function ProfileContent() {
       
       console.log('🔍 ProfileContent: Datos limpios:', cleanedData);
       
-      // Guardar en la base de datos usando la API offline
-      const response = await fetch('/api/profile/update-offline', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(cleanedData)
-      });
-      
-      console.log('🔍 ProfileContent: Response status:', response.status);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('🔍 ProfileContent: Response data:', data);
-        
-        if (data.success) {
-          // Actualizar los datos en localStorage
-          const updatedUserData = { ...userData, ...cleanedData };
-          localStorage.setItem('crypto-force-user-data', JSON.stringify(updatedUserData));
-          
-          // Actualizar el estado local
-          setProfileData({ ...profileData, ...cleanedData });
-          setIsEditing(false);
-          setShowSuccess(true);
-          setTimeout(() => setShowSuccess(false), 2000);
-          
-          console.log('✅ ProfileContent: Perfil actualizado correctamente en BD y localStorage');
-        } else {
-          console.error('❌ ProfileContent: Error en response data:', data.error);
-          setError(data.error || 'Error actualizando perfil');
-        }
-      } else {
-        console.error('❌ ProfileContent: Response no ok, status:', response.status);
-        try {
-          const errorData = await response.json();
-          console.error('❌ ProfileContent: Error data:', errorData);
-          setError(errorData.error || 'Error actualizando perfil');
-        } catch (parseError) {
-          console.error('❌ ProfileContent: Error parsing error response:', parseError);
-          setError(`Error ${response.status}: ${response.statusText}`);
-        }
+      // Guardar en la base de datos usando Supabase directamente
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session) {
+        throw new Error('No hay sesión activa');
       }
+
+      const { data, error } = await supabase
+        .from('users')
+        .update({
+          nombre: cleanedData.nombre,
+          apellido: cleanedData.apellido,
+          nickname: cleanedData.nickname,
+          email: cleanedData.email,
+          movil: cleanedData.movil,
+          exchange: cleanedData.exchange,
+          avatar: cleanedData.avatar,
+          user_level: cleanedData.user_level,
+          updated_at: new Date().toISOString()
+        })
+        .eq('uid', session.session.user.id);
+
+      if (error) {
+        console.error('❌ ProfileContent: Error actualizando perfil:', error);
+        throw new Error(`Error actualizando perfil: ${error.message}`);
+      }
+
+      console.log('✅ ProfileContent: Perfil actualizado exitosamente:', data);
+      
+      // Actualizar los datos en localStorage
+      const updatedUserData = { ...userData, ...cleanedData };
+      localStorage.setItem('crypto-force-user-data', JSON.stringify(updatedUserData));
+      
+      // Actualizar el estado local
+      setProfileData({ ...profileData, ...cleanedData });
+      setIsEditing(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2000);
+      
+      console.log('✅ ProfileContent: Perfil actualizado correctamente en BD y localStorage');
     } catch (e) {
       console.error('❌ ProfileContent: Error en saveProfile:', e);
       setError('Error de conexión');

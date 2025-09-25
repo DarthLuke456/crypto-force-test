@@ -68,7 +68,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       movil: '',
       exchange: '',
       user_level: user.email === 'coeurdeluke.js@gmail.com' ? 0 : 1,
-      referral_code: `USER-${user.id.slice(-8)}`,
+      referral_code: `CRYPTOFORCE_${user.email?.split('@')[0].toUpperCase().replace(/\s+/g, '_') || 'USER'}`,
       uid: user.id,
       codigo_referido: null,
       referred_by: null,
