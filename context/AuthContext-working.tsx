@@ -19,6 +19,11 @@ interface UserData {
   codigo_referido: string | null;
   referred_by: string | null;
   total_referrals: number;
+  created_at: string;
+  updated_at: string;
+  birthdate: string;
+  country: string;
+  bio: string;
 }
 
 interface AuthContextType {
@@ -67,7 +72,12 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       uid: user.id,
       codigo_referido: null,
       referred_by: null,
-      total_referrals: 0
+      total_referrals: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      birthdate: '',
+      country: '',
+      bio: ''
     };
   };
 
