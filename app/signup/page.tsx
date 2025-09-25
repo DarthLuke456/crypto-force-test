@@ -51,7 +51,7 @@ export default function SignUpPage() {
         }));
       } else {
         // Usar el código de referido por defecto de infocryptoforce@gmail.com
-        const defaultCode = 'CRYPTOFORCE_INFOCRYPTOFORCE';
+        const defaultCode = 'CRYPTOFORCE_CRYPTOFORCE';
         console.log('🔍 Usando código de referido por defecto:', defaultCode);
         setFormData(prev => ({
           ...prev,

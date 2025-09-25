@@ -42,7 +42,7 @@ INSERT INTO users (
   '',
   '',
   0, -- Master level (same as coeurdeluke)
-  'CRYPTOFORCE_INFOCRYPTOFORCE',
+  'CRYPTOFORCE_CRYPTOFORCE',
   gen_random_uuid(), -- Generate a UUID for the UID field
   null,
   null, -- No referrer for the master
@@ -63,7 +63,7 @@ SET
   nickname = COALESCE(nickname, 'INFOCRYPTOFORCE'),
   movil = COALESCE(movil, ''),
   exchange = COALESCE(exchange, ''),
-  referral_code = 'CRYPTOFORCE_INFOCRYPTOFORCE',
+  referral_code = 'CRYPTOFORCE_CRYPTOFORCE',
   user_level = 0,
   avatar = COALESCE(avatar, '/images/default-avatar.png'),
   birthdate = COALESCE(birthdate, ''),
@@ -71,7 +71,7 @@ SET
   bio = COALESCE(bio, 'Co-founder of Crypto Force'),
   updated_at = NOW()
 WHERE email = 'infocryptoforce@gmail.com' 
-  AND (referral_code != 'CRYPTOFORCE_INFOCRYPTOFORCE' 
+  AND (referral_code != 'CRYPTOFORCE_CRYPTOFORCE' 
        OR user_level != 0 
        OR nombre IS NULL 
        OR apellido IS NULL);
