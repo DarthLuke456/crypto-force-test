@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSafeAuth } from '@/context/AuthContext-working';
+import { supabase } from '@/lib/supabaseClient';
 import { 
   Home, 
   BarChart3, 
@@ -87,7 +88,7 @@ const menuItems: MenuItem[] = [
 export default function MaestroSidebar() {
   const { isExpanded, toggleSidebar } = useMaestroSidebar();
   const pathname = usePathname();
-  const { userData, logout } = useSafeAuth();
+  const { userData } = useSafeAuth();
   const { avatar: userAvatar } = useAvatar();
   const [mounted, setMounted] = useState(false);
 
@@ -110,7 +111,7 @@ export default function MaestroSidebar() {
   const handleSignOut = async () => {
     try {
       console.log('🚪 MaestroSidebar: Iniciando logout...');
-      logout();
+      await supabase.auth.signOut();
       console.log('✅ MaestroSidebar: Logout completado');
     } catch (error) {
       console.error('❌ MaestroSidebar: Error en logout:', error);
