@@ -27,8 +27,9 @@ import {
   MessageSquare,
   Share2
 } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { useAvatarStable as useAvatar } from '@/hooks/useAvatarStable';
+import { supabase } from '@/lib/supabaseClient';
 import { getUserProfilePath, getLevelDisplayName, MAESTRO_AUTHORIZED_EMAILS } from '@/utils/dashboardUtils';
 import FeedbackModalWithTabs from '@/components/feedback/FeedbackModalWithTabs';
 import { useFeedbackPersistence } from '@/hooks/useFeedbackPersistence';
@@ -50,7 +51,7 @@ interface DashboardOption {
 
 export default function DashboardSelectionPage() {
   const router = useRouter();
-  const { user, userData, loading, isReady, logout } = useSafeAuth();
+  const { user, userData, loading, isReady } = useSafeAuth();
   const [hoveredRole, setHoveredRole] = useState<string | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -422,8 +423,12 @@ export default function DashboardSelectionPage() {
   // Función para cerrar sesión
   const handleLogout = async () => {
     try {
-      // Usar la función de logout del AuthContext
-      logout();
+      // Logout con Supabase
+      await supabase.auth.signOut();
+      
+      // Limpiar localStorage
+      localStorage.removeItem('crypto-force-user-email');
+      localStorage.setItem('crypto-force-logged-out', 'true');
       
       // Redirigir al login
       window.location.href = '/login/signin';

@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { supabase } from '@/lib/supabaseClient';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function SignInPage() {
-  const { user, userData, loading, isReady, login } = useSafeAuth();
+  const { user, userData, loading, isReady } = useSafeAuth();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -71,14 +71,25 @@ export default function SignInPage() {
     try {
       console.log('🔐 Iniciando login para:', formData.email);
       
-      // Usar la función de login del AuthContext
-      login(formData.email.trim().toLowerCase());
-      
-      console.log('✅ Login exitoso, mostrando mensaje de éxito');
-      setErrors({ general: '¡Login exitoso! Redirigiendo al dashboard...' });
-      setTimeout(() => {
-        window.location.href = '/login/dashboard-selection';
-      }, 1000);
+      // Login con Supabase
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password
+      });
+
+      if (error) {
+        console.error('❌ Error en login:', error);
+        setErrors({ general: error.message });
+        return;
+      }
+
+      if (data.user) {
+        console.log('✅ Login exitoso, mostrando mensaje de éxito');
+        setErrors({ general: '¡Login exitoso! Redirigiendo al dashboard...' });
+        setTimeout(() => {
+          window.location.href = '/login/dashboard-selection';
+        }, 1000);
+      }
     } catch (error: any) {
       console.error('❌ Error inesperado en login:', error);
       setErrors({ general: 'Error inesperado. Por favor, intenta nuevamente.' });

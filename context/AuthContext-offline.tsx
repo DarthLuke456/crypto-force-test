@@ -254,26 +254,8 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(mockUser);
           setUserData(userData);
           
-          // Sincronizar con la base de datos después de cargar desde localStorage
-          console.log('🔄 AuthContext: Sincronizando con BD después de carga inicial');
-          fetch(`/api/profile/get-offline?email=${encodeURIComponent(storedEmail)}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success && data.profile) {
-              const updatedUserData = { ...userData, ...data.profile };
-              setUserData(updatedUserData);
-              localStorage.setItem('crypto-force-user-data', JSON.stringify(updatedUserData));
-              console.log('✅ AuthContext: Datos sincronizados con BD en carga inicial');
-            }
-          })
-          .catch(syncError => {
-            console.error('❌ AuthContext: Error en sincronización inicial:', syncError);
-          });
+          // REMOVED: Automatic sync on initial load to prevent loops
+          // Sync will only happen when explicitly called
           
           console.log('✅ AuthContext: Usuario autenticado offline:', userData);
         } else {
@@ -298,31 +280,8 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     setTimeout(initializeAuth, 100);
   }, []);
 
-  // Sincronizar datos cuando cambia la URL (navegación)
-  useEffect(() => {
-    if (!userData?.email) return;
-
-    const handleNavigation = () => {
-      console.log('🔄 AuthContext: Navegación detectada, sincronizando datos...');
-      syncUserData();
-    };
-
-    // Sincronizar en cada cambio de página
-    const handlePopState = () => {
-      setTimeout(handleNavigation, 100); // Pequeño delay para asegurar que la página se cargó
-    };
-
-    // Escuchar cambios de URL
-    window.addEventListener('popstate', handlePopState);
-    
-    // Sincronizar también cuando se hace focus en la ventana
-    window.addEventListener('focus', handleNavigation);
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-      window.removeEventListener('focus', handleNavigation);
-    };
-  }, [userData?.email]);
+  // REMOVED: Navigation sync to prevent infinite loops
+  // The sync will only happen on initial load and when explicitly called
 
   return (
     <AuthContext.Provider value={{ user, userData, loading, isReady, login, logout, updateInvitationCode, syncUserData, forceSync }}>
