@@ -1,6 +1,6 @@
 'use client';
 
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import FeedbackButton from '@/components/feedback/FeedbackButton';
