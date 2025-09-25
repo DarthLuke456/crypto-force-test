@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { useAvatarSync } from '@/hooks/useAvatarSync';
 import { 
   HomeIcon, 

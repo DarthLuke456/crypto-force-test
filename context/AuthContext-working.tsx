@@ -136,8 +136,32 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
             setUserData(userData);
           } else {
             // Si no hay datos en la base de datos, crear datos básicos
+            console.log('⚠️ AuthContext: No user data found in database, creating basic user data');
             const basicUserData = createBasicUserData(session.user);
             setUserData(basicUserData);
+            
+            // Intentar crear el usuario en la base de datos
+            try {
+              const { error: createError } = await supabase
+                .from('users')
+                .insert({
+                  email: session.user.email,
+                  uid: session.user.id,
+                  nickname: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuario',
+                  user_level: basicUserData.user_level,
+                  referral_code: basicUserData.referral_code,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
+                });
+              
+              if (createError) {
+                console.warn('⚠️ AuthContext: Error creating user in database:', createError);
+              } else {
+                console.log('✅ AuthContext: User created in database successfully');
+              }
+            } catch (error) {
+              console.warn('⚠️ AuthContext: Error creating user in database:', error);
+            }
           }
         } else {
           // Si no hay sesión, crear datos básicos para usuarios autorizados

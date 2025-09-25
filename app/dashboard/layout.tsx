@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { SidebarProvider, useSidebar } from '@/components/sidebar/SidebarContext';
-import { useSafeAuth } from '@/context/AuthContext';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { ControlPointProvider } from '@/context/ControlPointContext';
 import { ProgressProvider } from '@/context/ProgressContext';
 import Sidebar from '@/components/sidebar/Sidebar';
