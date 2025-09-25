@@ -95,24 +95,24 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
         return null;
       }
 
-      // Try with uid first
+      // Try with email first (more reliable)
       let { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('uid', userId)
+        .eq('email', session.session.user.email)
         .single();
 
-      // If uid query fails, try with email
-      if (error && session.session.user.email) {
-        console.log('🔄 AuthContext: UID query failed, trying with email:', session.session.user.email);
-        const emailResult = await supabase
+      // If email query fails, try with uid as fallback
+      if (error) {
+        console.log('🔄 AuthContext: Email query failed, trying with UID:', userId);
+        const uidResult = await supabase
           .from('users')
           .select('*')
-          .eq('email', session.session.user.email)
+          .eq('uid', userId)
           .single();
         
-        data = emailResult.data;
-        error = emailResult.error;
+        data = uidResult.data;
+        error = uidResult.error;
       }
 
       if (error) {

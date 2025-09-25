@@ -167,7 +167,7 @@ export default function ProfileContent() {
           user_level: cleanedData.user_level,
           updated_at: new Date().toISOString()
         })
-        .eq('uid', session.session.user.id);
+        .eq('email', session.session.user.email);
 
       if (error) {
         console.error('❌ ProfileContent: Error actualizando perfil:', error);
