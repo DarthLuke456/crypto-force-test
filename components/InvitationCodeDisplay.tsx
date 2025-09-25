@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Copy, Share2, ExternalLink, UserPlus, Crown, Users, RefreshCw } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { useReferralDataSimple } from '@/hooks/useReferralDataSimple';
 
 interface InvitationCodeDisplayProps {
@@ -16,7 +16,7 @@ export default function InvitationCodeDisplay({ userLevel, className = "" }: Inv
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   // Generate invitation code using CRYPTOFORCE + NICKNAME format
-  const generateInvitationCode = () => {
+  const generateInvitationCode = useCallback(() => {
     if (!userData?.nickname) {
       console.log('⚠️ InvitationCodeDisplay: No userData or nickname available');
       return "";
@@ -24,7 +24,7 @@ export default function InvitationCodeDisplay({ userLevel, className = "" }: Inv
     const code = `CRYPTOFORCE_${userData.nickname.toUpperCase()}`;
     console.log('🔍 InvitationCodeDisplay: Generated code:', code);
     return code;
-  };
+  }, [userData?.nickname]);
 
   // Update invitation code when nickname changes
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function InvitationCodeDisplay({ userLevel, className = "" }: Inv
       const newCode = generateInvitationCode();
       console.log('🔄 InvitationCodeDisplay: Código actualizado:', newCode);
     }
-  }, [userData?.nickname]);
+  }, [userData?.nickname, generateInvitationCode]);
 
   // Use the generated invitation code
   const invitationCode = generateInvitationCode();
