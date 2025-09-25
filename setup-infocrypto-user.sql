@@ -17,30 +17,64 @@ WHERE email = 'infocryptoforce@gmail.com';
 -- Note: This will only work if the user doesn't exist yet
 INSERT INTO users (
   email,
+  nombre,
+  apellido,
   nickname,
+  movil,
+  exchange,
   user_level,
   referral_code,
+  uid,
+  codigo_referido,
+  referred_by,
   total_referrals,
   created_at,
-  updated_at
+  updated_at,
+  avatar,
+  birthdate,
+  country,
+  bio
 ) VALUES (
   'infocryptoforce@gmail.com',
+  'Franc',
+  'CryptoForce',
   'INFOCRYPTOFORCE',
+  '',
+  '',
   0, -- Master level (same as coeurdeluke)
   'CRYPTOFORCE_INFOCRYPTOFORCE',
+  gen_random_uuid(), -- Generate a UUID for the UID field
+  null,
+  null, -- No referrer for the master
   0,
   NOW(),
-  NOW()
+  NOW(),
+  '/images/default-avatar.png',
+  '',
+  '',
+  'Co-founder of Crypto Force'
 ) ON CONFLICT (email) DO NOTHING;
 
--- Update existing user if they exist but have wrong referral code
+-- Update existing user if they exist but have wrong referral code or missing required fields
 UPDATE users 
 SET 
+  nombre = COALESCE(nombre, 'Franc'),
+  apellido = COALESCE(apellido, 'CryptoForce'),
+  nickname = COALESCE(nickname, 'INFOCRYPTOFORCE'),
+  movil = COALESCE(movil, ''),
+  exchange = COALESCE(exchange, ''),
   referral_code = 'CRYPTOFORCE_INFOCRYPTOFORCE',
   user_level = 0,
+  avatar = COALESCE(avatar, '/images/default-avatar.png'),
+  birthdate = COALESCE(birthdate, ''),
+  country = COALESCE(country, ''),
+  bio = COALESCE(bio, 'Co-founder of Crypto Force'),
   updated_at = NOW()
 WHERE email = 'infocryptoforce@gmail.com' 
-  AND (referral_code != 'CRYPTOFORCE_INFOCRYPTOFORCE' OR user_level != 0);
+  AND (referral_code != 'CRYPTOFORCE_INFOCRYPTOFORCE' 
+       OR user_level != 0 
+       OR nombre IS NULL 
+       OR apellido IS NULL);
 
 -- Verify the user exists with correct data
 SELECT 
