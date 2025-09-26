@@ -863,6 +863,15 @@ export default function UsersPage() {
                           <button
                             onClick={() => {
                               if (!lockState.isLocked) {
+                                console.log('🔍 Abriendo modal de edición para usuario:', user);
+                                console.log('🔍 Datos del usuario:', {
+                                  nombre: user.nombre,
+                                  apellido: user.apellido,
+                                  nickname: user.nickname,
+                                  email: user.email,
+                                  user_level: user.user_level
+                                });
+                                
                                 setSelectedUser(user);
                                 setEditingUser({
                                   nombre: user.nombre || '',
@@ -1111,6 +1120,14 @@ export default function UsersPage() {
                     console.log('- UserId:', selectedUser?.id);
                     console.log('- UserData:', editingUser);
                     console.log('- RequestData:', requestData);
+                    console.log('- Session token length:', session?.access_token?.length);
+                    
+                    // Crear AbortController para timeout
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => {
+                      console.log('⏰ Timeout alcanzado, cancelando request...');
+                      controller.abort();
+                    }, 10000); // 10 second timeout
                     
                     const response = await fetch('/api/maestro/users', {
                       method: 'POST',
@@ -1118,10 +1135,14 @@ export default function UsersPage() {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${session?.access_token}`
                       },
-                      body: JSON.stringify(requestData)
+                      body: JSON.stringify(requestData),
+                      signal: controller.signal
                     });
                     
+                    clearTimeout(timeoutId);
+                    
                     console.log('📥 Respuesta recibida:', response.status, response.statusText);
+                    console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
                     
                     if (response.ok) {
                       const responseData = await response.json();
@@ -1137,9 +1158,19 @@ export default function UsersPage() {
                     }
                   } catch (error) {
                     console.error('❌ Error en la actualización:', error);
-                    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+                    let errorMessage = 'Error desconocido';
+                    
+                    if (error instanceof Error) {
+                      if (error.name === 'AbortError') {
+                        errorMessage = 'Tiempo de espera agotado. Intenta de nuevo.';
+                      } else {
+                        errorMessage = error.message;
+                      }
+                    }
+                    
                     setError(`Error de conexión: ${errorMessage}`);
                   } finally {
+                    console.log('🔄 Finalizando proceso de guardado...');
                     setSaving(false);
                   }
                 }}>
