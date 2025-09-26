@@ -1128,15 +1128,16 @@ export default function UsersPage() {
                       console.log('✅ Usuario actualizado exitosamente:', responseData);
                       setSuccess('Usuario actualizado correctamente');
                       setShowEditModal(false);
-                      // Recargar la página para mostrar los cambios
-                      window.location.reload();
+                      // Refrescar la lista de usuarios sin recargar la página
+                      await fetchUsers();
                     } else {
                       const errorData = await response.json();
                       console.error('❌ Error en la respuesta:', errorData);
                       setError(errorData.error || 'Error actualizando usuario');
                     }
                   } catch (error) {
-                    setError('Error de conexión');
+                    console.error('❌ Error en la actualización:', error);
+                    setError(`Error de conexión: ${error.message || 'Error desconocido'}`);
                   } finally {
                     setSaving(false);
                   }
