@@ -79,6 +79,11 @@ export default function MaestroDashboardSelectionPage() {
 
   // Filtrar dashboards según el nivel del usuario - Memoizado para evitar re-renders innecesarios
   const accessibleDashboards = useMemo(() => {
+    // Si no hay userData, retornar array vacío
+    if (!userData) {
+      return [];
+    }
+    
     // NO usar fallback si user_level es undefined - esto indica un problema de autenticación
     if (userData.user_level === undefined) {
       console.error('❌ ERROR: user_level es undefined - Problema de autenticación');
@@ -94,7 +99,7 @@ export default function MaestroDashboardSelectionPage() {
     
     // Para otros roles, solo mostrar su nivel y los inferiores
     return dashboardOptions.filter(option => option.level <= userLevel);
-  }, [userData.user_level, isAuthorizedEmail, dashboardOptions]);
+  }, [userData, isAuthorizedEmail, dashboardOptions]);
 
   // Mostrar loading mientras se verifica el acceso
   if (!isReady || !userData) {
