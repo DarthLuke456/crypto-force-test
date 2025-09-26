@@ -16,7 +16,7 @@ SELECT
     event_manipulation,
     action_timing
 FROM information_schema.triggers 
-WHERE table_name = 'users';
+WHERE event_object_table = 'users';
 
 -- 4. Verificar que no hay funciones de protección
 SELECT 'Verificando que no hay funciones de protección' as check_type;

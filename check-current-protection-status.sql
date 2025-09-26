@@ -8,7 +8,7 @@ SELECT
     action_timing,
     action_statement
 FROM information_schema.triggers 
-WHERE table_name = 'users';
+WHERE event_object_table = 'users';
 
 -- 2. Verificar si la función existe
 SELECT 'Funciones de protección existentes' as check_type;
