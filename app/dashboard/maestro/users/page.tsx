@@ -27,6 +27,7 @@ import { useEmergencyLock } from '@/hooks/useEmergencyLock';
 import EmergencyLockButton from '@/components/EmergencyLockButton';
 import { useProfileUpdateListener } from '@/hooks/useUserDataSync';
 import Image from 'next/image';
+import ProtectedUserFields, { canEditField } from '@/components/ProtectedUserFields';
 
 interface User {
   id: string;
@@ -959,6 +960,14 @@ export default function UsersPage() {
                 </div>
                 
                 <div className="space-y-4">
+                  {/* Mostrar protección para usuarios fundadores */}
+                  <ProtectedUserFields 
+                    email={selectedUser.email}
+                    userLevel={selectedUser.user_level}
+                    referralCode={selectedUser.referral_code || ''}
+                    nickname={selectedUser.nickname}
+                  />
+                  
                   <div className="flex items-center space-x-4 mb-6">
                     <Image
                       src={getBadgeImage(selectedUser.user_level)}
@@ -1223,18 +1232,23 @@ export default function UsersPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-[#a0a0a0] mb-1">Nivel de Usuario</label>
+                      <label className="block text-sm font-medium text-[#a0a0a0] mb-1">
+                        Nivel de Usuario
+                        {!canEditField(editingUser.email, 'user_level') && (
+                          <span className="text-orange-400 ml-2">🔒 Protegido</span>
+                        )}
+                      </label>
                       <select
                         value={editingUser.user_level}
                         onChange={(e) => setEditingUser({...editingUser, user_level: parseInt(e.target.value)})}
-                        disabled={lockState.isLocked}
+                        disabled={lockState.isLocked || !canEditField(editingUser.email, 'user_level')}
                         className={`w-full px-3 py-2 rounded-lg border focus:outline-none ${
-                          lockState.isLocked
+                          lockState.isLocked || !canEditField(editingUser.email, 'user_level')
                             ? 'bg-gray-800 text-gray-500 border-gray-600 cursor-not-allowed'
                             : 'bg-[#1a1a1a] text-white border-[#4a4a4a] focus:border-[#ec4d58]'
                         }`}
                       >
-                        <option value={0}>Maestro ⭐</option>
+                        <option value={0}>Fundador ⭐</option>
                         <option value={1}>Iniciado</option>
                         <option value={2}>Acólito</option>
                         <option value={3}>Warrior</option>
@@ -1242,8 +1256,11 @@ export default function UsersPage() {
                         <option value={5}>Darth</option>
                         <option value={6}>Maestro</option>
                       </select>
+                      {!canEditField(editingUser.email, 'user_level') && (
+                        <p className="text-xs text-orange-400 mt-1">🔒 Campo protegido para usuarios fundadores</p>
+                      )}
                       {(editingUser.email === 'coeurdeluke.js@gmail.com' || editingUser.email === 'infocryptoforce@gmail.com') && editingUser.user_level === 0 && (
-                        <p className="text-xs text-[#FF8C42] mt-1">⭐ Maestro</p>
+                        <p className="text-xs text-[#FF8C42] mt-1">⭐ Fundador</p>
                       )}
                     </div>
                     <div>
