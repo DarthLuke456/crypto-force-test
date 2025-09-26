@@ -37,7 +37,58 @@ export default function MaestroDashboardSelectionPage() {
 
   // Memoizar el email del usuario para evitar re-renders innecesarios
   const userEmail = useMemo(() => userData?.email?.toLowerCase().trim() || '', [userData?.email]);
-  const isAuthorizedEmail = useMemo(() => MAESTRO_AUTHORIZED_EMAILS.includes(userEmail), [userEmail]);
+  const isAuthorizedEmail = useMemo(() => MAESTRO_AUTHORIZED_EMAILS.includes(userEmail), [userEmail, MAESTRO_AUTHORIZED_EMAILS]);
+
+  // Funciones helper para obtener información del nivel - Memoizadas
+  const getLevelName = useMemo(() => (level: number): string => {
+    // Para usuarios fundadores específicos, mostrar "Fundador" aunque tengan nivel 6
+    if (isAuthorizedEmail) {
+      return 'Fundador';
+    }
+    
+    switch (level) {
+      case 0: return 'Fundador';
+      case 1: return 'Iniciado';
+      case 2: return 'Acólito';
+      case 3: return 'Warrior';
+      case 4: return 'Lord';
+      case 5: return 'Darth';
+      case 6: return 'Maestro';
+      default: return 'Iniciado';
+    }
+  }, [isAuthorizedEmail]);
+
+  const getLevelDescription = useMemo(() => (level: number): string => {
+    switch (level) {
+      case 0: return 'Fundador del sistema con acceso completo a todos los niveles.';
+      case 1: return 'Primer paso en el camino del poder. Acceso a funcionalidades básicas.';
+      case 2: return 'Despertar de la sombra interior. Contenido avanzado y herramientas de análisis.';
+      case 3: return 'Integración de disciplina y pasión. Estrategias avanzadas y operaciones reales.';
+      case 4: return 'Visión estratégica y patrones elevados. Liderazgo de equipos y estrategias maestras.';
+      case 5: return 'Transmutación de la sombra en poder. Poder máximo y control total.';
+      case 6: return 'Equilibrio, control absoluto y presencia silenciosa. Acceso completo a todos los dashboards.';
+      default: return 'Primer paso en el camino del poder.';
+    }
+  }, []);
+
+  // Filtrar dashboards según el nivel del usuario - Memoizado para evitar re-renders innecesarios
+  const accessibleDashboards = useMemo(() => {
+    // NO usar fallback si user_level es undefined - esto indica un problema de autenticación
+    if (userData.user_level === undefined) {
+      console.error('❌ ERROR: user_level es undefined - Problema de autenticación');
+      return []; // No mostrar nada hasta que se resuelva el problema
+    }
+    
+    const userLevel = userData.user_level;
+    
+    // Fundador (0), Maestro (6) y usuarios con emails autorizados tienen acceso a TODOS los niveles
+    if (userLevel === 0 || userLevel === 6 || isAuthorizedEmail) {
+      return dashboardOptions;
+    }
+    
+    // Para otros roles, solo mostrar su nivel y los inferiores
+    return dashboardOptions.filter(option => option.level <= userLevel);
+  }, [userData.user_level, isAuthorizedEmail, dashboardOptions]);
 
   // Mostrar loading mientras se verifica el acceso
   if (!isReady || !userData) {
@@ -195,59 +246,6 @@ export default function MaestroDashboardSelectionPage() {
     'infocryptoforce@gmail.com',
     'coeurdeluke.js@gmail.com'
   ];
-
-
-
-  // Funciones helper para obtener información del nivel - Memoizadas
-  const getLevelName = useMemo(() => (level: number): string => {
-    // Para usuarios fundadores específicos, mostrar "Fundador" aunque tengan nivel 6
-    if (isAuthorizedEmail) {
-      return 'Fundador';
-    }
-    
-    switch (level) {
-      case 0: return 'Fundador';
-      case 1: return 'Iniciado';
-      case 2: return 'Acólito';
-      case 3: return 'Warrior';
-      case 4: return 'Lord';
-      case 5: return 'Darth';
-      case 6: return 'Maestro';
-      default: return 'Iniciado';
-    }
-  }, [isAuthorizedEmail]);
-
-  const getLevelDescription = useMemo(() => (level: number): string => {
-    switch (level) {
-      case 0: return 'Fundador del sistema con acceso completo a todos los niveles.';
-      case 1: return 'Primer paso en el camino del poder. Acceso a funcionalidades básicas.';
-      case 2: return 'Despertar de la sombra interior. Contenido avanzado y herramientas de análisis.';
-      case 3: return 'Integración de disciplina y pasión. Estrategias avanzadas y operaciones reales.';
-      case 4: return 'Visión estratégica y patrones elevados. Liderazgo de equipos y estrategias maestras.';
-      case 5: return 'Transmutación de la sombra en poder. Poder máximo y control total.';
-      case 6: return 'Equilibrio, control absoluto y presencia silenciosa. Acceso completo a todos los dashboards.';
-      default: return 'Primer paso en el camino del poder.';
-    }
-  }, []);
-
-  // Filtrar dashboards según el nivel del usuario - Memoizado para evitar re-renders innecesarios
-  const accessibleDashboards = useMemo(() => {
-    // NO usar fallback si user_level es undefined - esto indica un problema de autenticación
-    if (userData.user_level === undefined) {
-      console.error('❌ ERROR: user_level es undefined - Problema de autenticación');
-      return []; // No mostrar nada hasta que se resuelva el problema
-    }
-    
-    const userLevel = userData.user_level;
-    
-    // Fundador (0), Maestro (6) y usuarios con emails autorizados tienen acceso a TODOS los niveles
-    if (userLevel === 0 || userLevel === 6 || isAuthorizedEmail) {
-      return dashboardOptions;
-    }
-    
-    // Para otros roles, solo mostrar su nivel y los inferiores
-    return dashboardOptions.filter(option => option.level <= userLevel);
-  }, [userData.user_level, isAuthorizedEmail]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f]">
