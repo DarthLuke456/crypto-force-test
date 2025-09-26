@@ -59,6 +59,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isReady, setReady] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
 
   // Función para crear datos de usuario básicos
   const createBasicUserData = async (user: User): Promise<UserData> => {
@@ -205,7 +206,13 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     let timeoutId: NodeJS.Timeout;
     
     const initializeAuth = async () => {
+      if (isInitializing) {
+        console.log('🔄 AuthContext: Already initializing, skipping...');
+        return;
+      }
+      
       try {
+        setIsInitializing(true);
         console.log('🔄 AuthContext: Initializing authentication...');
         
         // Set a global timeout to prevent infinite loading
@@ -214,6 +221,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
             console.warn('⚠️ AuthContext: Initialization timeout, forcing ready state');
             setLoading(false);
             setReady(true);
+            setIsInitializing(false);
           }
         }, 15000); // 15 second timeout
         
@@ -329,41 +337,46 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('✅ AuthContext: Initialization complete, setting ready state');
           setLoading(false);
           setReady(true);
+          setIsInitializing(false);
         }
       }
     };
 
     initializeAuth();
 
-    // Escuchar cambios en la autenticación - SIMPLIFICADO
+    // Escuchar cambios en la autenticación - CON PREVENCIÓN DE BUCLES
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔄 AuthContext: Auth state change:', event);
         
-        if (event === 'SIGNED_IN' && session?.user && isMounted) {
-          console.log('✅ AuthContext: User signed in:', session.user.email);
-          setUser(session.user);
-          
-          // Guardar email en localStorage para fallback
-          if (session.user.email) {
-            localStorage.setItem('crypto-force-user-email', session.user.email);
+        // Solo procesar si no estamos ya en el proceso de inicialización
+        if (isMounted && !isInitializing) {
+          if (event === 'SIGNED_IN' && session?.user) {
+            console.log('✅ AuthContext: User signed in:', session.user.email);
+            setUser(session.user);
+            
+            // Guardar email en localStorage para fallback
+            if (session.user.email) {
+              localStorage.setItem('crypto-force-user-email', session.user.email);
+            }
+            
+            // Solo intentar obtener datos si no los tenemos ya
+            if (!userData) {
+              const userData = await fetchUserData(session.user.id);
+              if (userData && isMounted) {
+                setUserData(userData);
+              } else if (isMounted) {
+                const basicUserData = await createBasicUserData(session.user);
+                setUserData(basicUserData);
+              }
+            }
+          } else if (event === 'SIGNED_OUT') {
+            console.log('🚪 AuthContext: User signed out');
+            setUser(null);
+            setUserData(null);
+            localStorage.removeItem('crypto-force-user-email');
           }
           
-          const userData = await fetchUserData(session.user.id);
-          if (userData && isMounted) {
-            setUserData(userData);
-          } else if (isMounted) {
-            const basicUserData = await createBasicUserData(session.user);
-            setUserData(basicUserData);
-          }
-        } else if (event === 'SIGNED_OUT' && isMounted) {
-          console.log('🚪 AuthContext: User signed out');
-          setUser(null);
-          setUserData(null);
-          localStorage.removeItem('crypto-force-user-email');
-        }
-        
-        if (isMounted) {
           setLoading(false);
           setReady(true);
         }
