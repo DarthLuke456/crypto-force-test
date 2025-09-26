@@ -1137,7 +1137,8 @@ export default function UsersPage() {
                     }
                   } catch (error) {
                     console.error('❌ Error en la actualización:', error);
-                    setError(`Error de conexión: ${error.message || 'Error desconocido'}`);
+                    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+                    setError(`Error de conexión: ${errorMessage}`);
                   } finally {
                     setSaving(false);
                   }
