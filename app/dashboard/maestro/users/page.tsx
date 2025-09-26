@@ -18,6 +18,7 @@ import {
   Mail,
   User,
   Hash,
+  RefreshCw,
   Plus,
   UserPlus
 } from 'lucide-react';
@@ -207,14 +208,16 @@ export default function UsersPage() {
       console.log('🔍 [USERS] Enviando request a API...');
       // Agregar timestamp para evitar cache
       const timestamp = Date.now();
-      const response = await fetch(`/api/maestro/users?t=${timestamp}`, {
+      const randomId = Math.random().toString(36).substring(7);
+      const response = await fetch(`/api/maestro/users?t=${timestamp}&r=${randomId}`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`,
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
-          'Expires': '0'
+          'Expires': '0',
+          'X-Request-ID': randomId
         },
         signal: controller.signal
       });
@@ -261,6 +264,12 @@ export default function UsersPage() {
           setAllUsers(data.users);
           setFilteredUsers(data.users);
           setSuccess(`Se cargaron ${data.users.length} usuarios exitosamente`);
+          
+          // FORZAR RE-RENDER para evitar cache
+          setTimeout(() => {
+            setAllUsers([...data.users]);
+            setFilteredUsers([...data.users]);
+          }, 100);
         } else {
           console.error('❌ Error en la respuesta de la API:', data);
           setError(data.error || 'Error al cargar usuarios: respuesta inválida');
@@ -595,6 +604,16 @@ export default function UsersPage() {
             />
             
             {/* Botón de crear usuario */}
+            <button
+              onClick={async () => {
+                console.log('🔄 [MANUAL REFRESH] Forzando actualización de usuarios...');
+                await fetchUsers();
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors bg-blue-600 text-white hover:bg-blue-700"
+            >
+              <RefreshCw className="w-5 h-5" />
+              Actualizar
+            </button>
             <button
               onClick={() => setShowCreateModal(true)}
               disabled={lockState.isLocked}
