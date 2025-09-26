@@ -172,7 +172,7 @@ export default function UsersPage() {
       
       // Obtener el token de sesión (sin timeout)
       console.log('🔍 [USERS] Obteniendo sesión actual...');
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      let { data: { session }, error: sessionError } = await supabase.auth.getSession();
       console.log('🔍 [USERS] Sesión actual:', session ? 'Presente' : 'Ausente');
       console.log('🔍 [USERS] Session user:', session?.user?.email);
       console.log('🔍 [USERS] Session error:', sessionError);
