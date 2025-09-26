@@ -122,6 +122,7 @@ export default function UsersPage() {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -149,6 +150,14 @@ export default function UsersPage() {
   // Hook de bloqueo de emergencia
   const { lockState } = useEmergencyLock();
 
+  // Función para reintentar la carga de usuarios
+  const handleRetry = () => {
+    console.log('🔄 [USERS] Manual retry triggered');
+    setRetryCount(prev => prev + 1);
+    setError(null);
+    fetchUsers();
+  };
+
   // Función para cargar usuarios
   const fetchUsers = async () => {
     try {
@@ -156,56 +165,62 @@ export default function UsersPage() {
       console.log('🔍 [USERS] UserData:', userData);
       console.log('🔍 [USERS] User level:', userData?.user_level);
       console.log('🔍 [USERS] User email:', userData?.email);
-      console.log('🔍 [USERS] User nickname:', userData?.nickname);
       
       setLoading(true);
+      setError(null); // Clear any previous errors
       
-      // Obtener el token de sesión
+      // Obtener el token de sesión con timeout
       console.log('🔍 [USERS] Obteniendo sesión actual...');
-      let { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const sessionPromise = supabase.auth.getSession();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Session timeout')), 10000)
+      );
+      
+      let { data: { session }, error: sessionError } = await Promise.race([sessionPromise, timeoutPromise]) as any;
       console.log('🔍 [USERS] Sesión actual:', session ? 'Presente' : 'Ausente');
       console.log('🔍 [USERS] Session user:', session?.user?.email);
-      console.log('🔍 [USERS] Session expires at:', session?.expires_at);
       console.log('🔍 [USERS] Session error:', sessionError);
       
       if (!session?.access_token) {
         console.log('⚠️ [USERS] No hay token, intentando refrescar sesión...');
-        // Intentar refrescar la sesión
-        const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+        const refreshPromise = supabase.auth.refreshSession();
+        const refreshTimeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Refresh timeout')), 10000)
+        );
+        
+        const { data: { session: refreshedSession }, error: refreshError } = await Promise.race([refreshPromise, refreshTimeoutPromise]) as any;
         console.log('🔍 [USERS] Refresh result:', refreshedSession ? 'Exitoso' : 'Fallido');
         console.log('🔍 [USERS] Refresh error:', refreshError);
         
         if (!refreshedSession?.access_token) {
           console.log('❌ [USERS] No se pudo refrescar la sesión');
-          throw new Error('No hay sesión activa');
+          throw new Error('No hay sesión activa. Por favor, inicia sesión nuevamente.');
         }
         
-        // Usar la sesión refrescada
         session = refreshedSession;
         console.log('✅ [USERS] Sesión refrescada exitosamente');
       }
       
       console.log('🔍 [USERS] Token presente:', !!session.access_token);
       console.log('🔍 [USERS] Token length:', session.access_token.length);
-      console.log('🔍 [USERS] Token preview:', session.access_token.substring(0, 20) + '...');
+      
+      // Crear AbortController para timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
       
       console.log('🔍 [USERS] Enviando request a API...');
-      console.log('🔍 [USERS] URL:', '/api/maestro/users');
-      console.log('🔍 [USERS] Headers:', {
-        'Authorization': `Bearer ${session.access_token.substring(0, 20)}...`,
-        'Content-Type': 'application/json'
-      });
-      
       const response = await fetch('/api/maestro/users', {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
-        }
+        },
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       console.log('🔍 [USERS] Response status:', response.status);
       console.log('🔍 [USERS] Response ok:', response.ok);
-      console.log('🔍 [USERS] Response headers:', Object.fromEntries(response.headers.entries()));
       
       if (response.ok) {
         console.log('✅ [USERS] Response exitosa, parseando JSON...');
@@ -213,34 +228,25 @@ export default function UsersPage() {
         console.log('📊 [USERS] Datos recibidos de la API de usuarios:', data);
         console.log('📈 [USERS] Total usuarios recibidos:', data.users?.length || 0);
         
-        if (data.users) {
+        if (data.users && Array.isArray(data.users)) {
           console.log('✅ Usuarios cargados exitosamente');
-          console.log('👥 Desglose de usuarios por nivel:');
+          
+          // Calcular estadísticas
           const levelCounts = data.users.reduce((acc: Record<number, number>, user: User) => {
             acc[user.user_level] = (acc[user.user_level] || 0) + 1;
             return acc;
           }, {});
-          console.log(levelCounts);
-          
-          console.log('🔍 Primeros 3 usuarios:');
-          data.users.slice(0, 3).forEach((user: User, index: number) => {
-            console.log(`${index + 1}. ${user.nombre} ${user.apellido} (${user.email}) - Nivel: ${user.user_level} - Móvil: ${user.movil || 'Sin teléfono'} - Exchange: ${user.exchange || 'Sin exchange'}`);
-          });
-          
-          console.log('📱 Debug de números de teléfono:');
-          data.users.forEach((user: User, index: number) => {
-            console.log(`Usuario ${index + 1}: ${user.email} - Móvil: "${user.movil}" (tipo: ${typeof user.movil}, longitud: ${user.movil?.length || 0})`);
-          });
+          console.log('👥 Desglose de usuarios por nivel:', levelCounts);
           
           setAllUsers(data.users);
           setFilteredUsers(data.users);
+          setSuccess(`Se cargaron ${data.users.length} usuarios exitosamente`);
         } else {
           console.error('❌ Error en la respuesta de la API:', data);
-          setError(data.error || 'Error al cargar usuarios');
+          setError(data.error || 'Error al cargar usuarios: respuesta inválida');
         }
       } else {
         console.error('❌ [USERS] Error HTTP:', response.status, response.statusText);
-        console.error('❌ [USERS] Response headers:', Object.fromEntries(response.headers.entries()));
         
         let errorData;
         try {
@@ -251,16 +257,33 @@ export default function UsersPage() {
           errorData = { error: `Error ${response.status}: ${response.statusText}` };
         }
         
-        setError(errorData.error || `Error ${response.status}: ${response.statusText}`);
+        if (response.status === 401) {
+          setError('Sesión expirada. Por favor, inicia sesión nuevamente.');
+        } else if (response.status === 403) {
+          setError('No tienes permisos para acceder a esta información.');
+        } else {
+          setError(`${errorData.error || `Error ${response.status}: ${response.statusText}`} (Intento ${retryCount + 1})`);
+        }
       }
     } catch (error) {
-      console.error('❌ [USERS] Error cargando usuarios:', error);
-      console.error('❌ [USERS] Error stack:', error instanceof Error ? error.stack : 'No stack');
-      console.error('❌ [USERS] Error message:', error instanceof Error ? error.message : 'Unknown error');
-      setError('Error de conexión al cargar usuarios');
+      console.error('❌ [USERS] Error en fetchUsers:', error);
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          setError(`La solicitud tardó demasiado. Por favor, intenta nuevamente. (Intento ${retryCount + 1})`);
+        } else if (error.message.includes('timeout')) {
+          setError(`Tiempo de espera agotado. Por favor, intenta nuevamente. (Intento ${retryCount + 1})`);
+        } else if (error.message.includes('sesión')) {
+          setError('Problema de autenticación. Por favor, inicia sesión nuevamente.');
+        } else {
+          setError(`Error de conexión: ${error.message} (Intento ${retryCount + 1})`);
+        }
+      } else {
+        setError(`Error de conexión al cargar usuarios (Intento ${retryCount + 1})`);
+      }
     } finally {
-      console.log('🔍 [USERS] Finalizando fetch, setting loading false');
       setLoading(false);
+      console.log('🔍 [USERS] ===== FIN FETCH USUARIOS =====');
     }
   };
 
@@ -293,10 +316,11 @@ export default function UsersPage() {
   const { user, userData, loading: authLoading, isReady } = useSafeAuth();
 
   useEffect(() => {
-    if (isReady && user) {
+    if (isReady && user && userData) {
+      console.log('🔄 [USERS] useEffect triggered - calling fetchUsers');
       fetchUsers();
     }
-  }, [isReady, user]);
+  }, [isReady, user, userData?.id]); // Add userData.id as dependency
 
   useEffect(() => {
     if (searchTerm) {
@@ -588,6 +612,13 @@ export default function UsersPage() {
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6 flex items-center justify-between">
             <span>{error}</span>
+            <button
+              onClick={handleRetry}
+              disabled={loading}
+              className="ml-4 px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded text-sm transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Reintentando...' : 'Reintentar'}
+            </button>
             <button
               onClick={() => setError(null)}
               className="text-red-400 hover:text-red-300 transition-colors ml-2"
