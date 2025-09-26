@@ -41,106 +41,6 @@ export default function MaestroDashboardSelectionPage() {
     'coeurdeluke.js@gmail.com'
   ];
 
-  // Memoizar el email del usuario para evitar re-renders innecesarios
-  const userEmail = useMemo(() => userData?.email?.toLowerCase().trim() || '', [userData?.email]);
-  const isAuthorizedEmail = useMemo(() => MAESTRO_AUTHORIZED_EMAILS.includes(userEmail), [userEmail, MAESTRO_AUTHORIZED_EMAILS]);
-
-  // Funciones helper para obtener información del nivel - Memoizadas
-  const getLevelName = useMemo(() => (level: number): string => {
-    // Para usuarios fundadores específicos, mostrar "Fundador" aunque tengan nivel 6
-    if (isAuthorizedEmail) {
-      return 'Fundador';
-    }
-    
-    switch (level) {
-      case 0: return 'Fundador';
-      case 1: return 'Iniciado';
-      case 2: return 'Acólito';
-      case 3: return 'Warrior';
-      case 4: return 'Lord';
-      case 5: return 'Darth';
-      case 6: return 'Maestro';
-      default: return 'Iniciado';
-    }
-  }, [isAuthorizedEmail]);
-
-  const getLevelDescription = useMemo(() => (level: number): string => {
-    switch (level) {
-      case 0: return 'Fundador del sistema con acceso completo a todos los niveles.';
-      case 1: return 'Primer paso en el camino del poder. Acceso a funcionalidades básicas.';
-      case 2: return 'Despertar de la sombra interior. Contenido avanzado y herramientas de análisis.';
-      case 3: return 'Integración de disciplina y pasión. Estrategias avanzadas y operaciones reales.';
-      case 4: return 'Visión estratégica y patrones elevados. Liderazgo de equipos y estrategias maestras.';
-      case 5: return 'Transmutación de la sombra en poder. Poder máximo y control total.';
-      case 6: return 'Equilibrio, control absoluto y presencia silenciosa. Acceso completo a todos los dashboards.';
-      default: return 'Primer paso en el camino del poder.';
-    }
-  }, []);
-
-  // Filtrar dashboards según el nivel del usuario - Memoizado para evitar re-renders innecesarios
-  const accessibleDashboards = useMemo(() => {
-    // Si no hay userData, retornar array vacío
-    if (!userData) {
-      return [];
-    }
-    
-    // NO usar fallback si user_level es undefined - esto indica un problema de autenticación
-    if (userData.user_level === undefined) {
-      console.error('❌ ERROR: user_level es undefined - Problema de autenticación');
-      return []; // No mostrar nada hasta que se resuelva el problema
-    }
-    
-    const userLevel = userData.user_level;
-    
-    // Fundador (0), Maestro (6) y usuarios con emails autorizados tienen acceso a TODOS los niveles
-    if (userLevel === 0 || userLevel === 6 || isAuthorizedEmail) {
-      return dashboardOptions;
-    }
-    
-    // Para otros roles, solo mostrar su nivel y los inferiores
-    return dashboardOptions.filter(option => option.level <= userLevel);
-  }, [userData, isAuthorizedEmail, dashboardOptions]);
-
-  // Mostrar loading mientras se verifica el acceso
-  if (!isReady || !userData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ec4d58] mx-auto mb-4"></div>
-          <p className="text-white">Verificando acceso...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Verificar que el usuario tenga user_level definido
-  if (userData.user_level === undefined) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-white mb-4">Error de Autenticación</h2>
-          <p className="text-red-400 mb-4">No se pudo determinar tu nivel de usuario</p>
-          <p className="text-gray-400 text-sm mb-6">Email: {userData.email}</p>
-          <p className="text-gray-400 text-sm">Problema: user_level es undefined</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
-          >
-            Recargar Página
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Debug: Verificar qué rol está detectando el sistema (solo en desarrollo)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 Dashboard Selection - User Level:', userData.user_level, 'Email:', userData.email);
-  }
-
-
-
   const dashboardOptions: DashboardOption[] = [
     {
       id: 'iniciado',
@@ -251,6 +151,104 @@ export default function MaestroDashboardSelectionPage() {
       ]
     }
   ];
+
+  // Memoizar el email del usuario para evitar re-renders innecesarios
+  const userEmail = useMemo(() => userData?.email?.toLowerCase().trim() || '', [userData?.email]);
+  const isAuthorizedEmail = useMemo(() => MAESTRO_AUTHORIZED_EMAILS.includes(userEmail), [userEmail, MAESTRO_AUTHORIZED_EMAILS]);
+
+  // Funciones helper para obtener información del nivel - Memoizadas
+  const getLevelName = useMemo(() => (level: number): string => {
+    // Para usuarios fundadores específicos, mostrar "Fundador" aunque tengan nivel 6
+    if (isAuthorizedEmail) {
+      return 'Fundador';
+    }
+    
+    switch (level) {
+      case 0: return 'Fundador';
+      case 1: return 'Iniciado';
+      case 2: return 'Acólito';
+      case 3: return 'Warrior';
+      case 4: return 'Lord';
+      case 5: return 'Darth';
+      case 6: return 'Maestro';
+      default: return 'Iniciado';
+    }
+  }, [isAuthorizedEmail]);
+
+  const getLevelDescription = useMemo(() => (level: number): string => {
+    switch (level) {
+      case 0: return 'Fundador del sistema con acceso completo a todos los niveles.';
+      case 1: return 'Primer paso en el camino del poder. Acceso a funcionalidades básicas.';
+      case 2: return 'Despertar de la sombra interior. Contenido avanzado y herramientas de análisis.';
+      case 3: return 'Integración de disciplina y pasión. Estrategias avanzadas y operaciones reales.';
+      case 4: return 'Visión estratégica y patrones elevados. Liderazgo de equipos y estrategias maestras.';
+      case 5: return 'Transmutación de la sombra en poder. Poder máximo y control total.';
+      case 6: return 'Equilibrio, control absoluto y presencia silenciosa. Acceso completo a todos los dashboards.';
+      default: return 'Primer paso en el camino del poder.';
+    }
+  }, []);
+
+  // Filtrar dashboards según el nivel del usuario - Memoizado para evitar re-renders innecesarios
+  const accessibleDashboards = useMemo(() => {
+    // Si no hay userData, retornar array vacío
+    if (!userData) {
+      return [];
+    }
+    
+    // NO usar fallback si user_level es undefined - esto indica un problema de autenticación
+    if (userData.user_level === undefined) {
+      console.error('❌ ERROR: user_level es undefined - Problema de autenticación');
+      return []; // No mostrar nada hasta que se resuelva el problema
+    }
+    
+    const userLevel = userData.user_level;
+    
+    // Fundador (0), Maestro (6) y usuarios con emails autorizados tienen acceso a TODOS los niveles
+    if (userLevel === 0 || userLevel === 6 || isAuthorizedEmail) {
+      return dashboardOptions;
+    }
+    
+    // Para otros roles, solo mostrar su nivel y los inferiores
+    return dashboardOptions.filter(option => option.level <= userLevel);
+  }, [userData, isAuthorizedEmail, dashboardOptions]);
+
+  // Mostrar loading mientras se verifica el acceso
+  if (!isReady || !userData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ec4d58] mx-auto mb-4"></div>
+          <p className="text-white">Verificando acceso...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Verificar que el usuario tenga user_level definido
+  if (userData.user_level === undefined) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f] flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-white mb-4">Error de Autenticación</h2>
+          <p className="text-red-400 mb-4">No se pudo determinar tu nivel de usuario</p>
+          <p className="text-gray-400 text-sm mb-6">Email: {userData.email}</p>
+          <p className="text-gray-400 text-sm">Problema: user_level es undefined</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-6 py-3 bg-[#ec4d58] text-white rounded-lg hover:bg-[#d43d48] transition-colors"
+          >
+            Recargar Página
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Debug: Verificar qué rol está detectando el sistema (solo en desarrollo)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Dashboard Selection - User Level:', userData.user_level, 'Email:', userData.email);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f]">
