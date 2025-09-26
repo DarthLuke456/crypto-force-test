@@ -205,11 +205,16 @@ export default function UsersPage() {
       const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
       
       console.log('🔍 [USERS] Enviando request a API...');
-      const response = await fetch('/api/maestro/users', {
+      // Agregar timestamp para evitar cache
+      const timestamp = Date.now();
+      const response = await fetch(`/api/maestro/users?t=${timestamp}`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         },
         signal: controller.signal
       });
@@ -223,6 +228,25 @@ export default function UsersPage() {
         const data = await response.json();
         console.log('📊 [USERS] Datos recibidos de la API de usuarios:', data);
         console.log('📈 [USERS] Total usuarios recibidos:', data.users?.length || 0);
+        
+        // TRACKEAR FRANCISCO ESPECÍFICAMENTE
+        if (data.users && Array.isArray(data.users)) {
+          const francisco = data.users.find(user => user.email === 'infocryptoforce@gmail.com');
+          if (francisco) {
+            console.log('🔍 [FRANCISCO TRACKING] Datos de Francisco desde API:');
+            console.log('🔍 [FRANCISCO TRACKING] - ID:', francisco.id);
+            console.log('🔍 [FRANCISCO TRACKING] - Email:', francisco.email);
+            console.log('🔍 [FRANCISCO TRACKING] - Nombre:', francisco.nombre);
+            console.log('🔍 [FRANCISCO TRACKING] - Apellido:', francisco.apellido);
+            console.log('🔍 [FRANCISCO TRACKING] - Nickname:', francisco.nickname);
+            console.log('🔍 [FRANCISCO TRACKING] - User Level:', francisco.user_level);
+            console.log('🔍 [FRANCISCO TRACKING] - Referral Code:', francisco.referral_code);
+            console.log('🔍 [FRANCISCO TRACKING] - Referred By:', francisco.referred_by);
+            console.log('🔍 [FRANCISCO TRACKING] - Updated At:', francisco.updated_at);
+          } else {
+            console.log('❌ [FRANCISCO TRACKING] Francisco NO encontrado en los datos de la API!');
+          }
+        }
         
         if (data.users && Array.isArray(data.users)) {
           console.log('✅ Usuarios cargados exitosamente');

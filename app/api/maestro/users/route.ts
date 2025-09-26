@@ -112,6 +112,7 @@ export async function GET(request: Request) {
     }
 
     // Obtener todos los usuarios del sistema
+    console.log('🔍 [MAESTRO API GET] Obteniendo usuarios de la base de datos...');
     const { data: users, error: usersError } = await supabase
       .from('users')
       .select(`
@@ -132,6 +133,29 @@ export async function GET(request: Request) {
         updated_at
       `)
       .order('created_at', { ascending: false });
+      
+    console.log('🔍 [MAESTRO API GET] Resultado de la consulta:');
+    console.log('🔍 [MAESTRO API GET] - Users encontrados:', users?.length || 0);
+    console.log('🔍 [MAESTRO API GET] - Error:', usersError);
+    
+    // TRACKEAR FRANCISCO ESPECÍFICAMENTE EN LA API
+    if (users && Array.isArray(users)) {
+      const francisco = users.find(user => user.email === 'infocryptoforce@gmail.com');
+      if (francisco) {
+        console.log('🔍 [FRANCISCO API TRACKING] Datos de Francisco desde BD:');
+        console.log('🔍 [FRANCISCO API TRACKING] - ID:', francisco.id);
+        console.log('🔍 [FRANCISCO API TRACKING] - Email:', francisco.email);
+        console.log('🔍 [FRANCISCO API TRACKING] - Nombre:', francisco.nombre);
+        console.log('🔍 [FRANCISCO API TRACKING] - Apellido:', francisco.apellido);
+        console.log('🔍 [FRANCISCO API TRACKING] - Nickname:', francisco.nickname);
+        console.log('🔍 [FRANCISCO API TRACKING] - User Level:', francisco.user_level);
+        console.log('🔍 [FRANCISCO API TRACKING] - Referral Code:', francisco.referral_code);
+        console.log('🔍 [FRANCISCO API TRACKING] - Referred By:', francisco.referred_by);
+        console.log('🔍 [FRANCISCO API TRACKING] - Updated At:', francisco.updated_at);
+      } else {
+        console.log('❌ [FRANCISCO API TRACKING] Francisco NO encontrado en la base de datos!');
+      }
+    }
 
     if (usersError) {
       // Si hay error de permisos, intentar consulta alternativa
