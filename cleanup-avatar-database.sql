@@ -119,3 +119,6 @@ WHERE table_name = 'users'
   AND table_schema = 'public'
   AND data_type IN ('text', 'character varying')
   AND character_maximum_length IS NULL;
+
+
+
