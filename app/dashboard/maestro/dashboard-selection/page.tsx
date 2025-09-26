@@ -35,6 +35,12 @@ export default function MaestroDashboardSelectionPage() {
   const { userData, isReady } = useSafeAuth();
   const [hoveredRole, setHoveredRole] = useState<string | null>(null);
 
+  // Lista de emails autorizados para acceder a la dashboard de Maestro
+  const MAESTRO_AUTHORIZED_EMAILS = [
+    'infocryptoforce@gmail.com',
+    'coeurdeluke.js@gmail.com'
+  ];
+
   // Memoizar el email del usuario para evitar re-renders innecesarios
   const userEmail = useMemo(() => userData?.email?.toLowerCase().trim() || '', [userData?.email]);
   const isAuthorizedEmail = useMemo(() => MAESTRO_AUTHORIZED_EMAILS.includes(userEmail), [userEmail, MAESTRO_AUTHORIZED_EMAILS]);
@@ -239,12 +245,6 @@ export default function MaestroDashboardSelectionPage() {
         'Autoridad máxima'
       ]
     }
-  ];
-
-  // Lista de emails autorizados para acceder a la dashboard de Maestro
-  const MAESTRO_AUTHORIZED_EMAILS = [
-    'infocryptoforce@gmail.com',
-    'coeurdeluke.js@gmail.com'
   ];
 
   return (
