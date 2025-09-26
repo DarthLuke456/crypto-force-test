@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
 import { 
   Users, 

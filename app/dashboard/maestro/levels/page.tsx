@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { 
   Crown,
   Shield,

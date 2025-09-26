@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
 import { LineChart, Lightbulb, ChevronLeft, ChevronRight, TrendingUp, BarChart3, Target } from 'lucide-react';
 import dynamic from 'next/dynamic';

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Crown, FileText, Plus, Eye, Save, Edit, Trash2, ArrowLeft } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext-offline';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import MinimalContentCreator from '@/components/tribunal/MinimalContentCreator';
 
 export default function TribunalImperialSimplePage() {
