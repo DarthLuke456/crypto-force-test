@@ -114,29 +114,50 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('🔍 AuthContext: Fetching user data for userId:', userId);
       
-      // Get current session first
-      const { data: session } = await supabase.auth.getSession();
+      // Get current session first with timeout
+      console.log('🔍 AuthContext: Getting session...');
+      const sessionPromise = supabase.auth.getSession();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Session timeout')), 5000)
+      );
+      
+      const { data: session, error: sessionError } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+      
+      if (sessionError) {
+        console.error('❌ AuthContext: Session error:', sessionError);
+        return null;
+      }
+      
       if (!session?.session) {
         console.warn('⚠️ AuthContext: No active session for fetchUserData');
         return null;
       }
 
-      // Try with email first (more reliable)
-      let { data, error } = await supabase
+      console.log('🔍 AuthContext: Session found, querying database...');
+
+      // Try with email first (more reliable) with timeout
+      const emailQueryPromise = supabase
         .from('users')
         .select('*')
         .eq('email', session.session.user.email)
         .single();
+      
+      const queryTimeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database query timeout')), 10000)
+      );
+
+      let { data, error } = await Promise.race([emailQueryPromise, queryTimeoutPromise]) as any;
 
       // If email query fails, try with uid as fallback
       if (error) {
         console.log('🔄 AuthContext: Email query failed, trying with UID:', userId);
-        const uidResult = await supabase
+        const uidQueryPromise = supabase
           .from('users')
           .select('*')
           .eq('uid', userId)
           .single();
         
+        const uidResult = await Promise.race([uidQueryPromise, queryTimeoutPromise]) as any;
         data = uidResult.data;
         error = uidResult.error;
       }
@@ -178,13 +199,23 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Inicialización con Supabase - SIMPLIFICADA
+  // Inicialización con Supabase - CON TIMEOUT GLOBAL
   useEffect(() => {
     let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
     
     const initializeAuth = async () => {
       try {
         console.log('🔄 AuthContext: Initializing authentication...');
+        
+        // Set a global timeout to prevent infinite loading
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            console.warn('⚠️ AuthContext: Initialization timeout, forcing ready state');
+            setLoading(false);
+            setReady(true);
+          }
+        }, 15000); // 15 second timeout
         
         // Obtener sesión actual
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -203,6 +234,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           }
           
           // Intentar obtener datos del usuario desde la base de datos
+          console.log('🔍 AuthContext: Attempting to fetch user data...');
           const userData = await fetchUserData(session.user.id);
           
           if (userData && isMounted) {
@@ -212,6 +244,42 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('⚠️ AuthContext: No user data found, creating basic data');
             const basicUserData = await createBasicUserData(session.user);
             setUserData(basicUserData);
+            
+            // Try to save basic data to database
+            try {
+              console.log('🔍 AuthContext: Attempting to save basic data to database...');
+              const { error: saveError } = await supabase
+                .from('users')
+                .upsert({
+                  id: basicUserData.id,
+                  email: basicUserData.email,
+                  nombre: basicUserData.nombre,
+                  apellido: basicUserData.apellido,
+                  nickname: basicUserData.nickname,
+                  movil: basicUserData.movil,
+                  exchange: basicUserData.exchange,
+                  avatar: basicUserData.avatar,
+                  user_level: basicUserData.user_level,
+                  referral_code: basicUserData.referral_code,
+                  uid: basicUserData.uid,
+                  codigo_referido: basicUserData.codigo_referido,
+                  referred_by: basicUserData.referred_by,
+                  total_referrals: basicUserData.total_referrals,
+                  created_at: basicUserData.created_at,
+                  updated_at: basicUserData.updated_at,
+                  birthdate: basicUserData.birthdate,
+                  country: basicUserData.country,
+                  bio: basicUserData.bio
+                });
+              
+              if (saveError) {
+                console.warn('⚠️ AuthContext: Error saving basic data:', saveError);
+              } else {
+                console.log('✅ AuthContext: Basic data saved to database');
+              }
+            } catch (error) {
+              console.warn('⚠️ AuthContext: Exception saving basic data:', error);
+            }
           }
         } else if (isMounted) {
           console.log('⚠️ AuthContext: No session found, checking for stored email...');
@@ -257,6 +325,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('❌ AuthContext: Error initializing auth:', error);
       } finally {
         if (isMounted) {
+          clearTimeout(timeoutId);
           console.log('✅ AuthContext: Initialization complete, setting ready state');
           setLoading(false);
           setReady(true);
