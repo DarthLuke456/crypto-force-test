@@ -231,7 +231,7 @@ export default function UsersPage() {
         
         // TRACKEAR FRANCISCO ESPECÍFICAMENTE
         if (data.users && Array.isArray(data.users)) {
-          const francisco = data.users.find(user => user.email === 'infocryptoforce@gmail.com');
+          const francisco = data.users.find((user: User) => user.email === 'infocryptoforce@gmail.com');
           if (francisco) {
             console.log('🔍 [FRANCISCO TRACKING] Datos de Francisco desde API:');
             console.log('🔍 [FRANCISCO TRACKING] - ID:', francisco.id);

@@ -140,7 +140,7 @@ export async function GET(request: Request) {
     
     // TRACKEAR FRANCISCO ESPECÍFICAMENTE EN LA API
     if (users && Array.isArray(users)) {
-      const francisco = users.find(user => user.email === 'infocryptoforce@gmail.com');
+      const francisco = users.find((user: any) => user.email === 'infocryptoforce@gmail.com');
       if (francisco) {
         console.log('🔍 [FRANCISCO API TRACKING] Datos de Francisco desde BD:');
         console.log('🔍 [FRANCISCO API TRACKING] - ID:', francisco.id);
