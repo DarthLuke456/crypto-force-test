@@ -232,6 +232,12 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const { action, userId, userData } = body;
+    
+    console.log('🔍 [MAESTRO API POST] ===== INICIO UPDATE USER =====');
+    console.log('🔍 [MAESTRO API POST] Action:', action);
+    console.log('🔍 [MAESTRO API POST] UserId:', userId);
+    console.log('🔍 [MAESTRO API POST] UserData recibido:', userData);
+    console.log('🔍 [MAESTRO API POST] User email (quien hace la petición):', user.email);
 
     // Verificar que sea un maestro
     const { data: userProfile, error: profileError } = await supabase
@@ -361,12 +367,19 @@ export async function POST(request: Request) {
           user_level: userData.user_level,
           updated_at: new Date().toISOString()
         };
+        
+        console.log('🔍 [MAESTRO API POST] Datos a actualizar:', updateData);
+        console.log('🔍 [MAESTRO API POST] ID del usuario a actualizar:', userId);
 
         const { data: updatedUser, error: updateError } = await supabase
           .from('users')
           .update(updateData)
           .eq('id', userId)
           .select();
+          
+        console.log('🔍 [MAESTRO API POST] Resultado de la actualización:');
+        console.log('🔍 [MAESTRO API POST] - UpdatedUser:', updatedUser);
+        console.log('🔍 [MAESTRO API POST] - UpdateError:', updateError);
 
         if (updateError) {
           return NextResponse.json({ 
