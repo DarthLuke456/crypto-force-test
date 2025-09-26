@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { 
@@ -35,6 +35,10 @@ export default function MaestroDashboardSelectionPage() {
   const { userData, isReady } = useSafeAuth();
   const [hoveredRole, setHoveredRole] = useState<string | null>(null);
 
+  // Memoizar el email del usuario para evitar re-renders innecesarios
+  const userEmail = useMemo(() => userData?.email?.toLowerCase().trim() || '', [userData?.email]);
+  const isAuthorizedEmail = useMemo(() => MAESTRO_AUTHORIZED_EMAILS.includes(userEmail), [userEmail]);
+
   // Mostrar loading mientras se verifica el acceso
   if (!isReady || !userData) {
     return (
@@ -68,15 +72,10 @@ export default function MaestroDashboardSelectionPage() {
     );
   }
 
-  // Debug: Verificar qué rol está detectando el sistema
-  console.log('🔍 Dashboard Selection - Debug Info:', {
-    userData: userData,
-    userLevel: userData.user_level,
-    userLevelType: typeof userData.user_level,
-    userEmail: userData.email,
-    isReady: isReady,
-    fullUserData: JSON.stringify(userData, null, 2)
-  });
+  // Debug: Verificar qué rol está detectando el sistema (solo en desarrollo)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Dashboard Selection - User Level:', userData.user_level, 'Email:', userData.email);
+  }
 
 
 
@@ -199,10 +198,10 @@ export default function MaestroDashboardSelectionPage() {
 
 
 
-  // Funciones helper para obtener información del nivel
-  const getLevelName = (level: number): string => {
+  // Funciones helper para obtener información del nivel - Memoizadas
+  const getLevelName = useMemo(() => (level: number): string => {
     // Para usuarios fundadores específicos, mostrar "Fundador" aunque tengan nivel 6
-    if (userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())) {
+    if (isAuthorizedEmail) {
       return 'Fundador';
     }
     
@@ -216,9 +215,9 @@ export default function MaestroDashboardSelectionPage() {
       case 6: return 'Maestro';
       default: return 'Iniciado';
     }
-  };
+  }, [isAuthorizedEmail]);
 
-  const getLevelDescription = (level: number): string => {
+  const getLevelDescription = useMemo(() => (level: number): string => {
     switch (level) {
       case 0: return 'Fundador del sistema con acceso completo a todos los niveles.';
       case 1: return 'Primer paso en el camino del poder. Acceso a funcionalidades básicas.';
@@ -229,42 +228,26 @@ export default function MaestroDashboardSelectionPage() {
       case 6: return 'Equilibrio, control absoluto y presencia silenciosa. Acceso completo a todos los dashboards.';
       default: return 'Primer paso en el camino del poder.';
     }
-  };
+  }, []);
 
-  // Filtrar dashboards según el nivel del usuario
-  const getUserAccessibleDashboards = () => {
+  // Filtrar dashboards según el nivel del usuario - Memoizado para evitar re-renders innecesarios
+  const accessibleDashboards = useMemo(() => {
     // NO usar fallback si user_level es undefined - esto indica un problema de autenticación
     if (userData.user_level === undefined) {
       console.error('❌ ERROR: user_level es undefined - Problema de autenticación');
-      console.log('🔍 Datos completos del usuario:', userData);
       return []; // No mostrar nada hasta que se resuelva el problema
     }
     
     const userLevel = userData.user_level;
     
-    console.log('🔍 getUserAccessibleDashboards - Debug:', {
-      userLevel,
-      userLevelType: typeof userLevel,
-      userEmail: userData.email,
-      isFundador: userLevel === 0,
-      isMaestro: userLevel === 6,
-      isAuthorizedEmail: MAESTRO_AUTHORIZED_EMAILS.includes(userData.email?.toLowerCase().trim() || ''),
-      totalOptions: dashboardOptions.length
-    });
-    
     // Fundador (0), Maestro (6) y usuarios con emails autorizados tienen acceso a TODOS los niveles
-    if (userLevel === 0 || userLevel === 6 || MAESTRO_AUTHORIZED_EMAILS.includes(userData.email?.toLowerCase().trim() || '')) {
-      console.log('🔍 Acceso completo - Mostrando todos los dashboards');
+    if (userLevel === 0 || userLevel === 6 || isAuthorizedEmail) {
       return dashboardOptions;
     }
     
     // Para otros roles, solo mostrar su nivel y los inferiores
-    const accessibleOptions = dashboardOptions.filter(option => option.level <= userLevel);
-    console.log('🔍 Acceso limitado - Dashboards accesibles:', accessibleOptions.length);
-    return accessibleOptions;
-  };
-
-  const accessibleDashboards = getUserAccessibleDashboards();
+    return dashboardOptions.filter(option => option.level <= userLevel);
+  }, [userData.user_level, isAuthorizedEmail]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#121212] via-[#1a1a1a] to-[#0f0f0f]">
@@ -288,7 +271,7 @@ export default function MaestroDashboardSelectionPage() {
               <div className="w-16 h-16 relative">
                 <Image
                   src={
-                    userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())
+                    isAuthorizedEmail
                       ? '/images/insignias/6-founder.png'
                       : `/images/insignias/${userData.user_level || 1}-${getLevelName(userData.user_level || 1).toLowerCase()}s.png`
                   }
@@ -301,7 +284,7 @@ export default function MaestroDashboardSelectionPage() {
               </div>
               <div className="text-center">
                 <h3 className={`text-xl font-semibold ${
-                  userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim())
+                  isAuthorizedEmail
                     ? 'text-orange-500' // Naranja para Fundadores
                     : 'text-white'
                 }`}>
