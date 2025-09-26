@@ -197,8 +197,8 @@ export default function UsersPage() {
         console.log('✅ [USERS] Sesión refrescada exitosamente');
       }
       
-      console.log('🔍 [USERS] Token presente:', !!session.access_token);
-      console.log('🔍 [USERS] Token length:', session.access_token.length);
+      console.log('🔍 [USERS] Token presente:', !!session?.access_token);
+      console.log('🔍 [USERS] Token length:', session?.access_token?.length || 0);
       
       // Crear AbortController para timeout
       const controller = new AbortController();
@@ -209,7 +209,7 @@ export default function UsersPage() {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          'Authorization': `Bearer ${session?.access_token}`
         },
         signal: controller.signal
       });
@@ -345,7 +345,7 @@ export default function UsersPage() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          'Authorization': `Bearer ${session?.access_token}`
         },
         body: JSON.stringify({
           action: 'create_user',
@@ -378,7 +378,7 @@ export default function UsersPage() {
               method: 'GET',
               headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session.access_token}`
+                'Authorization': `Bearer ${session?.access_token}`
               }
             });
             
@@ -422,7 +422,7 @@ export default function UsersPage() {
         throw new Error('No hay sesión activa');
       }
       
-      console.log('🗑️ Frontend - Token de sesión obtenido:', session.access_token ? 'Sí' : 'No');
+      console.log('🗑️ Frontend - Token de sesión obtenido:', session?.access_token ? 'Sí' : 'No');
       console.log('🗑️ Frontend - Enviando request a /api/maestro/users');
       
       const requestBody = {
@@ -436,7 +436,7 @@ export default function UsersPage() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          'Authorization': `Bearer ${session?.access_token}`
         },
         body: JSON.stringify(requestBody)
       });
@@ -462,7 +462,7 @@ export default function UsersPage() {
               method: 'GET',
               headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session.access_token}`
+                'Authorization': `Bearer ${session?.access_token}`
               }
             });
             
@@ -1116,7 +1116,7 @@ export default function UsersPage() {
                       method: 'POST',
                       headers: { 
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${session.access_token}`
+                        'Authorization': `Bearer ${session?.access_token}`
                       },
                       body: JSON.stringify(requestData)
                     });
