@@ -200,10 +200,11 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Inicialización con Supabase - CON TIMEOUT GLOBAL
+  // Inicialización con Supabase - CON PREVENCIÓN TOTAL DE BUCLES
   useEffect(() => {
     let isMounted = true;
     let timeoutId: NodeJS.Timeout;
+    let authStateChangeSubscription: any = null;
     
     const initializeAuth = async () => {
       if (isInitializing) {
@@ -338,54 +339,58 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           setLoading(false);
           setReady(true);
           setIsInitializing(false);
+          
+          // Solo DESPUÉS de la inicialización, activar el listener de auth state changes
+          console.log('🔍 AuthContext: Setting up auth state change listener...');
+          const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            async (event, session) => {
+              console.log('🔄 AuthContext: Auth state change:', event);
+              
+              if (isMounted) {
+                if (event === 'SIGNED_IN' && session?.user) {
+                  console.log('✅ AuthContext: User signed in:', session.user.email);
+                  setUser(session.user);
+                  
+                  // Guardar email en localStorage para fallback
+                  if (session.user.email) {
+                    localStorage.setItem('crypto-force-user-email', session.user.email);
+                  }
+                  
+                  // Solo intentar obtener datos si no los tenemos ya
+                  if (!userData) {
+                    const userData = await fetchUserData(session.user.id);
+                    if (userData && isMounted) {
+                      setUserData(userData);
+                    } else if (isMounted) {
+                      const basicUserData = await createBasicUserData(session.user);
+                      setUserData(basicUserData);
+                    }
+                  }
+                } else if (event === 'SIGNED_OUT') {
+                  console.log('🚪 AuthContext: User signed out');
+                  setUser(null);
+                  setUserData(null);
+                  localStorage.removeItem('crypto-force-user-email');
+                }
+                
+                setLoading(false);
+                setReady(true);
+              }
+            }
+          );
+          
+          authStateChangeSubscription = subscription;
         }
       }
     };
 
     initializeAuth();
 
-    // Escuchar cambios en la autenticación - CON PREVENCIÓN DE BUCLES
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('🔄 AuthContext: Auth state change:', event);
-        
-        // Solo procesar si no estamos ya en el proceso de inicialización
-        if (isMounted && !isInitializing) {
-          if (event === 'SIGNED_IN' && session?.user) {
-            console.log('✅ AuthContext: User signed in:', session.user.email);
-            setUser(session.user);
-            
-            // Guardar email en localStorage para fallback
-            if (session.user.email) {
-              localStorage.setItem('crypto-force-user-email', session.user.email);
-            }
-            
-            // Solo intentar obtener datos si no los tenemos ya
-            if (!userData) {
-              const userData = await fetchUserData(session.user.id);
-              if (userData && isMounted) {
-                setUserData(userData);
-              } else if (isMounted) {
-                const basicUserData = await createBasicUserData(session.user);
-                setUserData(basicUserData);
-              }
-            }
-          } else if (event === 'SIGNED_OUT') {
-            console.log('🚪 AuthContext: User signed out');
-            setUser(null);
-            setUserData(null);
-            localStorage.removeItem('crypto-force-user-email');
-          }
-          
-          setLoading(false);
-          setReady(true);
-        }
-      }
-    );
-
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
+      if (authStateChangeSubscription) {
+        authStateChangeSubscription.unsubscribe();
+      }
     };
   }, []);
 
