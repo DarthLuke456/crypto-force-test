@@ -15,8 +15,15 @@ function MaestroLayoutContent({
   const { userData, isReady } = useSafeAuth();
   const router = useRouter();
 
+  // Debug logging
+  console.log('🔍 MaestroLayout: isReady:', isReady);
+  console.log('🔍 MaestroLayout: userData:', userData);
+  console.log('🔍 MaestroLayout: userData?.email:', userData?.email);
+  console.log('🔍 MaestroLayout: userData?.user_level:', userData?.user_level);
+
   // Si no está listo, mostrar loading
   if (!isReady) {
+    console.log('🔍 MaestroLayout: Not ready, showing loading');
     return (
       <div className="min-h-screen bg-[#121212] flex items-center justify-center">
         <LoadingSpinner message="Cargando..." />
@@ -26,6 +33,7 @@ function MaestroLayoutContent({
 
   // Si no hay datos del usuario, redirigir a login
   if (!userData) {
+    console.log('🔍 MaestroLayout: No userData, redirecting to login');
     router.replace('/login/signin');
     return (
       <div className="min-h-screen bg-[#121212] flex items-center justify-center">
@@ -40,6 +48,12 @@ function MaestroLayoutContent({
   const isLevel0 = userData.user_level === 0;
   const isLevel6 = userData.user_level === 6;
   const hasAccess = isAuthorizedEmail || isLevel0 || isLevel6;
+
+  console.log('🔍 MaestroLayout: userEmail:', userEmail);
+  console.log('🔍 MaestroLayout: isAuthorizedEmail:', isAuthorizedEmail);
+  console.log('🔍 MaestroLayout: isLevel0:', isLevel0);
+  console.log('🔍 MaestroLayout: isLevel6:', isLevel6);
+  console.log('🔍 MaestroLayout: hasAccess:', hasAccess);
 
   // Si no tiene acceso, mostrar error
   if (!hasAccess) {
