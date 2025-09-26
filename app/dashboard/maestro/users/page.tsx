@@ -107,7 +107,7 @@ const getLevelColor = (userLevel: number): string => {
 // Función para obtener el nombre del nivel
 const getLevelName = (userLevel: number): string => {
   switch (userLevel) {
-    case 0: return 'Maestro';
+    case 0: return 'Fundador';
     case 1: return 'Iniciado';
     case 2: return 'Acólito';
     case 3: return 'Warrior';

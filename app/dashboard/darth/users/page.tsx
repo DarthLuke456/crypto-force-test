@@ -56,6 +56,7 @@ interface EditUserData {
 // Función para obtener la insignia según el nivel
 const getBadgeImage = (userLevel: number): string => {
   switch (userLevel) {
+    case 0: return '/images/insignias/6-founder.png'; // Fundador
     case 1: return '/images/insignias/1-iniciados.png';
     case 2: return '/images/insignias/2-acolitos.png';
     case 3: return '/images/insignias/3-warriors.png';
@@ -69,6 +70,7 @@ const getBadgeImage = (userLevel: number): string => {
 // Función para obtener el color según el nivel
 const getLevelColor = (userLevel: number): string => {
   switch (userLevel) {
+    case 0: return 'text-orange-400 bg-orange-400/10 border-orange-400/20'; // Fundador - Orange
     case 1: return 'text-green-400 bg-green-400/10 border-green-400/20';
     case 2: return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
     case 3: return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
@@ -82,6 +84,7 @@ const getLevelColor = (userLevel: number): string => {
 // Función para obtener el nombre del nivel
 const getLevelName = (userLevel: number): string => {
   switch (userLevel) {
+    case 0: return 'Fundador';
     case 1: return 'Iniciado';
     case 2: return 'Acólito';
     case 3: return 'Warrior';
