@@ -70,23 +70,29 @@ export function canEditField(email: string, fieldName: string, currentUserEmail?
   const isProtectedFounder = PROTECTED_FOUNDER_EMAILS.includes(email.toLowerCase().trim());
   const isCurrentUserFounder = currentUserEmail && PROTECTED_FOUNDER_EMAILS.includes(currentUserEmail.toLowerCase().trim());
   
+  // Si no es un usuario fundador, permitir edición de todos los campos
   if (!isProtectedFounder) {
-    return true; // Usuarios no fundadores pueden editar todos los campos
+    return true;
   }
   
   // Si es un fundador editando a otro fundador, permitir edición de campos no críticos
   if (isCurrentUserFounder && isProtectedFounder && email !== currentUserEmail) {
-    const criticalFields = ['user_level', 'referral_code', 'nickname'];
+    const criticalFields = ['user_level', 'referral_code', 'nickname', 'total_referrals'];
     return !criticalFields.includes(fieldName);
   }
   
   // Si es un fundador editándose a sí mismo, no puede editar campos críticos
   if (isProtectedFounder && email === currentUserEmail) {
-    const criticalFields = ['user_level', 'referral_code', 'nickname'];
+    const criticalFields = ['user_level', 'referral_code', 'nickname', 'total_referrals'];
     return !criticalFields.includes(fieldName);
   }
   
+  // Si no es un fundador actual, no puede editar información de fundadores
+  if (!isCurrentUserFounder && isProtectedFounder) {
+    return false;
+  }
+  
   // Campos protegidos para fundadores
-  const protectedFields = ['user_level', 'referral_code', 'nickname'];
+  const protectedFields = ['user_level', 'referral_code', 'nickname', 'total_referrals'];
   return !protectedFields.includes(fieldName);
 }

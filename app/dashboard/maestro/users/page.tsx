@@ -1248,7 +1248,10 @@ export default function UsersPage() {
                             : 'bg-[#1a1a1a] text-white border-[#4a4a4a] focus:border-[#ec4d58]'
                         }`}
                       >
-                        <option value={0}>Fundador ⭐</option>
+                        {/* Solo mostrar "Fundador" si el usuario ya es fundador */}
+                        {editingUser.user_level === 0 && (
+                          <option value={0}>Fundador ⭐</option>
+                        )}
                         <option value={1}>Iniciado</option>
                         <option value={2}>Acólito</option>
                         <option value={3}>Warrior</option>

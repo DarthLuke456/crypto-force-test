@@ -1,7 +1,7 @@
--- Script para actualizar la protección de fundadores
--- Permite que los fundadores editen información de otros fundadores (excepto campos críticos)
+-- Script para reactivar la protección de fundadores con la nueva lógica
+-- Permite edición entre fundadores pero protege campos críticos
 
--- 1. Actualizar la función de protección para permitir edición entre fundadores
+-- 1. Crear función de protección actualizada
 CREATE OR REPLACE FUNCTION check_founder_protection()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -37,8 +37,23 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 2. Verificar que la protección esté activa
-SELECT 'Estado de protección actualizado' as check_type;
+-- 2. Crear trigger con la nueva lógica
+CREATE TRIGGER founder_protection_trigger
+    BEFORE UPDATE ON public.users
+    FOR EACH ROW
+    EXECUTE FUNCTION check_founder_protection();
+
+-- 3. Verificar que la protección esté activa
+SELECT 'Protección reactivada con nueva lógica' as status;
+SELECT 
+    trigger_name,
+    event_manipulation,
+    action_timing
+FROM information_schema.triggers 
+WHERE trigger_name = 'founder_protection_trigger';
+
+-- 4. Mostrar el estado de los usuarios fundadores
+SELECT 'Estado de usuarios fundadores' as check_type;
 SELECT 
     email,
     nickname,
@@ -49,12 +64,3 @@ SELECT
 FROM public.users 
 WHERE email IN ('coeurdeluke.js@gmail.com', 'infocryptoforce@gmail.com')
 ORDER BY email;
-
--- 3. Verificar que los triggers estén activos
-SELECT 'Triggers de protección activos' as check_type;
-SELECT 
-    trigger_name,
-    event_manipulation,
-    action_timing
-FROM information_schema.triggers 
-WHERE trigger_name = 'founder_protection_trigger';
