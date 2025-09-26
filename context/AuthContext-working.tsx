@@ -358,13 +358,25 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
                   
                   // Solo intentar obtener datos si no los tenemos ya
                   if (!userData) {
-                    const userData = await fetchUserData(session.user.id);
-                    if (userData && isMounted) {
-                      setUserData(userData);
-                    } else if (isMounted) {
-                      const basicUserData = await createBasicUserData(session.user);
-                      setUserData(basicUserData);
+                    console.log('🔍 AuthContext: No userData found, fetching...');
+                    try {
+                      const userData = await fetchUserData(session.user.id);
+                      if (userData && isMounted) {
+                        setUserData(userData);
+                      } else if (isMounted) {
+                        const basicUserData = await createBasicUserData(session.user);
+                        setUserData(basicUserData);
+                      }
+                    } catch (error) {
+                      console.warn('⚠️ AuthContext: Error in auth state change fetchUserData:', error);
+                      // Don't throw, just use basic data
+                      if (isMounted) {
+                        const basicUserData = await createBasicUserData(session.user);
+                        setUserData(basicUserData);
+                      }
                     }
+                  } else {
+                    console.log('🔍 AuthContext: UserData already exists, skipping fetch');
                   }
                 } else if (event === 'SIGNED_OUT') {
                   console.log('🚪 AuthContext: User signed out');
