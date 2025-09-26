@@ -1,20 +1,24 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSafeAuth } from '@/context/AuthContext-working';
 import { getHighestLevelDashboard } from '@/utils/dashboardUtils';
 
 export default function Dashboard() {
   const { userData, isReady } = useSafeAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (isReady) {
       // Get the appropriate dashboard based on user level
       const dashboardPath = getHighestLevelDashboard(userData);
       console.log('🔍 Dashboard: Redirecting to:', dashboardPath);
-      window.location.href = dashboardPath;
+      
+      // Use router.push instead of window.location.href to avoid full page reload
+      router.push(dashboardPath);
     }
-  }, [isReady, userData]);
+  }, [isReady, userData, router]);
 
   return (
     <div className="min-h-screen bg-[#121212] flex items-center justify-center">

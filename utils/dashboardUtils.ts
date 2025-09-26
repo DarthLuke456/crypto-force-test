@@ -31,13 +31,20 @@ export const LEVEL_TO_DASHBOARD = {
  * @returns Ruta del dashboard de nivel más alto
  */
 export function getHighestLevelDashboard(userData: UserData | null): string {
+  console.log('🔍 getHighestLevelDashboard - Called with userData:', userData);
+  
   if (!userData) {
     console.log('🔍 getHighestLevelDashboard - No hay userData, retornando iniciado');
     return '/dashboard/iniciado';
   }
 
+  console.log('🔍 getHighestLevelDashboard - userData.email:', userData.email);
+  console.log('🔍 getHighestLevelDashboard - userData.user_level:', userData.user_level);
+  console.log('🔍 getHighestLevelDashboard - MAESTRO_AUTHORIZED_EMAILS:', MAESTRO_AUTHORIZED_EMAILS);
+
   // Verificar si es usuario fundador por email
   const isFundadorByEmail = userData.email && MAESTRO_AUTHORIZED_EMAILS.includes(userData.email.toLowerCase().trim());
+  console.log('🔍 getHighestLevelDashboard - isFundadorByEmail:', isFundadorByEmail);
   
   if (isFundadorByEmail) {
     console.log('👑 getHighestLevelDashboard - Usuario fundador detectado, retornando maestro');
