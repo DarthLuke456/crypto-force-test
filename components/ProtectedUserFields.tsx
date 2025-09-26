@@ -66,11 +66,24 @@ export function useIsProtectedFounder(email: string): boolean {
 }
 
 // Función para validar si un campo puede ser editado
-export function canEditField(email: string, fieldName: string): boolean {
+export function canEditField(email: string, fieldName: string, currentUserEmail?: string): boolean {
   const isProtectedFounder = PROTECTED_FOUNDER_EMAILS.includes(email.toLowerCase().trim());
+  const isCurrentUserFounder = currentUserEmail && PROTECTED_FOUNDER_EMAILS.includes(currentUserEmail.toLowerCase().trim());
   
   if (!isProtectedFounder) {
     return true; // Usuarios no fundadores pueden editar todos los campos
+  }
+  
+  // Si es un fundador editando a otro fundador, permitir edición de campos no críticos
+  if (isCurrentUserFounder && isProtectedFounder && email !== currentUserEmail) {
+    const criticalFields = ['user_level', 'referral_code', 'nickname'];
+    return !criticalFields.includes(fieldName);
+  }
+  
+  // Si es un fundador editándose a sí mismo, no puede editar campos críticos
+  if (isProtectedFounder && email === currentUserEmail) {
+    const criticalFields = ['user_level', 'referral_code', 'nickname'];
+    return !criticalFields.includes(fieldName);
   }
   
   // Campos protegidos para fundadores

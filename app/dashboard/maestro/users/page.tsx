@@ -1234,16 +1234,16 @@ export default function UsersPage() {
                     <div>
                       <label className="block text-sm font-medium text-[#a0a0a0] mb-1">
                         Nivel de Usuario
-                        {!canEditField(editingUser.email, 'user_level') && (
+                        {!canEditField(editingUser.email, 'user_level', userData?.email) && (
                           <span className="text-orange-400 ml-2">🔒 Protegido</span>
                         )}
                       </label>
                       <select
                         value={editingUser.user_level}
                         onChange={(e) => setEditingUser({...editingUser, user_level: parseInt(e.target.value)})}
-                        disabled={lockState.isLocked || !canEditField(editingUser.email, 'user_level')}
+                        disabled={lockState.isLocked || !canEditField(editingUser.email, 'user_level', userData?.email)}
                         className={`w-full px-3 py-2 rounded-lg border focus:outline-none ${
-                          lockState.isLocked || !canEditField(editingUser.email, 'user_level')
+                          lockState.isLocked || !canEditField(editingUser.email, 'user_level', userData?.email)
                             ? 'bg-gray-800 text-gray-500 border-gray-600 cursor-not-allowed'
                             : 'bg-[#1a1a1a] text-white border-[#4a4a4a] focus:border-[#ec4d58]'
                         }`}
@@ -1256,26 +1256,30 @@ export default function UsersPage() {
                         <option value={5}>Darth</option>
                         <option value={6}>Maestro</option>
                       </select>
-                      {!canEditField(editingUser.email, 'user_level') && (
-                        <p className="text-xs text-orange-400 mt-1">🔒 Campo protegido para usuarios fundadores</p>
+                      {!canEditField(editingUser.email, 'user_level', userData?.email) && (
+                        <p className="text-xs text-orange-400 mt-1">
+                          {editingUser.email === userData?.email 
+                            ? '🔒 No puedes modificar tu propio nivel de usuario'
+                            : '🔒 Campo protegido para usuarios fundadores'
+                          }
+                        </p>
                       )}
                       {(editingUser.email === 'coeurdeluke.js@gmail.com' || editingUser.email === 'infocryptoforce@gmail.com') && editingUser.user_level === 0 && (
                         <p className="text-xs text-[#FF8C42] mt-1">⭐ Fundador</p>
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-[#a0a0a0] mb-1">Total Referidos</label>
+                      <label className="block text-sm font-medium text-[#a0a0a0] mb-1">
+                        Total Referidos
+                        <span className="text-orange-400 ml-2">🔒 No Editable</span>
+                      </label>
                       <input
                         type="number"
                         value={editingUser.total_referrals}
-                        onChange={(e) => setEditingUser({...editingUser, total_referrals: parseInt(e.target.value) || 0})}
-                        disabled={lockState.isLocked}
-                        className={`w-full px-3 py-2 rounded-lg border focus:outline-none ${
-                          lockState.isLocked
-                            ? 'bg-gray-800 text-gray-500 border-gray-600 cursor-not-allowed'
-                            : 'bg-[#1a1a1a] text-white border-[#4a4a4a] focus:border-[#ec4d58]'
-                        }`}
+                        disabled={true}
+                        className="w-full px-3 py-2 rounded-lg border bg-gray-800 text-gray-500 border-gray-600 cursor-not-allowed focus:outline-none"
                       />
+                      <p className="text-xs text-orange-400 mt-1">🔒 Este campo es calculado automáticamente por el sistema</p>
                     </div>
                   </div>
                   
