@@ -178,20 +178,23 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Inicialización con Supabase
+  // Inicialización con Supabase - SIMPLIFICADA
   useEffect(() => {
+    let isMounted = true;
+    
     const initializeAuth = async () => {
       try {
         console.log('🔄 AuthContext: Initializing authentication...');
         
-        // Obtener sesión actual sin timeout para evitar problemas
+        // Obtener sesión actual
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.warn('⚠️ AuthContext: Session error:', sessionError);
         }
         
-        if (session?.user) {
+        if (session?.user && isMounted) {
+          console.log('✅ AuthContext: Session found, user:', session.user.email);
           setUser(session.user);
           
           // Guardar email en localStorage para fallback
@@ -202,64 +205,15 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           // Intentar obtener datos del usuario desde la base de datos
           const userData = await fetchUserData(session.user.id);
           
-          if (userData) {
+          if (userData && isMounted) {
+            console.log('✅ AuthContext: User data loaded from database');
             setUserData(userData);
-          } else {
-            // Si no hay datos en la base de datos, crear datos básicos
-            console.log('⚠️ AuthContext: No user data found in database, creating basic user data');
+          } else if (isMounted) {
+            console.log('⚠️ AuthContext: No user data found, creating basic data');
             const basicUserData = await createBasicUserData(session.user);
             setUserData(basicUserData);
-            
-            // Intentar crear el usuario en la base de datos
-            try {
-              const { error: createError } = await supabase
-                .from('users')
-                .insert({
-                  email: session.user.email,
-                  uid: session.user.id,
-                  nickname: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuario',
-                  user_level: basicUserData.user_level,
-                  referral_code: basicUserData.referral_code,
-                  referred_by: basicUserData.referred_by,
-                  created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString()
-                });
-              
-              if (createError) {
-                console.warn('⚠️ AuthContext: Error creating user in database:', createError);
-              } else {
-                console.log('✅ AuthContext: User created in database successfully');
-                
-                // If user was referred by someone, increment their referral count
-                if (basicUserData.referred_by) {
-                  try {
-                    const { data: currentUser, error: fetchError } = await supabase
-                      .from('users')
-                      .select('total_referrals')
-                      .eq('id', basicUserData.referred_by)
-                      .single();
-                    
-                    if (!fetchError && currentUser) {
-                      await supabase
-                        .from('users')
-                        .update({ 
-                          total_referrals: (currentUser.total_referrals || 0) + 1,
-                          updated_at: new Date().toISOString()
-                        })
-                        .eq('id', basicUserData.referred_by);
-                      
-                      console.log('✅ Referral count updated for referrer');
-                    }
-                  } catch (error) {
-                    console.warn('⚠️ Error updating referral count:', error);
-                  }
-                }
-              }
-            } catch (error) {
-              console.warn('⚠️ AuthContext: Error creating user in database:', error);
-            }
           }
-        } else {
+        } else if (isMounted) {
           console.log('⚠️ AuthContext: No session found, checking for stored email...');
           // Si no hay sesión, crear datos básicos para usuarios autorizados
           const authorizedEmails = ['coeurdeluke.js@gmail.com', 'coeurdeluke@gmail.com', 'infocryptoforce@gmail.com'];
@@ -282,163 +236,43 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
             
             setUser(mockUser);
             
-            // Try to fetch real data from database immediately
-            console.log('🔄 AuthContext: Attempting to fetch real data from database...');
+            // Try to fetch real data from database
             const realUserData = await supabase
               .from('users')
               .select('*')
               .eq('email', storedEmail)
               .single();
             
-            if (realUserData.data) {
-              console.log('✅ AuthContext: Found real user data in database:', realUserData.data);
+            if (realUserData.data && isMounted) {
+              console.log('✅ AuthContext: Found real user data in database');
               setUserData(realUserData.data);
-            } else {
+            } else if (isMounted) {
               console.log('⚠️ AuthContext: No real data found, using fallback');
               const basicUserData = await createBasicUserData(mockUser);
               setUserData(basicUserData);
-              
-              // Try to create user in database
-              try {
-                const { error: createError } = await supabase
-                  .from('users')
-                  .insert({
-                    email: mockUser.email,
-                    uid: mockUser.id,
-                    nickname: mockUser.email?.split('@')[0] || 'Usuario',
-                    user_level: basicUserData.user_level,
-                    referral_code: basicUserData.referral_code,
-                    referred_by: basicUserData.referred_by,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString()
-                  });
-                
-                if (!createError && basicUserData.referred_by) {
-                  // Update referrer's count
-                  try {
-                    const { data: currentUser, error: fetchError } = await supabase
-                      .from('users')
-                      .select('total_referrals')
-                      .eq('id', basicUserData.referred_by)
-                      .single();
-                    
-                    if (!fetchError && currentUser) {
-                      await supabase
-                        .from('users')
-                        .update({ 
-                          total_referrals: (currentUser.total_referrals || 0) + 1,
-                          updated_at: new Date().toISOString()
-                        })
-                        .eq('id', basicUserData.referred_by);
-                    }
-                  } catch (error) {
-                    console.warn('⚠️ Error updating referral count:', error);
-                  }
-                }
-              } catch (error) {
-                console.warn('⚠️ Error creating user in database:', error);
-              }
             }
           }
         }
       } catch (error) {
         console.error('❌ AuthContext: Error initializing auth:', error);
-        
-        // Try to recover with stored email
-        const storedEmail = localStorage.getItem('crypto-force-user-email');
-        if (storedEmail) {
-          console.log('🔄 AuthContext: Attempting recovery with stored email:', storedEmail);
-          
-          const authorizedEmails = ['coeurdeluke.js@gmail.com', 'coeurdeluke@gmail.com', 'infocryptoforce@gmail.com'];
-          if (authorizedEmails.includes(storedEmail)) {
-            console.log('✅ AuthContext: Using fallback for authorized email:', storedEmail);
-            
-            const mockUser: User = {
-              id: `fallback-${Date.now()}`,
-              email: storedEmail,
-              created_at: new Date().toISOString(),
-              aud: 'authenticated',
-              role: 'authenticated',
-              updated_at: new Date().toISOString(),
-              app_metadata: {},
-              user_metadata: {},
-              identities: [],
-              factors: []
-            };
-            
-            setUser(mockUser);
-            
-            // Try to fetch real data from database even with fallback user
-            console.log('🔄 AuthContext: Attempting to fetch real data from database...');
-            const realUserData = await supabase
-              .from('users')
-              .select('*')
-              .eq('email', storedEmail)
-              .single();
-            
-            if (realUserData.data) {
-              console.log('✅ AuthContext: Found real user data in database:', realUserData.data);
-              setUserData(realUserData.data);
-            } else {
-              console.log('⚠️ AuthContext: No real data found, using fallback');
-              const basicUserData = await createBasicUserData(mockUser);
-              setUserData(basicUserData);
-              
-              // Try to create user in database
-              try {
-                const { error: createError } = await supabase
-                  .from('users')
-                  .insert({
-                    email: mockUser.email,
-                    uid: mockUser.id,
-                    nickname: mockUser.email?.split('@')[0] || 'Usuario',
-                    user_level: basicUserData.user_level,
-                    referral_code: basicUserData.referral_code,
-                    referred_by: basicUserData.referred_by,
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString()
-                  });
-                
-                if (!createError && basicUserData.referred_by) {
-                  // Update referrer's count
-                  try {
-                    const { data: currentUser, error: fetchError } = await supabase
-                      .from('users')
-                      .select('total_referrals')
-                      .eq('id', basicUserData.referred_by)
-                      .single();
-                    
-                    if (!fetchError && currentUser) {
-                      await supabase
-                        .from('users')
-                        .update({ 
-                          total_referrals: (currentUser.total_referrals || 0) + 1,
-                          updated_at: new Date().toISOString()
-                        })
-                        .eq('id', basicUserData.referred_by);
-                    }
-                  } catch (error) {
-                    console.warn('⚠️ Error updating referral count:', error);
-                  }
-                }
-              } catch (error) {
-                console.warn('⚠️ Error creating user in database:', error);
-              }
-            }
-          }
-        }
       } finally {
-        setLoading(false);
-        setReady(true);
+        if (isMounted) {
+          console.log('✅ AuthContext: Initialization complete, setting ready state');
+          setLoading(false);
+          setReady(true);
+        }
       }
     };
 
     initializeAuth();
 
-    // Escuchar cambios en la autenticación
+    // Escuchar cambios en la autenticación - SIMPLIFICADO
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (event === 'SIGNED_IN' && session?.user) {
+        console.log('🔄 AuthContext: Auth state change:', event);
+        
+        if (event === 'SIGNED_IN' && session?.user && isMounted) {
+          console.log('✅ AuthContext: User signed in:', session.user.email);
           setUser(session.user);
           
           // Guardar email en localStorage para fallback
@@ -447,65 +281,30 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           }
           
           const userData = await fetchUserData(session.user.id);
-          if (userData) {
+          if (userData && isMounted) {
             setUserData(userData);
-          } else {
+          } else if (isMounted) {
             const basicUserData = await createBasicUserData(session.user);
             setUserData(basicUserData);
-            
-            // Try to create user in database
-            try {
-              const { error: createError } = await supabase
-                .from('users')
-                .insert({
-                  email: session.user.email,
-                  uid: session.user.id,
-                  nickname: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Usuario',
-                  user_level: basicUserData.user_level,
-                  referral_code: basicUserData.referral_code,
-                  referred_by: basicUserData.referred_by,
-                  created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString()
-                });
-              
-              if (!createError && basicUserData.referred_by) {
-                // Update referrer's count
-                try {
-                  const { data: currentUser, error: fetchError } = await supabase
-                    .from('users')
-                    .select('total_referrals')
-                    .eq('id', basicUserData.referred_by)
-                    .single();
-                  
-                  if (!fetchError && currentUser) {
-                    await supabase
-                      .from('users')
-                      .update({ 
-                        total_referrals: (currentUser.total_referrals || 0) + 1,
-                        updated_at: new Date().toISOString()
-                      })
-                      .eq('id', basicUserData.referred_by);
-                  }
-                } catch (error) {
-                  console.warn('⚠️ Error updating referral count:', error);
-                }
-              }
-            } catch (error) {
-              console.warn('⚠️ Error creating user in database:', error);
-            }
           }
-        } else if (event === 'SIGNED_OUT') {
+        } else if (event === 'SIGNED_OUT' && isMounted) {
+          console.log('🚪 AuthContext: User signed out');
           setUser(null);
           setUserData(null);
           localStorage.removeItem('crypto-force-user-email');
         }
         
-        setLoading(false);
-        setReady(true);
+        if (isMounted) {
+          setLoading(false);
+          setReady(true);
+        }
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
