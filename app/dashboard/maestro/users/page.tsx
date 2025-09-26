@@ -170,14 +170,9 @@ export default function UsersPage() {
       setLoading(true);
       setError(null); // Clear any previous errors
       
-      // Obtener el token de sesión con timeout
+      // Obtener el token de sesión (sin timeout)
       console.log('🔍 [USERS] Obteniendo sesión actual...');
-      const sessionPromise = supabase.auth.getSession();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Session timeout')), 10000)
-      );
-      
-      let { data: { session }, error: sessionError } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       console.log('🔍 [USERS] Sesión actual:', session ? 'Presente' : 'Ausente');
       console.log('🔍 [USERS] Session user:', session?.user?.email);
       console.log('🔍 [USERS] Session error:', sessionError);
