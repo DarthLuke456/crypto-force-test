@@ -17,7 +17,7 @@ import '../styles/dashboard-spinners.css'
 import '../styles/sidebar-hover-fix.css'
 import '../styles/sith-scrollbar.css'
 import '../styles/force-scrollbar.css'
-import { AuthProvider } from '@/context/AuthContext-minimal'
+import { AuthProvider } from '@/context/AuthContext-working'
 import { ProgressProvider } from '@/context/ProgressContext'
 import { ScrollProvider } from '@/context/ScrollContext'
 
