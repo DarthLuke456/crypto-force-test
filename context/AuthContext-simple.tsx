@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabaseClient';
 
 // Tipos
 interface UserData {
@@ -12,12 +13,18 @@ interface UserData {
   nickname: string;
   movil: string;
   exchange: string;
+  avatar: string;
   user_level: number;
   referral_code: string;
   uid: string;
   codigo_referido: string | null;
   referred_by: string | null;
   total_referrals: number;
+  created_at: string;
+  updated_at: string;
+  birthdate: string;
+  country: string;
+  bio: string;
 }
 
 interface AuthContextType {
@@ -25,6 +32,7 @@ interface AuthContextType {
   userData: UserData | null;
   loading: boolean;
   isReady: boolean;
+  refreshUserData: () => Promise<void>;
 }
 
 // Contexto
@@ -33,6 +41,7 @@ const AuthContext = createContext<AuthContextType>({
   userData: null,
   loading: true,
   isReady: false,
+  refreshUserData: async () => {},
 });
 
 // Hook
@@ -40,88 +49,116 @@ export const useAuth = () => useContext(AuthContext);
 
 // Hook simplificado
 export const useSafeAuth = () => {
-  console.log('🔍 [SIMPLE-AUTH] useSafeAuth llamado');
-  const { user, userData, loading, isReady } = useAuth();
-  console.log('🔍 [SIMPLE-AUTH] useSafeAuth retornando:', { user, userData, loading, isReady });
-  return { user, userData, loading, isReady };
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useSafeAuth must be used within an AuthProvider');
+  }
+  return context;
 };
 
-// Provider simple
-function AuthProvider({ children }: { children: React.ReactNode }) {
-  console.log('🔍 [SIMPLE-AUTH] AuthProvider renderizando');
-  console.log('🔍 [SIMPLE-AUTH] AuthProvider renderizando - TIMESTAMP:', new Date().toISOString());
-  
+// Provider SIMPLIFICADO
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isReady, setReady] = useState(false);
-  
-  console.log('🔍 [SIMPLE-AUTH] AuthProvider estado inicial:', { user, userData, loading, isReady });
 
-  // Función para crear datos de usuario básicos
-  const createBasicUserData = (email: string): UserData => {
-    const timestamp = Date.now();
-    return {
-      id: `simple-${timestamp}`,
-      email: email,
-      nombre: '',
-      apellido: '',
-      nickname: email.split('@')[0],
-      movil: '',
-      exchange: '',
-      user_level: email === 'coeurdeluke.js@gmail.com' ? 6 : 1,
-      referral_code: `SIMPLE-${timestamp.toString().slice(-8)}`,
-      uid: `simple-${timestamp}`,
-      codigo_referido: null,
-      referred_by: null,
-      total_referrals: 0
-    };
+  // Función para refrescar datos del usuario
+  const refreshUserData = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', user.email)
+        .single();
+
+      if (data && !error) {
+        setUserData(data);
+      }
+    } catch (error) {
+      console.error('Error refreshing user data:', error);
+    }
   };
 
-  // Inicialización inmediata
+  // Inicialización SIMPLE
   useEffect(() => {
-    console.log('🔍 [SIMPLE-AUTH] useEffect ejecutado');
-    console.log('🔍 [SIMPLE-AUTH] Inicializando autenticación simple');
-    
-    const defaultEmail = 'coeurdeluke.js@gmail.com';
-    const userData = createBasicUserData(defaultEmail);
-    const mockUser: User = {
-      id: `simple-${Date.now()}`,
-      email: defaultEmail,
-      created_at: new Date().toISOString(),
-      aud: 'authenticated',
-      role: 'authenticated',
-      updated_at: new Date().toISOString(),
-      app_metadata: {},
-      user_metadata: {},
-      identities: [],
-      factors: []
+    let mounted = true;
+
+    const initAuth = async () => {
+      try {
+        // Obtener sesión actual
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user && mounted) {
+          setUser(session.user);
+          
+          // Obtener datos del usuario
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', session.user.email)
+            .single();
+
+          if (data && !error && mounted) {
+            setUserData(data);
+          }
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+          setReady(true);
+        }
+      }
     };
-    
-    console.log('✅ [SIMPLE-AUTH] Usuario simulado creado:', mockUser.email);
-    console.log('✅ [SIMPLE-AUTH] Datos del usuario:', userData);
-    
-    setUser(mockUser);
-    setUserData(userData);
-    setLoading(false);
-    setReady(true);
-    
-    console.log('✅ [SIMPLE-AUTH] Inicialización completada');
+
+    initAuth();
+
+    // Listener de cambios de auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (mounted) {
+          if (event === 'SIGNED_IN' && session?.user) {
+            setUser(session.user);
+            
+            const { data } = await supabase
+              .from('users')
+              .select('*')
+              .eq('email', session.user.email)
+              .single();
+
+            if (data) {
+              setUserData(data);
+            }
+          } else if (event === 'SIGNED_OUT') {
+            setUser(null);
+            setUserData(null);
+          }
+          
+          setLoading(false);
+          setReady(true);
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  console.log('🔍 [SIMPLE-AUTH] AuthProvider renderizando con estado final:', { 
-    hasUser: !!user, 
-    hasUserData: !!userData, 
-    loading, 
-    isReady 
-  });
-
   return (
-    <AuthContext.Provider value={{ user, userData, loading, isReady }}>
+    <AuthContext.Provider value={{
+      user,
+      userData,
+      loading,
+      isReady,
+      refreshUserData
+    }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-// Exportar
-export { AuthProvider };
+};

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useSafeAuth } from '@/context/AuthContext-fixed';
+import { useSafeAuth } from '@/context/AuthContext-simple';
 import { supabase } from '@/lib/supabaseClient';
 import { 
   Home, 
