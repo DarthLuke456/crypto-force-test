@@ -90,14 +90,15 @@ export default function ProfileContent() {
     }
     
     // Create a hash of the current userData to check if it has actually changed
-    // Exclude avatar from hash to prevent issues with large base64 strings
+    // Include bio field and exclude avatar to prevent issues with large base64 strings
     const currentUserDataHash = JSON.stringify({
       id: userData.id,
       email: userData.email,
       nombre: userData.nombre,
       apellido: userData.apellido,
       nickname: userData.nickname,
-      user_level: userData.user_level
+      user_level: userData.user_level,
+      bio: userData.bio
       // Excluded avatar to prevent hash issues with large base64 strings
     });
     
@@ -201,6 +202,7 @@ export default function ProfileContent() {
           exchange: cleanedData.exchange,
           avatar: cleanedData.avatar,
           user_level: cleanedData.user_level,
+          bio: cleanedData.bio,
           updated_at: new Date().toISOString()
         })
         .eq('email', session.session.user.email);

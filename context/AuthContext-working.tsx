@@ -115,14 +115,9 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('🔍 AuthContext: Fetching user data for userId:', userId);
       
-      // Get current session first with timeout
+      // Get current session first - REMOVED TIMEOUT TO PREVENT ERRORS
       console.log('🔍 AuthContext: Getting session...');
-      const sessionPromise = supabase.auth.getSession();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Session timeout')), 5000)
-      );
-      
-      const { data: session, error: sessionError } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+      const { data: session, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
         console.error('❌ AuthContext: Session error:', sessionError);
@@ -136,21 +131,15 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
       console.log('🔍 AuthContext: Session found, querying database...');
 
-      // Try with email first (more reliable) with timeout
-      const emailQueryPromise = supabase
+      // Try with email first (more reliable) - REMOVED TIMEOUT TO PREVENT ERRORS
+      const { data: userData, error: userError } = await supabase
         .from('users')
         .select('*')
         .eq('email', session.session.user.email)
         .single();
-      
-      const queryTimeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database query timeout')), 10000)
-      );
-
-      let { data, error } = await Promise.race([emailQueryPromise, queryTimeoutPromise]) as any;
 
       // If email query fails, try with uid as fallback
-      if (error) {
+      if (userError) {
         console.log('🔄 AuthContext: Email query failed, trying with UID:', userId);
         const uidQueryPromise = supabase
           .from('users')
@@ -158,19 +147,29 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('uid', userId)
           .single();
         
-        const uidResult = await Promise.race([uidQueryPromise, queryTimeoutPromise]) as any;
-        data = uidResult.data;
-        error = uidResult.error;
+        const { data: uidData, error: uidError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('uid', userId)
+          .single();
+        
+        if (uidError) {
+          console.error('❌ AuthContext: Both email and UID queries failed');
+          return null;
+        }
+        
+        console.log('✅ AuthContext: User data fetched successfully via UID:', uidData);
+        return uidData;
       }
 
-      if (error) {
-        console.error('❌ AuthContext: Error fetching user data:', error);
-        console.error('❌ AuthContext: Error details:', JSON.stringify(error, null, 2));
+      if (userError) {
+        console.error('❌ AuthContext: Error fetching user data:', userError);
+        console.error('❌ AuthContext: Error details:', JSON.stringify(userError, null, 2));
         return null;
       }
 
-      console.log('✅ AuthContext: User data fetched successfully:', data);
-      return data;
+      console.log('✅ AuthContext: User data fetched successfully:', userData);
+      return userData;
     } catch (error) {
       console.error('❌ AuthContext: Exception in fetchUserData:', error);
       return null;
