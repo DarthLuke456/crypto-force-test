@@ -401,7 +401,8 @@ export default function UsersPage() {
           movil: '',
           exchange: '',
           user_level: 1,
-          referred_by: ''
+          referred_by: '',
+          bio: ''
         });
         
         // Refrescar la lista de usuarios
