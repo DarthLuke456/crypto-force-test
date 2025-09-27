@@ -511,6 +511,32 @@ export default function ProfileContent() {
                     )}
                   </div>
                 </div>
+
+                {/* Bio Field - Full Width */}
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-[#fafafa] mb-2">Biografía</label>
+                  {isEditing ? (
+                    <textarea
+                      value={profileData.bio}
+                      onChange={(e) => handleInputChange('bio', e.target.value)}
+                      placeholder="Cuéntanos algo sobre ti..."
+                      rows={4}
+                      maxLength={500}
+                      className="w-full px-3 py-2 bg-[#121212] border border-[#333] rounded-lg text-[#fafafa] focus:border-[#8a8a8a] focus:outline-none resize-none"
+                    />
+                  ) : (
+                    <div className="bg-[#121212] border border-[#333] rounded-lg p-4">
+                      <p className="text-[#fafafa] italic">
+                        {profileData.bio || 'No hay biografía disponible'}
+                      </p>
+                    </div>
+                  )}
+                  {isEditing && (
+                    <p className="text-xs text-[#8a8a8a] mt-1">
+                      {profileData.bio?.length || 0}/500 caracteres
+                    </p>
+                  )}
+                </div>
               </form>
             </div>
           </div>
