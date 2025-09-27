@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useSafeAuth } from '@/context/AuthContext-simple';
+import { useSafeAuth } from '@/context/AuthContext-minimal';
 
 export default function TestSimplePage() {
   console.log('🔍 [TEST-SIMPLE] Página TestSimple renderizando');
