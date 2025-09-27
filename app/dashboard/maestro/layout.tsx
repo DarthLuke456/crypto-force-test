@@ -1,6 +1,6 @@
 'use client';
 
-import { useSafeAuth } from '@/context/AuthContext-simple';
+import { useSafeAuth } from '@/context/AuthContext-working';
 import { useRouter } from 'next/navigation';
 import MaestroSidebar from '@/components/layout/MaestroSidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
