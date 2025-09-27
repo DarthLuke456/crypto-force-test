@@ -567,14 +567,6 @@ export default function ProfileContent() {
               </div>
             </div>
 
-            {/* Referral Code */}
-            <div className="bg-[#1a1a1a] rounded-xl p-6 border border-[#333]">
-              <h3 className="text-lg font-semibold text-[#fafafa] mb-4">Código de Referido</h3>
-              <div className="bg-[#121212] rounded-lg p-4 border border-[#333]">
-                <p className="text-[#8a8a8a] text-sm mb-2">Tu código de referido:</p>
-                <p className="text-[#fafafa] font-mono text-lg">{profileData.referral_code}</p>
-              </div>
-            </div>
 
             {/* Security */}
             <div className="bg-[#1a1a1a] rounded-xl p-6 border border-[#333]">
