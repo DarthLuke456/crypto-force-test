@@ -8,6 +8,17 @@ let globalAvatarCache: string | null = null;
 let isInitialized = false;
 let avatarListeners = new Set<(avatar: string | null) => void>();
 
+// Function to clear avatar cache (for logout)
+export const clearAvatarCache = () => {
+  console.log('🧹 useAvatarOptimized: Clearing avatar cache');
+  globalAvatarCache = null;
+  isInitialized = false;
+  avatarListeners.clear();
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('user-avatar');
+  }
+};
+
 // Utility functions
 const saveAvatarToStorage = (avatar: string | null) => {
   if (typeof window !== 'undefined') {

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
+import { clearAvatarCache } from '@/hooks/useAvatarOptimized';
 
 // Tipos
 interface UserData {
@@ -381,6 +382,8 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
                   console.log('🚪 AuthContext: User signed out');
                   setUser(null);
                   setUserData(null);
+                  // Clear avatar cache on logout
+                  clearAvatarCache();
                   localStorage.removeItem('crypto-force-user-email');
                 }
                 
