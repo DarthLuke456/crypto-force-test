@@ -881,7 +881,10 @@ export default function DashboardSelectionPage() {
               // Para otros usuarios, usar su nivel real
               const isCurrentLevel = userData?.user_level === 0 ? option.level === 6 : option.level === userLevel;
               
-              // Debug logging removed to prevent re-render loop
+              // Debug logging para Francisco
+              if (userData?.email === 'infocryptoforce@gmail.com') {
+                console.log('🔍 [FRANCISCO DEBUG] Option:', option.title, 'Level:', option.level, 'User Level:', userData.user_level, 'isCurrentLevel:', isCurrentLevel);
+              }
               
               // Determinar el color correcto para este rol
               const getOptionColor = () => {
