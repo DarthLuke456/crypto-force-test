@@ -224,11 +224,23 @@ export default function ProfileContent() {
       await refreshUserData();
       console.log('✅ ProfileContent: refreshUserData completed');
       
+      // Emit user data update event
+      console.log('🔄 ProfileContent: Emitting user data update...');
+      emitUserDataUpdate();
+      console.log('✅ ProfileContent: User data update emitted');
+      
       // Actualizar el estado local
       setProfileData({ ...profileData, ...cleanedData });
       setIsEditing(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 2000);
+      
+      // Force refresh after a short delay
+      setTimeout(async () => {
+        console.log('🔄 ProfileContent: Force refreshing user data...');
+        await refreshUserData();
+        console.log('✅ ProfileContent: Force refresh completed');
+      }, 1000);
       
       console.log('✅ ProfileContent: Perfil actualizado correctamente en BD y localStorage');
     } catch (e) {
@@ -394,17 +406,17 @@ export default function ProfileContent() {
                     Editar
                   </button>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={() => setIsEditing(false)}
-                      className="px-4 py-2 bg-[#333] text-[#fafafa] rounded-lg hover:bg-[#444] transition-colors"
+                      className="w-full sm:w-auto px-4 py-2 bg-[#333] text-[#fafafa] rounded-lg hover:bg-[#444] transition-colors"
                     >
                       Cancelar
                     </button>
                     <button
                       onClick={handleSubmit}
                       disabled={loading}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#8a8a8a] text-[#121212] rounded-lg hover:bg-[#999] transition-colors disabled:opacity-50"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-[#8a8a8a] text-[#121212] rounded-lg hover:bg-[#999] transition-colors disabled:opacity-50"
                       onMouseEnter={() => console.log('🔍 ProfileContent: Button hover - loading:', loading, 'avatarLoading:', avatarLoading)}
                     >
                       {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
