@@ -160,6 +160,7 @@ export default function ProfileContent() {
 
   const saveProfile = async (newData: typeof profileData) => {
     try {
+      console.log('🔍 ProfileContent: saveProfile function started');
       setLoading(true);
       setError(null);
       
@@ -286,6 +287,8 @@ export default function ProfileContent() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔍 ProfileContent: handleSubmit triggered');
+    console.log('🔍 ProfileContent: profileData:', profileData);
     saveProfile(profileData);
   };
 
