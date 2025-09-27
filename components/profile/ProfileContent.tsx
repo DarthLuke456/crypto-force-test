@@ -226,7 +226,11 @@ export default function ProfileContent() {
       
       // Emit user data update event
       console.log('🔄 ProfileContent: Emitting user data update...');
-      emitUserDataUpdate();
+      emitUserDataUpdate({
+        type: 'profile_updated',
+        userId: userData?.id || '',
+        timestamp: new Date().toISOString()
+      });
       console.log('✅ ProfileContent: User data update emitted');
       
       // Actualizar el estado local
