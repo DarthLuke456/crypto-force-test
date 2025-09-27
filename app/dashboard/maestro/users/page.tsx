@@ -42,6 +42,7 @@ interface User {
   referral_code?: string;
   referred_by?: string;
   referrer_nickname?: string;
+  bio?: string;
   referrerInfo?: {
     nombre: string;
     apellido: string;
@@ -76,6 +77,7 @@ interface CreateUserData {
   exchange: string;
   user_level: number;
   referred_by: string;
+  bio: string;
 }
 
 // Función para obtener la insignia según el nivel
@@ -139,7 +141,8 @@ export default function UsersPage() {
     movil: '',
     exchange: '',
     user_level: 1,
-    referred_by: ''
+    referred_by: '',
+    bio: ''
   });
   const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -855,6 +858,11 @@ export default function UsersPage() {
                             <div className="text-xs text-[#6a6a6a] truncate">
                               @{user.nickname}
                             </div>
+                            {user.bio && user.bio.trim() !== '' && (
+                              <div className="text-xs text-[#4a4a4a] truncate mt-1 max-w-[200px]">
+                                {user.bio.length > 50 ? `${user.bio.substring(0, 50)}...` : user.bio}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -1028,6 +1036,11 @@ export default function UsersPage() {
                         {selectedUser.nombre} {selectedUser.apellido}
                       </h3>
                       <p className="text-[#a0a0a0]">@{selectedUser.nickname}</p>
+                      {selectedUser.bio && selectedUser.bio.trim() !== '' && (
+                        <p className="text-[#6a6a6a] text-sm mt-2 italic">
+                          "{selectedUser.bio}"
+                        </p>
+                      )}
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                         (selectedUser.email === 'coeurdeluke.js@gmail.com' || selectedUser.email === 'infocryptoforce@gmail.com') && selectedUser.user_level === 0
                           ? 'text-[#FF8C42] bg-[#FF8C42]/10 border-[#FF8C42]/20'
@@ -1302,6 +1315,24 @@ export default function UsersPage() {
                         }`}
                       />
                     </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-[#a0a0a0] mb-1">Biografía</label>
+                      <textarea
+                        value={editingUser.bio || ''}
+                        onChange={(e) => setEditingUser({...editingUser, bio: e.target.value})}
+                        disabled={lockState.isLocked}
+                        rows={3}
+                        placeholder="Escribe una breve descripción sobre ti..."
+                        className={`w-full px-3 py-2 rounded-lg border focus:outline-none resize-none ${
+                          lockState.isLocked
+                            ? 'bg-gray-800 text-gray-500 border-gray-600 cursor-not-allowed'
+                            : 'bg-[#1a1a1a] text-white border-[#4a4a4a] focus:border-[#ec4d58]'
+                        }`}
+                      />
+                      <p className="text-xs text-[#6a6a6a] mt-1">
+                        Máximo 500 caracteres. Cuéntanos sobre ti, tus intereses o experiencia.
+                      </p>
+                    </div>
                     <div>
                       <label className="block text-sm font-medium text-[#a0a0a0] mb-1">
                         Nivel de Usuario
@@ -1521,6 +1552,24 @@ export default function UsersPage() {
                             : 'bg-[#1a1a1a] text-white border-[#4a4a4a] focus:border-[#ec4d58]'
                         }`}
                       />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-[#a0a0a0] mb-1">Biografía</label>
+                      <textarea
+                        value={creatingUser.bio || ''}
+                        onChange={(e) => setCreatingUser({...creatingUser, bio: e.target.value})}
+                        disabled={lockState.isLocked}
+                        rows={3}
+                        placeholder="Escribe una breve descripción sobre ti..."
+                        className={`w-full px-3 py-2 rounded-lg border focus:outline-none resize-none ${
+                          lockState.isLocked
+                            ? 'bg-gray-800 text-gray-500 border-gray-600 cursor-not-allowed'
+                            : 'bg-[#1a1a1a] text-white border-[#4a4a4a] focus:border-[#ec4d58]'
+                        }`}
+                      />
+                      <p className="text-xs text-[#6a6a6a] mt-1">
+                        Máximo 500 caracteres. Cuéntanos sobre ti, tus intereses o experiencia.
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-[#a0a0a0] mb-1">Nivel de Usuario *</label>

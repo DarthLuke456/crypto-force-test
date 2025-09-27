@@ -133,6 +133,7 @@ export async function GET(request: Request) {
         codigo_referido,
         referred_by,
         total_referrals,
+        bio,
         created_at,
         updated_at
       `)
@@ -359,6 +360,7 @@ export async function POST(request: Request) {
           codigo_referido: userData.codigo_referido || null,
           referred_by: userData.referred_by || null,
           total_referrals: 0,
+          bio: userData.bio || '',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
@@ -393,6 +395,7 @@ export async function POST(request: Request) {
           movil: userData.movil,
           exchange: userData.exchange,
           user_level: userData.user_level,
+          bio: userData.bio,
           updated_at: new Date().toISOString()
         };
         
