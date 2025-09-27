@@ -66,6 +66,7 @@ interface EditUserData {
   referral_code: string;
   referred_by: string;
   total_referrals: number;
+  bio?: string;
 }
 
 interface CreateUserData {
