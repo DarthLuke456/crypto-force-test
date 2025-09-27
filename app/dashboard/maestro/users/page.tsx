@@ -22,7 +22,7 @@ import {
   Plus,
   UserPlus
 } from 'lucide-react';
-import { useSafeAuth } from '@/context/AuthContext-working';
+import { useSafeAuth } from '@/context/AuthContext-minimal';
 import { supabase } from '@/lib/supabaseClient';
 import { useEmergencyLock } from '@/hooks/useEmergencyLock';
 import EmergencyLockButton from '@/components/EmergencyLockButton';
