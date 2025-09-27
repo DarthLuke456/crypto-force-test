@@ -49,6 +49,9 @@ export default function ProfileContent() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Debug loading states
+  console.log('🔍 ProfileContent: Current states - loading:', loading, 'avatarLoading:', avatarLoading);
 
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -395,6 +398,7 @@ export default function ProfileContent() {
                       onClick={handleSubmit}
                       disabled={loading || avatarLoading}
                       className="flex items-center gap-2 px-4 py-2 bg-[#8a8a8a] text-[#121212] rounded-lg hover:bg-[#999] transition-colors disabled:opacity-50"
+                      onMouseEnter={() => console.log('🔍 ProfileContent: Button hover - loading:', loading, 'avatarLoading:', avatarLoading)}
                     >
                       {(loading || avatarLoading) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                       Guardar
