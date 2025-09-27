@@ -180,7 +180,8 @@ export default function ProfileContent() {
         movil: newData.movil || '', 
         exchange: newData.exchange || '',
         avatar: newData.avatar || '/images/default-avatar.png', 
-        user_level: newData.user_level || 1
+        user_level: newData.user_level || 1,
+        bio: newData.bio || ''
       };
       
       console.log('🔍 ProfileContent: Datos limpios:', cleanedData);
