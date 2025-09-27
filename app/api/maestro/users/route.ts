@@ -60,12 +60,16 @@ export async function GET(request: Request) {
     
     // Verificar autenticación
     console.log('🔍 [MAESTRO API] Verificando usuario con token...');
+    console.log('🔍 [MAESTRO API] Token completo:', token);
+    console.log('🔍 [MAESTRO API] Token starts with eyJ:', token?.startsWith('eyJ'));
+    
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     console.log('🔍 [MAESTRO API] Usuario encontrado:', !!user);
     console.log('🔍 [MAESTRO API] User email:', user?.email);
     console.log('🔍 [MAESTRO API] User ID:', user?.id);
     console.log('🔍 [MAESTRO API] Auth error:', authError);
+    console.log('🔍 [MAESTRO API] Auth error message:', authError?.message);
     
     if (authError || !user) {
       console.log('❌ [MAESTRO API] Error de autenticación:', authError);
