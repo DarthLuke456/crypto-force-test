@@ -41,7 +41,7 @@ const getLevelColor = (level: number) => {
 
 export default function ProfileContent() {
   const { userData, refreshUserData } = useSafeAuth();
-  const { avatar: userAvatar, changeAvatar, isLoading: avatarLoading } = useAvatar();
+  const { avatar: userAvatar, changeAvatar, isLoading: avatarLoading, resetLoadingStates } = useAvatar();
   const { stats: referralStats } = useReferralDataSimple();
   const { emitUserDataUpdate } = useUserDataSync();
 
@@ -299,6 +299,13 @@ export default function ProfileContent() {
     setProfileData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Reset avatar loading state when entering edit mode
+  const handleEditClick = () => {
+    console.log('🔍 ProfileContent: Entering edit mode, resetting avatar loading');
+    resetLoadingStates();
+    setIsEditing(true);
+  };
+
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsChangingPassword(true);
@@ -380,7 +387,7 @@ export default function ProfileContent() {
                 <h2 className="text-xl font-semibold text-[#fafafa]">Información Personal</h2>
                 {!isEditing ? (
                   <button
-                    onClick={() => setIsEditing(true)}
+                    onClick={handleEditClick}
                     className="flex items-center gap-2 px-4 py-2 bg-[#8a8a8a] text-[#121212] rounded-lg hover:bg-[#999] transition-colors"
                   >
                     <Edit3 className="h-4 w-4" />

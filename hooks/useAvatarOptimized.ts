@@ -281,11 +281,26 @@ export function useAvatarOptimized() {
     }
   }, [updateAvatar]);
 
+  // Reset loading state when component unmounts or user changes
+  useEffect(() => {
+    return () => {
+      setIsLoading(false);
+      setIsCompressing(false);
+    };
+  }, []);
+
   const refreshAvatar = useCallback(async () => {
     console.log('🔄 useAvatarOptimized: Refreshing avatar...');
     globalAvatarCache = null;
     await loadAvatarFromDatabase();
   }, [loadAvatarFromDatabase]);
+
+  // Manual reset function for loading states
+  const resetLoadingStates = useCallback(() => {
+    console.log('🔄 useAvatarOptimized: Resetting loading states');
+    setIsLoading(false);
+    setIsCompressing(false);
+  }, []);
 
   const forceUpdate = useCallback(() => {
     console.log('🔄 useAvatarOptimized: Force updating avatar...');
@@ -404,6 +419,7 @@ export function useAvatarOptimized() {
     changeAvatar,
     refreshAvatar,
     forceUpdate,
-    reloadAvatar: refreshAvatar
+    reloadAvatar: refreshAvatar,
+    resetLoadingStates
   };
 }
