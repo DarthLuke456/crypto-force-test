@@ -14,11 +14,11 @@ return nickname.replace(/[^A-Z0-9]/g, '').toUpperCase();
 // Función para generar código de referido
 function generateReferralCode(nickname?: string): string {
   if (nickname) {
-    return `CRYPTOFORCE-${cleanNickname(nickname)}`;
+    return `CRYPTOFORCE_${cleanNickname(nickname)}`;
   } else {
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-    return `CRYPTOFORCE-${timestamp}${random}`;
+    return `CRYPTOFORCE_${timestamp}${random}`;
   }
 }
 
